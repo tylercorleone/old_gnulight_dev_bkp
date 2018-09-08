@@ -4,22 +4,22 @@
 #include <float.h>
 
 LightMonitorTask::LightMonitorTask(AdvancedLightDriver *pAdvLightDriver) :
-		pAdvLightDriver(pAdvLightDriver), Task(MsToTaskTime(LIGHT_LEVEL_MONITORING_INTERVAL_MS)) {
+		pAdvLightDriver(pAdvLightDriver), Task(MsToTaskTime(LIGHT_LEVEL_MONITORING_INTERVAL_MS)), Dimmable(1.0f) {
 }
 
 bool LightMonitorTask::OnStart() {
 	temperatureErrorIntegral = 0.0f;
 	temperatureError_1 = temperatureError_2 = FLT_MAX;
-	pAdvLightDriver->maxRelativeCurrent = calculateMaxRelativeCurrent();
+	pAdvLightDriver->setDimmableMaxValue(calculateMaxRelativeCurrent());
 }
 
 void LightMonitorTask::OnUpdate(uint32_t deltaTime) {
-	pAdvLightDriver->maxRelativeCurrent = calculateMaxRelativeCurrent();
+	pAdvLightDriver->setDimmableMaxValue(calculateMaxRelativeCurrent());
 	float currentLevel = pAdvLightDriver->LightDriver::getPotentiometerLevel();
-	if (currentLevel > pAdvLightDriver->maxRelativeCurrent) {
-		pAdvLightDriver->LightDriver::setPotentiometerLevel(pAdvLightDriver->maxRelativeCurrent);
-	} else if (currentLevel < pAdvLightDriver->targetCurrentLevel && currentLevel != pAdvLightDriver->maxRelativeCurrent) {
-		pAdvLightDriver->LightDriver::setPotentiometerLevel(min(pAdvLightDriver->targetCurrentLevel, pAdvLightDriver->maxRelativeCurrent));
+	if (currentLevel > pAdvLightDriver->getDimmableMaxValue()) {
+		pAdvLightDriver->LightDriver::setPotentiometerLevel(pAdvLightDriver->getDimmableMaxValue());
+	} else if (currentLevel < pAdvLightDriver->targetCurrentLevel && currentLevel != pAdvLightDriver->getDimmableMaxValue()) {
+		pAdvLightDriver->LightDriver::setPotentiometerLevel(min(pAdvLightDriver->targetCurrentLevel, pAdvLightDriver->getDimmableMaxValue()));
 	}
 }
 
@@ -33,12 +33,12 @@ float LightMonitorTask::calculateMaxRelativeCurrent() {
 		currentToTemperatureTarget = actualCurrent * (1.0f + 0.5f * temperaturePIControlVariable);
 		trace("currentToTemperatureTarget " + currentToTemperatureTarget);
 	}
-	return min(currentToTemperatureTarget, pAdvLightDriver->battery->getMaxRelativeCurrent());
+	return min(currentToTemperatureTarget, getDimmableMaxValue());
 }
 
 float LightMonitorTask::getTemperaturePIDControlVariable() {
 	float dt = static_cast<float>(LIGHT_LEVEL_MONITORING_INTERVAL_MS) / 1000.0f;
-	float temperature = pAdvLightDriver->getTemperature();
+	float temperature = pAdvLightDriver->getEmitterTemperature();
 	trace("Temp. " + temperature);
 	float temperatureError = TEMPERATURE_TARGET - temperature;
 	temperatureErrorIntegral += temperatureError * dt;

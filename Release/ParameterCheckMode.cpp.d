@@ -19,8 +19,9 @@ ParameterCheckMode.cpp.o: ../ParameterCheckMode.cpp \
  /home/paolo/Arduino/libraries/Task/TaskMacros.h \
  /home/paolo/Arduino/libraries/Task/TaskManager.h ../Gnulight.h \
  ../LithiumBattery.h ../AdvancedLightDriver.h ../LightDriver.h \
- ../UserInteractionMonitorTask.h ../LightMonitorTask.h ../PowerOffMode.h \
- ../ConstantLightMode.h ../StrobeMode.h ../ProtectedLithiumBattery.h
+ ../Dimmable.h ../UserInteractionMonitorTask.h ../LightMonitorTask.h \
+ ../PowerOffMode.h ../ConstantLightMode.h ../LithiumBatteryMonitor.h \
+ ../StrobeMode.h
 
 ../ParameterCheckMode.h:
 
@@ -76,6 +77,8 @@ ParameterCheckMode.cpp.o: ../ParameterCheckMode.cpp \
 
 ../LightDriver.h:
 
+../Dimmable.h:
+
 ../UserInteractionMonitorTask.h:
 
 ../LightMonitorTask.h:
@@ -84,6 +87,6 @@ ParameterCheckMode.cpp.o: ../ParameterCheckMode.cpp \
 
 ../ConstantLightMode.h:
 
-../StrobeMode.h:
+../LithiumBatteryMonitor.h:
 
-../ProtectedLithiumBattery.h:
+../StrobeMode.h:

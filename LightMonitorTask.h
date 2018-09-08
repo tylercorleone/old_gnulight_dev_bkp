@@ -4,13 +4,15 @@
 #include <inttypes.h>
 #include <stddef.h>
 #include "Task.h"
+#include "Dimmable.h"
 
 #define TEMPERATURE_TARGET 50.0f
 #define TEMPERATURE_MAX_ERROR 500.0f
 
 class AdvancedLightDriver;
+class ProtectedLithiumBattery;
 
-class LightMonitorTask: public Task {
+class LightMonitorTask: public Task, public Dimmable<float> {
 public:
 	LightMonitorTask(AdvancedLightDriver *pAdvLightDriver);
 	bool OnStart() override;

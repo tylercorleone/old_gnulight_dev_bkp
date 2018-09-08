@@ -19,9 +19,9 @@ UserInteractionMonitorTask.cpp.o: ../UserInteractionMonitorTask.cpp \
  /home/paolo/Arduino/libraries/Task/TaskManager.h \
  ../system/HostSystemAware.h ../Button.h ../Gnulight.h \
  ../LithiumBattery.h ../AdvancedLightDriver.h ../LightDriver.h \
- ../LightMonitorTask.h ../PowerOffMode.h ../GnulightMode.h \
- ../ConstantLightMode.h ../StrobeMode.h ../FunctionsSequenceTask.h \
- ../ParameterCheckMode.h ../ProtectedLithiumBattery.h
+ ../Dimmable.h ../LightMonitorTask.h ../PowerOffMode.h ../GnulightMode.h \
+ ../ConstantLightMode.h ../LithiumBatteryMonitor.h ../StrobeMode.h \
+ ../FunctionsSequenceTask.h ../ParameterCheckMode.h
 
 ../UserInteractionMonitorTask.h:
 
@@ -73,6 +73,8 @@ UserInteractionMonitorTask.cpp.o: ../UserInteractionMonitorTask.cpp \
 
 ../LightDriver.h:
 
+../Dimmable.h:
+
 ../LightMonitorTask.h:
 
 ../PowerOffMode.h:
@@ -81,10 +83,10 @@ UserInteractionMonitorTask.cpp.o: ../UserInteractionMonitorTask.cpp \
 
 ../ConstantLightMode.h:
 
+../LithiumBatteryMonitor.h:
+
 ../StrobeMode.h:
 
 ../FunctionsSequenceTask.h:
 
 ../ParameterCheckMode.h:
-
-../ProtectedLithiumBattery.h:

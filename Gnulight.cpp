@@ -34,14 +34,14 @@ void Gnulight::switchPower(PowerState state) {
 			"Glht::switchPower " + (state == POWER_STATE_ON ? "ON" : "OFF"));
 	if (state == POWER_STATE_ON) {
 		digitalWrite(DEVICES_VCC_PIN, HIGH);
-		StartTask(&battery);
+		StartTask(&batteryMonitor);
 		StartTask(&lightMonitorTask);
 		internalLifecycleState = LIFECYCLE_STATE_ON;
 		info("---\nHERE GNULIGHT\n---");
 	} else {
 		lightDriver.switchLightStatus(LIGHT_STATUS_OFF);
 		StopTask(&lightMonitorTask);
-		StopTask(&battery);
+		StopTask(&batteryMonitor);
 		digitalWrite(DEVICES_VCC_PIN, LOW);
 		internalLifecycleState = LIFECYCLE_STATE_OFF;
 		info("---\nGOODBYE\n---");

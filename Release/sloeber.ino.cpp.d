@@ -17,11 +17,11 @@ sloeber.ino.cpp.o: ../sloeber.ino.cpp \
  /home/paolo/Arduino/libraries/Task/FunctionTask.h \
  /home/paolo/Arduino/libraries/Task/TaskMacros.h \
  /home/paolo/Arduino/libraries/Task/TaskManager.h \
- ../AdvancedLightDriver.h ../LightDriver.h \
+ ../AdvancedLightDriver.h ../LightDriver.h ../Dimmable.h \
  ../UserInteractionMonitorTask.h ../LightMonitorTask.h ../PowerOffMode.h \
- ../GnulightMode.h ../ConstantLightMode.h ../StrobeMode.h \
- ../FunctionsSequenceTask.h ../ParameterCheckMode.h \
- ../ProtectedLithiumBattery.h ../gnulight.ino
+ ../GnulightMode.h ../ConstantLightMode.h ../LithiumBatteryMonitor.h \
+ ../StrobeMode.h ../FunctionsSequenceTask.h ../ParameterCheckMode.h \
+ ../gnulight.ino
 
 /home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/cores/arduino/Arduino.h:
 
@@ -71,6 +71,8 @@ sloeber.ino.cpp.o: ../sloeber.ino.cpp \
 
 ../LightDriver.h:
 
+../Dimmable.h:
+
 ../UserInteractionMonitorTask.h:
 
 ../LightMonitorTask.h:
@@ -81,12 +83,12 @@ sloeber.ino.cpp.o: ../sloeber.ino.cpp \
 
 ../ConstantLightMode.h:
 
+../LithiumBatteryMonitor.h:
+
 ../StrobeMode.h:
 
 ../FunctionsSequenceTask.h:
 
 ../ParameterCheckMode.h:
-
-../ProtectedLithiumBattery.h:
 
 ../gnulight.ino:

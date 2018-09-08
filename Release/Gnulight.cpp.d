@@ -17,11 +17,10 @@ Gnulight.cpp.o: ../Gnulight.cpp ../Gnulight.h ../defines.h \
  /home/paolo/Arduino/libraries/Task/FunctionTask.h \
  /home/paolo/Arduino/libraries/Task/TaskMacros.h \
  /home/paolo/Arduino/libraries/Task/TaskManager.h \
- ../AdvancedLightDriver.h ../LightDriver.h \
+ ../AdvancedLightDriver.h ../LightDriver.h ../Dimmable.h \
  ../UserInteractionMonitorTask.h ../LightMonitorTask.h ../PowerOffMode.h \
- ../GnulightMode.h ../ConstantLightMode.h ../StrobeMode.h \
- ../FunctionsSequenceTask.h ../ParameterCheckMode.h \
- ../ProtectedLithiumBattery.h \
+ ../GnulightMode.h ../ConstantLightMode.h ../LithiumBatteryMonitor.h \
+ ../StrobeMode.h ../FunctionsSequenceTask.h ../ParameterCheckMode.h \
  /home/paolo/Arduino/libraries/LowPower-master/LowPower.h
 
 ../Gnulight.h:
@@ -72,6 +71,8 @@ Gnulight.cpp.o: ../Gnulight.cpp ../Gnulight.h ../defines.h \
 
 ../LightDriver.h:
 
+../Dimmable.h:
+
 ../UserInteractionMonitorTask.h:
 
 ../LightMonitorTask.h:
@@ -82,12 +83,12 @@ Gnulight.cpp.o: ../Gnulight.cpp ../Gnulight.h ../defines.h \
 
 ../ConstantLightMode.h:
 
+../LithiumBatteryMonitor.h:
+
 ../StrobeMode.h:
 
 ../FunctionsSequenceTask.h:
 
 ../ParameterCheckMode.h:
-
-../ProtectedLithiumBattery.h:
 
 /home/paolo/Arduino/libraries/LowPower-master/LowPower.h:

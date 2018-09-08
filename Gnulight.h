@@ -11,9 +11,9 @@
 #include "LightMonitorTask.h"
 #include "PowerOffMode.h"
 #include "ConstantLightMode.h"
+#include "LithiumBatteryMonitor.h"
 #include "StrobeMode.h"
 #include "ParameterCheckMode.h"
-#include "ProtectedLithiumBattery.h"
 
 typedef enum PowerState {
 	POWER_STATE_ON, POWER_STATE_OFF
@@ -46,10 +46,12 @@ protected:
 	InternalLifecycleState internalLifecycleState = LIFECYCLE_STATE_UNKNOWN;
 	static Button *staticButton;
 	Button button {this, BUTTON_PIN, staticButton, buttonStateChangeISR};
-	ProtectedLithiumBattery battery {BATTERY_LEVEL_MONITORING_INTERVAL_MS, emptyBatteryCallback, 4.2, 2.8, 3.2, 0.053, BATTERY_SENSING_PIN, 1};
-	AdvancedLightDriver lightDriver {TEMPERATURE_SENSING_PIN, &battery};
+	LithiumBattery battery {4.2, 2.8, 3.2, 0.053, BATTERY_SENSING_PIN, 1};
+	AdvancedLightDriver lightDriver {TEMPERATURE_SENSING_PIN};
 	UserInteractionMonitorTask uiMonitor {MsToTaskTime(10), this};
 	LightMonitorTask lightMonitorTask {&lightDriver};
+	Dimmable<float> *recipientsToDimForCauseBattery[1] = {&lightMonitorTask};
+	LithiumBatteryMonitor batteryMonitor {&battery, BATTERY_LEVEL_MONITORING_INTERVAL_MS, emptyBatteryCallback, recipientsToDimForCauseBattery};
 
 	GnulightMode* currentMode = nullptr;
 	PowerOffMode powerOffMode {"PowerOffMode", this};

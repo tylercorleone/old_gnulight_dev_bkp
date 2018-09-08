@@ -16,9 +16,9 @@ CPP_SRCS += \
 ../LightDriver.cpp \
 ../LightMonitorTask.cpp \
 ../LithiumBattery.cpp \
+../LithiumBatteryMonitor.cpp \
 ../ParameterCheckMode.cpp \
 ../PowerOffMode.cpp \
-../ProtectedLithiumBattery.cpp \
 ../StrobeMode.cpp \
 ../UserInteractionMonitorTask.cpp \
 ../sloeber.ino.cpp \
@@ -34,9 +34,9 @@ LINK_OBJ += \
 ./LightDriver.cpp.o \
 ./LightMonitorTask.cpp.o \
 ./LithiumBattery.cpp.o \
+./LithiumBatteryMonitor.cpp.o \
 ./ParameterCheckMode.cpp.o \
 ./PowerOffMode.cpp.o \
-./ProtectedLithiumBattery.cpp.o \
 ./StrobeMode.cpp.o \
 ./UserInteractionMonitorTask.cpp.o \
 ./sloeber.ino.cpp.o \
@@ -55,9 +55,9 @@ CPP_DEPS += \
 ./LightDriver.cpp.d \
 ./LightMonitorTask.cpp.d \
 ./LithiumBattery.cpp.d \
+./LithiumBatteryMonitor.cpp.d \
 ./ParameterCheckMode.cpp.d \
 ./PowerOffMode.cpp.d \
-./ProtectedLithiumBattery.cpp.d \
 ./StrobeMode.cpp.d \
 ./UserInteractionMonitorTask.cpp.d \
 ./sloeber.ino.cpp.d \
@@ -128,6 +128,13 @@ LithiumBattery.cpp.o: ../LithiumBattery.cpp
 	@echo 'Finished building: $<'
 	@echo ' '
 
+LithiumBatteryMonitor.cpp.o: ../LithiumBatteryMonitor.cpp
+	@echo 'Building file: $<'
+	@echo 'Starting C++ compile'
+	"/home/paolo/Arduino/sloeber//arduinoPlugin/packages/arduino/tools/avr-gcc/4.9.2-atmel3.5.4-arduino2/bin/avr-g++" -c -g -Os -Wall -Wextra -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10802 -DARDUINO_AVR_PRO -DARDUINO_ARCH_AVR   -I"/home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/cores/arduino" -I"/home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/variants/eightanaloginputs" -I"/home/paolo/Arduino/libraries/LowPower-master" -I"/home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/libraries/SPI" -I"/home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/libraries/SPI/src" -I"/home/paolo/Arduino/libraries/Task" -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -D__IN_ECLIPSE__=1 -x c++ "$<"  -o  "$@"
+	@echo 'Finished building: $<'
+	@echo ' '
+
 ParameterCheckMode.cpp.o: ../ParameterCheckMode.cpp
 	@echo 'Building file: $<'
 	@echo 'Starting C++ compile'
@@ -136,13 +143,6 @@ ParameterCheckMode.cpp.o: ../ParameterCheckMode.cpp
 	@echo ' '
 
 PowerOffMode.cpp.o: ../PowerOffMode.cpp
-	@echo 'Building file: $<'
-	@echo 'Starting C++ compile'
-	"/home/paolo/Arduino/sloeber//arduinoPlugin/packages/arduino/tools/avr-gcc/4.9.2-atmel3.5.4-arduino2/bin/avr-g++" -c -g -Os -Wall -Wextra -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10802 -DARDUINO_AVR_PRO -DARDUINO_ARCH_AVR   -I"/home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/cores/arduino" -I"/home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/variants/eightanaloginputs" -I"/home/paolo/Arduino/libraries/LowPower-master" -I"/home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/libraries/SPI" -I"/home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/libraries/SPI/src" -I"/home/paolo/Arduino/libraries/Task" -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -D__IN_ECLIPSE__=1 -x c++ "$<"  -o  "$@"
-	@echo 'Finished building: $<'
-	@echo ' '
-
-ProtectedLithiumBattery.cpp.o: ../ProtectedLithiumBattery.cpp
 	@echo 'Building file: $<'
 	@echo 'Starting C++ compile'
 	"/home/paolo/Arduino/sloeber//arduinoPlugin/packages/arduino/tools/avr-gcc/4.9.2-atmel3.5.4-arduino2/bin/avr-g++" -c -g -Os -Wall -Wextra -std=gnu++11 -fpermissive -fno-exceptions -ffunction-sections -fdata-sections -fno-threadsafe-statics -flto -mmcu=atmega328p -DF_CPU=16000000L -DARDUINO=10802 -DARDUINO_AVR_PRO -DARDUINO_ARCH_AVR   -I"/home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/cores/arduino" -I"/home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/variants/eightanaloginputs" -I"/home/paolo/Arduino/libraries/LowPower-master" -I"/home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/libraries/SPI" -I"/home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/libraries/SPI/src" -I"/home/paolo/Arduino/libraries/Task" -MMD -MP -MF"$(@:%.o=%.d)" -MT"$@" -D__IN_ECLIPSE__=1 -x c++ "$<"  -o  "$@"

@@ -9,9 +9,13 @@ LithiumBattery::LithiumBattery(float voltageFull, float voltageEmpty,
 	this->firstLinearStepEndCapacity = firstLinearStepEndCapacity;
 	this->voltageSensingPin = voltageSensingPin;
 	this->batteriesInSeries = batteriesInSeries;
+	pinMode(BATTERY_SENSING_PIN, INPUT);
 }
 
-float LithiumBattery::getRelativeCapacity() {
+/**
+ * Returns a value between 0.0 and 1.0
+ */
+float LithiumBattery::getRemainingCharge() {
 	float currentVoltage = constrain(getCurrentVoltage(), voltageEmpty,
 			voltageFull);
 	if (currentVoltage >= firstLinearStepEndCapacity) {
@@ -24,20 +28,6 @@ float LithiumBattery::getRelativeCapacity() {
 				* (firstLinearStepEndCapacity)
 				/ (firstLinearStepEndVoltage - voltageEmpty);
 	}
-}
-
-float LithiumBattery::getMaxRelativeCurrent() {
-	float currentCapacity = getRelativeCapacity();
-	if (currentCapacity == 0.0f) {
-		return 0.0f;
-	} else if (currentCapacity < 0.05f) {
-		return 0.05f;
-	} else if (currentCapacity < 0.1f) {
-		return 0.1f;
-	} else if (currentCapacity < 0.3f) {
-		return 0.5f;
-	}
-	return 1.0f;
 }
 
 float LithiumBattery::getCurrentVoltage() {

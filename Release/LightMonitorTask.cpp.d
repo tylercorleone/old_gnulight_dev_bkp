@@ -3,7 +3,8 @@ LightMonitorTask.cpp.o: ../LightMonitorTask.cpp ../LightMonitorTask.h \
  /home/paolo/Arduino/libraries/Task/MessageTask.h \
  /home/paolo/Arduino/libraries/Task/FunctionTask.h \
  /home/paolo/Arduino/libraries/Task/TaskMacros.h \
- /home/paolo/Arduino/libraries/Task/TaskManager.h ../defines.h \
+ /home/paolo/Arduino/libraries/Task/TaskManager.h ../Dimmable.h \
+ ../defines.h \
  /home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/cores/arduino/Arduino.h \
  /home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/cores/arduino/binary.h \
  /home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/cores/arduino/WCharacter.h \
@@ -16,7 +17,7 @@ LightMonitorTask.cpp.o: ../LightMonitorTask.cpp ../LightMonitorTask.h \
  /home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/cores/arduino/Arduino.h \
  /home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/variants/eightanaloginputs/pins_arduino.h \
  /home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/variants/eightanaloginputs/../standard/pins_arduino.h \
- ../AdvancedLightDriver.h ../LightDriver.h ../LithiumBattery.h
+ ../AdvancedLightDriver.h ../LightDriver.h
 
 ../LightMonitorTask.h:
 
@@ -29,6 +30,8 @@ LightMonitorTask.cpp.o: ../LightMonitorTask.cpp ../LightMonitorTask.h \
 /home/paolo/Arduino/libraries/Task/TaskMacros.h:
 
 /home/paolo/Arduino/libraries/Task/TaskManager.h:
+
+../Dimmable.h:
 
 ../defines.h:
 
@@ -59,5 +62,3 @@ LightMonitorTask.cpp.o: ../LightMonitorTask.cpp ../LightMonitorTask.h \
 ../AdvancedLightDriver.h:
 
 ../LightDriver.h:
-
-../LithiumBattery.h:

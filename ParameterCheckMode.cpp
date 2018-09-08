@@ -14,10 +14,10 @@ bool ParameterCheckMode::onEnterMode(const char* msg) {
 	float parameterValue;
 	switch (*msg) {
 	case BATTERY_CHECK:
-		parameterValue = static_cast<int8_t>(pSystem->battery.getRelativeCapacity() * 10);
+		parameterValue = static_cast<int8_t>(pSystem->battery.getRemainingCharge() * 10);
 		break;
 	case LAMP_TEMPERATURE_CHECK:
-		parameterValue = pSystem->lightDriver.getTemperature() / 10.0f;
+		parameterValue = pSystem->lightDriver.getEmitterTemperature() / 10.0f;
 		break;
 	default:
 		return false;

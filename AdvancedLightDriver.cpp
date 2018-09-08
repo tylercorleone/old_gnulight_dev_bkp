@@ -2,9 +2,8 @@
 
 #include "Gnulight.h"
 
-AdvancedLightDriver::AdvancedLightDriver(uint8_t temperatureSensingPin,
-		LithiumBattery* battery) :
-		temperatureSensingPin(temperatureSensingPin), battery(battery) {
+AdvancedLightDriver::AdvancedLightDriver(uint8_t temperatureSensingPin) :
+		temperatureSensingPin(temperatureSensingPin), Dimmable(1.0f) {
 	trace("Inst. ALD");
 	pinMode(temperatureSensingPin, INPUT);
 }
@@ -17,7 +16,7 @@ void AdvancedLightDriver::setPotentiometerLevel(float level) {
 	} else {
 		targetCurrentLevel = potentiometerLevel;
 	}
-	LightDriver::setPotentiometerLevel(min(targetCurrentLevel, maxRelativeCurrent));
+	LightDriver::setPotentiometerLevel(min(targetCurrentLevel, getDimmableMaxValue()));
 }
 
 bool AdvancedLightDriver::getLightnessSimulationEnabled() {
@@ -57,8 +56,8 @@ void AdvancedLightDriver::setNextSubLevel() {
 
 float AdvancedLightDriver::convertLightnessIntoLuminance(float lightness) {
 	/*
-	 lightness (the L value of L*a*b* color space), in this case [0, 1]
-	 luminance (Y, [0, 1]
+	 lightness = the normalized L value of L*a*b* color space.
+	 luminance = the relative emitted luminance (Y)
 	 */
 	if (lightness < 0.08f) {
 		return 0.12842f * ((lightness + 0.16f) / 1.16f - 0.04f / 0.29f);
@@ -67,6 +66,6 @@ float AdvancedLightDriver::convertLightnessIntoLuminance(float lightness) {
 	}
 }
 
-float AdvancedLightDriver::getTemperature() {
+float AdvancedLightDriver::getEmitterTemperature() {
 	return ((analogRead(temperatureSensingPin) + analogRead(temperatureSensingPin)) / 2.0f) / 1023.0 * 5.0 * 100.0 - 50.0;
 }

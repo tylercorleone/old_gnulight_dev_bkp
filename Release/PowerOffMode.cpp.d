@@ -17,10 +17,10 @@ PowerOffMode.cpp.o: ../PowerOffMode.cpp ../PowerOffMode.h ../defines.h \
  /home/paolo/Arduino/libraries/Task/FunctionTask.h \
  /home/paolo/Arduino/libraries/Task/TaskMacros.h \
  /home/paolo/Arduino/libraries/Task/TaskManager.h \
- ../AdvancedLightDriver.h ../LightDriver.h \
+ ../AdvancedLightDriver.h ../LightDriver.h ../Dimmable.h \
  ../UserInteractionMonitorTask.h ../LightMonitorTask.h \
- ../ConstantLightMode.h ../StrobeMode.h ../FunctionsSequenceTask.h \
- ../ParameterCheckMode.h ../ProtectedLithiumBattery.h
+ ../ConstantLightMode.h ../LithiumBatteryMonitor.h ../StrobeMode.h \
+ ../FunctionsSequenceTask.h ../ParameterCheckMode.h
 
 ../PowerOffMode.h:
 
@@ -74,16 +74,18 @@ PowerOffMode.cpp.o: ../PowerOffMode.cpp ../PowerOffMode.h ../defines.h \
 
 ../LightDriver.h:
 
+../Dimmable.h:
+
 ../UserInteractionMonitorTask.h:
 
 ../LightMonitorTask.h:
 
 ../ConstantLightMode.h:
 
+../LithiumBatteryMonitor.h:
+
 ../StrobeMode.h:
 
 ../FunctionsSequenceTask.h:
 
 ../ParameterCheckMode.h:
-
-../ProtectedLithiumBattery.h:

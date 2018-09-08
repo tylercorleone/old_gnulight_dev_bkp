@@ -18,9 +18,9 @@ StrobeMode.cpp.o: ../StrobeMode.cpp ../StrobeMode.h ../defines.h \
  /home/paolo/Arduino/libraries/Task/TaskMacros.h \
  /home/paolo/Arduino/libraries/Task/TaskManager.h ../Gnulight.h \
  ../LithiumBattery.h ../AdvancedLightDriver.h ../LightDriver.h \
- ../UserInteractionMonitorTask.h ../LightMonitorTask.h ../PowerOffMode.h \
- ../ConstantLightMode.h ../ParameterCheckMode.h \
- ../ProtectedLithiumBattery.h
+ ../Dimmable.h ../UserInteractionMonitorTask.h ../LightMonitorTask.h \
+ ../PowerOffMode.h ../ConstantLightMode.h ../LithiumBatteryMonitor.h \
+ ../ParameterCheckMode.h
 
 ../StrobeMode.h:
 
@@ -76,6 +76,8 @@ StrobeMode.cpp.o: ../StrobeMode.cpp ../StrobeMode.h ../defines.h \
 
 ../LightDriver.h:
 
+../Dimmable.h:
+
 ../UserInteractionMonitorTask.h:
 
 ../LightMonitorTask.h:
@@ -84,6 +86,6 @@ StrobeMode.cpp.o: ../StrobeMode.cpp ../StrobeMode.h ../defines.h \
 
 ../ConstantLightMode.h:
 
-../ParameterCheckMode.h:
+../LithiumBatteryMonitor.h:
 
-../ProtectedLithiumBattery.h:
+../ParameterCheckMode.h:

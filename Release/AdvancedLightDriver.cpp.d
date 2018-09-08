@@ -12,16 +12,16 @@ AdvancedLightDriver.cpp.o: ../AdvancedLightDriver.cpp \
  /home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/cores/arduino/Arduino.h \
  /home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/variants/eightanaloginputs/pins_arduino.h \
  /home/paolo/Arduino/sloeber/arduinoPlugin/packages/arduino/hardware/avr/1.6.21/variants/eightanaloginputs/../standard/pins_arduino.h \
- ../defines.h ../LithiumBattery.h ../Gnulight.h ../Button.h \
- ../system/HostSystemAware.h /home/paolo/Arduino/libraries/Task/Task.h \
+ ../defines.h ../Dimmable.h ../Gnulight.h ../Button.h \
+ ../system/HostSystemAware.h ../LithiumBattery.h \
+ /home/paolo/Arduino/libraries/Task/Task.h \
  /home/paolo/Arduino/libraries/Task/MessageTask.h \
  /home/paolo/Arduino/libraries/Task/FunctionTask.h \
  /home/paolo/Arduino/libraries/Task/TaskMacros.h \
  /home/paolo/Arduino/libraries/Task/TaskManager.h \
  ../UserInteractionMonitorTask.h ../LightMonitorTask.h ../PowerOffMode.h \
- ../GnulightMode.h ../ConstantLightMode.h ../StrobeMode.h \
- ../FunctionsSequenceTask.h ../ParameterCheckMode.h \
- ../ProtectedLithiumBattery.h
+ ../GnulightMode.h ../ConstantLightMode.h ../LithiumBatteryMonitor.h \
+ ../StrobeMode.h ../FunctionsSequenceTask.h ../ParameterCheckMode.h
 
 ../AdvancedLightDriver.h:
 
@@ -53,13 +53,15 @@ AdvancedLightDriver.cpp.o: ../AdvancedLightDriver.cpp \
 
 ../defines.h:
 
-../LithiumBattery.h:
+../Dimmable.h:
 
 ../Gnulight.h:
 
 ../Button.h:
 
 ../system/HostSystemAware.h:
+
+../LithiumBattery.h:
 
 /home/paolo/Arduino/libraries/Task/Task.h:
 
@@ -81,10 +83,10 @@ AdvancedLightDriver.cpp.o: ../AdvancedLightDriver.cpp \
 
 ../ConstantLightMode.h:
 
+../LithiumBatteryMonitor.h:
+
 ../StrobeMode.h:
 
 ../FunctionsSequenceTask.h:
 
 ../ParameterCheckMode.h:
-
-../ProtectedLithiumBattery.h:

@@ -2,8 +2,7 @@
 #define LITHIUMBATTERY_H
 
 #include "inttypes.h"
-
-class AdvancedLightDriver;
+#include "defines.h"
 
 class LithiumBattery {
 public:
@@ -19,8 +18,7 @@ public:
 	}
 	;
 	float getCurrentVoltage();
-	virtual float getRelativeCapacity();
-	virtual float getMaxRelativeCurrent();
+	virtual float getRemainingCharge();
 private:
 	uint8_t voltageSensingPin;
 	uint8_t batteriesInSeries;
