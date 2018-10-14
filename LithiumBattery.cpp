@@ -18,19 +18,19 @@ LithiumBattery::LithiumBattery(float voltageFull, float voltageEmpty,
 float LithiumBattery::getRemainingCharge() {
 	float currentVoltage = constrain(getCurrentVoltage(), voltageEmpty,
 			voltageFull);
-	if (currentVoltage >= firstLinearStepEndCapacity) {
-		return firstLinearStepEndCapacity
-				+ (currentVoltage - firstLinearStepEndVoltage)
-						* (1.0f - firstLinearStepEndCapacity)
-						/ (voltageFull - firstLinearStepEndVoltage);
-	} else {
+	if (currentVoltage < firstLinearStepEndCapacity) {
 		return (currentVoltage - voltageEmpty)
 				* (firstLinearStepEndCapacity)
 				/ (firstLinearStepEndVoltage - voltageEmpty);
+	} else {
+			return firstLinearStepEndCapacity
+					+ (currentVoltage - firstLinearStepEndVoltage)
+							* (1.0f - firstLinearStepEndCapacity)
+							/ (voltageFull - firstLinearStepEndVoltage);
 	}
 }
 
 float LithiumBattery::getCurrentVoltage() {
-	int analogValue = (analogRead(voltageSensingPin) + analogRead(voltageSensingPin)) / 2;
+	float analogValue = (analogRead(voltageSensingPin) + analogRead(voltageSensingPin)) / 2.0;
 	return analogValue * (5.0f / 1023.0f / batteriesInSeries);
 }

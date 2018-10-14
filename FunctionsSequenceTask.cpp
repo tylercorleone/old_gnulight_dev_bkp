@@ -56,7 +56,7 @@ bool FunctionsSequenceTask::OnStart() {
 
 void FunctionsSequenceTask::OnUpdate(uint32_t taskDeltaTime) {
 	if (sequenceCompleted && !repeat) {
-		_remainingTime = -1;
+		_timeInterval = -1;
 		return;
 	}
 	if (pNodeToRun->pFunctionReturningInterval != nullptr) {
@@ -65,7 +65,7 @@ void FunctionsSequenceTask::OnUpdate(uint32_t taskDeltaTime) {
 	} else {
 		pNodeToRun->pFunction(pNodeToRun->pStateHolder);
 	}
-	_remainingTime += pNodeToRun->intervalToNextTask - TaskTimeAccuracy;
+	_timeInterval = pNodeToRun->intervalToNextTask;
 	if (pNodeToRun->pNext != nullptr) {
 		pNodeToRun = pNodeToRun->pNext;
 	} else {
@@ -77,7 +77,7 @@ void FunctionsSequenceTask::OnUpdate(uint32_t taskDeltaTime) {
 			pNodeToRun = pFirstNode;
 		} else {
 			sequenceCompleted = true;
-			_remainingTime = -1;
+			_timeInterval = -1;
 		}
 	}
 }

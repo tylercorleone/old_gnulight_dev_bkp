@@ -1,10 +1,11 @@
 #include "defines.h"
 #include "Button.h"
 #include "Gnulight.h"
-#include "UserInteractionMonitorTask.h"
+#include "UserInteractionMonitor.h"
 
-Button::Button(Gnulight* gnulight, uint8_t pin, Button *&staticButton, void (*changeISR)(void)) :
-		HostSystemAware(gnulight) {
+Button::Button(Gnulight* gnulight, uint8_t pin, Button *&staticButton,
+		void (*changeISR)(void)) :
+		gnulight(gnulight) {
 	trace("Inst. Btn");
 	pinMode(pin, INPUT_PULLUP);
 	delay(1);
@@ -46,7 +47,7 @@ void Button::onButtonRise() {
 
 void Button::statusChangeCallback() {
 	digitalRead(BUTTON_PIN) == LOW ? onButtonFall() : onButtonRise();
-	pSystem->StartTask(&pSystem->uiMonitor);
+	gnulight->StartTask(&uiMonitor);
 }
 
 ButtonInteraction Button::ackInteraction() {

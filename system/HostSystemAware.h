@@ -3,11 +3,11 @@
 
 template <class HostSystemClass> class HostSystemAware {
 public:
-	HostSystemAware(HostSystemClass* pSystem) {
-		this->pSystem = pSystem;
+	HostSystemAware(HostSystemClass* pHostSystem) {
+		this->pHostSystem = pHostSystem;
 	}
 protected:
-	HostSystemClass* pSystem;
+	HostSystemClass* pHostSystem;
 };
 
 #endif

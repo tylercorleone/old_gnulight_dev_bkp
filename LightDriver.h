@@ -24,7 +24,7 @@ protected:
 	uint8_t getPwmAmount();
 private:
 	LightStatus lightStatus;
-	float potentiometerLevel = -1.0f;
+	float potentiometerLevel = 0.0f;
 	uint8_t pwmAmount;
 	void digPotWrite(unsigned int value);
 };

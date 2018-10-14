@@ -1,5 +1,5 @@
-#ifndef LIGHTMONITORTASK_H
-#define LIGHTMONITORTASK_H
+#ifndef LIGHTTEMPERATUREMONITORTASK_H
+#define LIGHTTEMPERATUREMONITORTASK_H
 
 #include <inttypes.h>
 #include <stddef.h>
@@ -8,15 +8,17 @@
 
 #define TEMPERATURE_TARGET 50.0f
 #define TEMPERATURE_MAX_ERROR 500.0f
+#define CURRENT_ACTIVATION_THRESHOLD 0.2f
 
 class AdvancedLightDriver;
 class ProtectedLithiumBattery;
 
-class LightMonitorTask: public Task, public Dimmable<float> {
+class TemperatureMonitor: public Task, public Dimmable<float> {
 public:
-	LightMonitorTask(AdvancedLightDriver *pAdvLightDriver);
+	TemperatureMonitor(AdvancedLightDriver *pAdvLightDriver);
 	bool OnStart() override;
-    void OnUpdate(uint32_t deltaTime) override;
+	void OnStop() override;
+	void OnUpdate(uint32_t deltaTime) override;
 private:
     float calculateMaxRelativeCurrent();
     float getTemperaturePIDControlVariable();

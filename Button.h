@@ -2,11 +2,9 @@
 #define BUTTON_H
 
 #include <stdint.h>
-#include "system/HostSystemAware.h"
+#include "UserInteractionMonitor.h"
 
 class Gnulight;
-//class TaskManager;
-//class UserInteractionMonitorTask;
 
 enum ButtonStatus {
 	PRESSED, RELEASED
@@ -29,7 +27,7 @@ private:
 	uint8_t holdStepsCount;
 };
 
-class Button : public HostSystemAware<Gnulight> {
+class Button {
 
 public:
 	Button(Gnulight* gnulight, uint8_t pin, Button *&staticButton, void (*changeISR)(void));
@@ -55,6 +53,8 @@ private:
 	volatile uint32_t lastChangeTime = 0;
 	volatile uint8_t clicksCount = 0;
 	volatile bool clicksCountAck = false;
+	UserInteractionMonitor uiMonitor {MsToTaskTime(10), this, gnulight};
+	Gnulight* gnulight;
 };
 
 #endif

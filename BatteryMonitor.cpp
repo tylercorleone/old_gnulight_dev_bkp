@@ -1,22 +1,31 @@
-#include "LithiumBatteryMonitor.h"
+#include "BatteryMonitor.h"
+
 #include "Arduino.h"
 #include "defines.h"
 
-LithiumBatteryMonitor::LithiumBatteryMonitor(LithiumBattery *lithiumBattery,
+BatteryMonitor::BatteryMonitor(LithiumBattery *lithiumBattery,
 		uint32_t interval, void (*emptyBatteryCallback)(), Dimmable<float> **recipientsToDim) :
 		lithiumBattery(lithiumBattery), Task(interval), emptyBatteryCallback(
 				emptyBatteryCallback), recipientsToDim(recipientsToDim) {
-	trace("Inst. LBM");
+	trace("Inst. BM");
 }
 
-bool LithiumBatteryMonitor::OnStart() {
+bool BatteryMonitor::OnStart() {
+	trace("BM::OnStart");
 	maxRelativeCurrent = max(TERMINAL_GUARANTEED_RELATIVE_CURRENT,
 			calculateInstantaneousMaxRelativeCurrent());
 	notifyDimmableRecipients();
 	return true;
 }
 
-void LithiumBatteryMonitor::OnUpdate(uint32_t deltaTime) {
+void BatteryMonitor::OnStop() {
+	trace("BM::OnStop");
+	maxRelativeCurrent = 1.0;
+	notifyDimmableRecipients();
+}
+
+void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
+	trace("BM::OnUpdate");
 	float actualMaxRelativeCurrent = calculateInstantaneousMaxRelativeCurrent();
 	if (actualMaxRelativeCurrent < maxRelativeCurrent
 			|| actualMaxRelativeCurrent
@@ -27,22 +36,22 @@ void LithiumBatteryMonitor::OnUpdate(uint32_t deltaTime) {
 		maxRelativeCurrent = actualMaxRelativeCurrent;
 	}
 
-	notifyDimmableRecipients();
-
 	if (maxRelativeCurrent <= TERMINAL_GUARANTEED_RELATIVE_CURRENT) {
 		maxRelativeCurrent = TERMINAL_GUARANTEED_RELATIVE_CURRENT;
 		emptyBatteryCallback();
 	}
+
+	notifyDimmableRecipients();
 }
 
-void LithiumBatteryMonitor::notifyDimmableRecipients() {
+void BatteryMonitor::notifyDimmableRecipients() {
 	int recipientsCount = sizeof(recipientsToDim) / sizeof(Dimmable<float>*);
 	for (int i = 0; i < recipientsCount; ++i) {
 		recipientsToDim[i]->setDimmableMaxValue(maxRelativeCurrent);
 	}
 }
 
-float LithiumBatteryMonitor::calculateInstantaneousMaxRelativeCurrent() {
+float BatteryMonitor::calculateInstantaneousMaxRelativeCurrent() {
 	float currentCapacity = lithiumBattery->getRemainingCharge();
 	if (currentCapacity == 0.0f) {
 		return 0.0f;

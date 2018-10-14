@@ -1,8 +1,8 @@
 #include "Gnulight.h"
 #include <LowPower.h>
 
-#include "UserInteractionMonitorTask.h"
 #include <avr/power.h>
+#include "UserInteractionMonitor.h"
 
 Gnulight *staticGnulight;
 
@@ -35,13 +35,12 @@ void Gnulight::switchPower(PowerState state) {
 	if (state == POWER_STATE_ON) {
 		digitalWrite(DEVICES_VCC_PIN, HIGH);
 		StartTask(&batteryMonitor);
-		StartTask(&lightMonitorTask);
+		StartTask(&temperatureMonitor);
 		internalLifecycleState = LIFECYCLE_STATE_ON;
 		info("---\nHERE GNULIGHT\n---");
 	} else {
 		lightDriver.switchLightStatus(LIGHT_STATUS_OFF);
-		StopTask(&lightMonitorTask);
-		StopTask(&batteryMonitor);
+		StopAllTasks();
 		digitalWrite(DEVICES_VCC_PIN, LOW);
 		internalLifecycleState = LIFECYCLE_STATE_OFF;
 		info("---\nGOODBYE\n---");
@@ -67,6 +66,8 @@ void Gnulight::enterMode(GnulightMode& mode, const char* msg) {
 }
 
 void Gnulight::interpretUserInteraction(ButtonInteraction& interaction) {
+	debug(
+			"Btn interaction. " + interaction.getClicksCount() + " clicks, " + interaction.getHoldStepsCount() + " hold steps");
 	if (!currentMode->interpretUserInteraction(interaction)) {
 		handleFallbackInteraction(interaction);
 	}

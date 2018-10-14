@@ -4,6 +4,8 @@
 #include "defines.h"
 #include "GnulightMode.h"
 
+#define LEVEL_TRANSITION_DURATION_MS 1000
+
 class ConstantLightMode: public GnulightMode {
 public:
 	ConstantLightMode(const char*, Gnulight*);

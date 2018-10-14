@@ -16,4 +16,4 @@ private:
 	DimmableValueType dimmableValueMax;
 };
 
-#endif /* DIMMABLE_H_ */
+#endif

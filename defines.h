@@ -2,8 +2,8 @@
 #define DEFINITIONS_H
 
 #define INFO
-#define DEBUG
-#define TRACE
+//#define DEBUG
+//#define TRACE
 
 #include <Arduino.h>
 

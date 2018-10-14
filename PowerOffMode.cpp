@@ -7,14 +7,14 @@ PowerOffMode::PowerOffMode(const char* className, Gnulight* gnulight) :
 }
 bool PowerOffMode::onEnterMode(ButtonInteraction* interaction) {
 	info(className + "::onEnterMode");
-	pSystem->switchPower(POWER_STATE_OFF);
-	pSystem->EnterSleep();
+	pHostSystem->switchPower(POWER_STATE_OFF);
+	pHostSystem->EnterSleep();
 	return true;
 }
 
 void PowerOffMode::onExitMode() {
 	info(className + "::onExitMode");
-	pSystem->switchPower(POWER_STATE_ON);
+	pHostSystem->switchPower(POWER_STATE_ON);
 }
 
 bool PowerOffMode::interpretUserInteraction(ButtonInteraction& interaction) {
@@ -22,27 +22,27 @@ bool PowerOffMode::interpretUserInteraction(ButtonInteraction& interaction) {
 		switch (interaction.getClicksCount()) {
 		case 1:
 		case 2:
-			pSystem->enterMode(pSystem->constantLightMode, &interaction);
+			pHostSystem->enterMode(pHostSystem->constantLightMode, &interaction);
 			return true;
 		case 3:
-			pSystem->enterMode(pSystem->strobeMode, &interaction);
+			pHostSystem->enterMode(pHostSystem->strobeMode, &interaction);
 			return true;
 		case 4:
-			pSystem->enterMode(pSystem->parameterCheckMode, &BATTERY_CHECK);
+			pHostSystem->enterMode(pHostSystem->parameterCheckMode, &BATTERY_CHECK);
 			return true;
 		case 5:
-			pSystem->enterMode(pSystem->parameterCheckMode, &LAMP_TEMPERATURE_CHECK);
+			pHostSystem->enterMode(pHostSystem->parameterCheckMode, &LAMP_TEMPERATURE_CHECK);
 			return true;
 		case 6:
-			pSystem->lightDriver.setLightnessSimulationEnabled(
-					!pSystem->lightDriver.getLightnessSimulationEnabled());
+			pHostSystem->lightDriver.setLightnessSimulationEnabled(
+					!pHostSystem->lightDriver.getLightnessSimulationEnabled());
 			return true;
 		default:
 			return false;
 		}
 	} else {
 		if (interaction.getHoldStepsCount() > 0) {
-			pSystem->enterMode(pSystem->constantLightMode, &interaction);
+			pHostSystem->enterMode(pHostSystem->constantLightMode, &interaction);
 			return true;
 		} else {
 			return false;

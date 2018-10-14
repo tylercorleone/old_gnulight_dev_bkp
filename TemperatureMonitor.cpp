@@ -1,33 +1,40 @@
-#include "LightMonitorTask.h"
+#include "TemperatureMonitor.h"
+
 #include "defines.h"
 #include "AdvancedLightDriver.h"
 #include <float.h>
 
-LightMonitorTask::LightMonitorTask(AdvancedLightDriver *pAdvLightDriver) :
+#define LEVEL_TRANSITION_DURATION_MS 200
+
+TemperatureMonitor::TemperatureMonitor(AdvancedLightDriver *pAdvLightDriver) :
 		pAdvLightDriver(pAdvLightDriver), Task(MsToTaskTime(LIGHT_LEVEL_MONITORING_INTERVAL_MS)), Dimmable(1.0f) {
 }
 
-bool LightMonitorTask::OnStart() {
+bool TemperatureMonitor::OnStart() {
+	trace("TM::OnStart");
 	temperatureErrorIntegral = 0.0f;
 	temperatureError_1 = temperatureError_2 = FLT_MAX;
-	pAdvLightDriver->setDimmableMaxValue(calculateMaxRelativeCurrent());
+	return true;
 }
 
-void LightMonitorTask::OnUpdate(uint32_t deltaTime) {
-	pAdvLightDriver->setDimmableMaxValue(calculateMaxRelativeCurrent());
-	float currentLevel = pAdvLightDriver->LightDriver::getPotentiometerLevel();
-	if (currentLevel > pAdvLightDriver->getDimmableMaxValue()) {
-		pAdvLightDriver->LightDriver::setPotentiometerLevel(pAdvLightDriver->getDimmableMaxValue());
-	} else if (currentLevel < pAdvLightDriver->targetCurrentLevel && currentLevel != pAdvLightDriver->getDimmableMaxValue()) {
-		pAdvLightDriver->LightDriver::setPotentiometerLevel(min(pAdvLightDriver->targetCurrentLevel, pAdvLightDriver->getDimmableMaxValue()));
+void TemperatureMonitor::OnStop() {
+	trace("TM::OnStop");
+	pAdvLightDriver->setCurrentUpperLimit(1.0);
+}
+
+void TemperatureMonitor::OnUpdate(uint32_t deltaTime) {
+	trace("TM::OnUpdate");
+	float newCurrentUpperLimit = calculateMaxRelativeCurrent();
+	if (newCurrentUpperLimit != pAdvLightDriver->getCurrentUpperLimit()) {
+		pAdvLightDriver->setCurrentUpperLimit(calculateMaxRelativeCurrent(), LEVEL_TRANSITION_DURATION_MS);
 	}
 }
 
-float LightMonitorTask::calculateMaxRelativeCurrent() {
+float TemperatureMonitor::calculateMaxRelativeCurrent() {
 	float currentToTemperatureTarget = 1.0f;
 	float actualCurrent =
 			pAdvLightDriver->LightDriver::getPotentiometerLevel();
-	if (actualCurrent > 0.2f) {
+	if (actualCurrent > CURRENT_ACTIVATION_THRESHOLD) {
 		float temperaturePIControlVariable = getTemperaturePIDControlVariable();
 		trace("TempPIDControlVariable " + temperaturePIControlVariable);
 		currentToTemperatureTarget = actualCurrent * (1.0f + 0.5f * temperaturePIControlVariable);
@@ -36,7 +43,7 @@ float LightMonitorTask::calculateMaxRelativeCurrent() {
 	return min(currentToTemperatureTarget, getDimmableMaxValue());
 }
 
-float LightMonitorTask::getTemperaturePIDControlVariable() {
+float TemperatureMonitor::getTemperaturePIDControlVariable() {
 	float dt = static_cast<float>(LIGHT_LEVEL_MONITORING_INTERVAL_MS) / 1000.0f;
 	float temperature = pAdvLightDriver->getEmitterTemperature();
 	trace("Temp. " + temperature);
@@ -56,7 +63,7 @@ float LightMonitorTask::getTemperaturePIDControlVariable() {
 			+ Kd * derivative;
 }
 
-float LightMonitorTask::calculateDerivate(float f_t, float f_t_1, float f_t_2, float dt) {
+float TemperatureMonitor::calculateDerivate(float f_t, float f_t_1, float f_t_2, float dt) {
 	if (f_t_2 == FLT_MAX) {
 		if (f_t_1 == FLT_MAX) {
 			return 0.0f;

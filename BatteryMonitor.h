@@ -9,12 +9,13 @@
 #include "LithiumBattery.h"
 #include "Dimmable.h"
 
-class LithiumBatteryMonitor: public Task {
+class BatteryMonitor: public Task {
 public:
-	LithiumBatteryMonitor(LithiumBattery *lithiumBattery, uint32_t interval,
+	BatteryMonitor(LithiumBattery *lithiumBattery, uint32_t interval,
 			void (*emptyBatteryCallback)(), Dimmable<float> **recipientsToDim);
 private:
 	bool OnStart() override;
+	void OnStop() override;
 	void OnUpdate(uint32_t deltaTime) override;
 	float calculateInstantaneousMaxRelativeCurrent();
 	void notifyDimmableRecipients();

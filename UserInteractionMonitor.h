@@ -3,19 +3,21 @@
 
 #include "defines.h"
 #include "Task.h"
-#include "system/HostSystemAware.h"
 
+class Button;
 class Gnulight;
 
-class UserInteractionMonitorTask: public Task, public HostSystemAware<Gnulight> {
+class UserInteractionMonitor: public Task {
 public:
-	UserInteractionMonitorTask(uint32_t timeInterval, Gnulight* gnulight);
+	UserInteractionMonitor(uint32_t timeInterval, Button* button, Gnulight* gnulight);
 protected:
 	bool OnStart() override;
 	void OnUpdate(uint32_t deltaTime) override;
 	void OnStop() override;
 private:
 	uint8_t lastHoldStepsCountDelivered = 0;
+	Button* button;
+	Gnulight* gnulight;
 };
 
 #endif
