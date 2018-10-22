@@ -6,8 +6,8 @@
 
 class Gnulight;
 
-enum ButtonStatus {
-	PRESSED, RELEASED
+enum class ButtonStatus {
+	UNKNOWN, PRESSED, RELEASED
 };
 
 class ButtonInteraction {
@@ -28,31 +28,24 @@ private:
 };
 
 class Button {
-
+	friend class UserInteractionMonitor;
 public:
 	Button(Gnulight* gnulight, uint8_t pin, Button *&staticButton, void (*changeISR)(void));
-	void statusChangeCallback();
-//	void setup(uint8_t pin, void (*changeISR)(void));
 	bool isUserInteracting();
 	ButtonInteraction ackInteraction();
-	uint32_t getHoldTime() const;
-	uint32_t getLastRiseTime() const;
-	uint32_t getLastFallTime() const;
-	uint32_t getLastChangeTime() const;
-	uint8_t inspectClicksCount() const;
-	bool isPressed() const;
-	bool isHoldingFrom(uint32_t milliseconds) const;
-
+	void statusChangeCallback();
 private:
 	void onButtonFall();
 	void onButtonRise();
-	uint8_t convertHoldTimeToHoldStepsCount(uint32_t milliseconds);
-	volatile ButtonStatus status;
-	volatile uint32_t lastFallTime = 0;
-	volatile uint32_t lastRiseTime = 0;
-	volatile uint32_t lastChangeTime = 0;
+	void refreshHoldStatus(uint32_t now, boolean isExitingFromHold = false);
+	void reset();
+	volatile ButtonStatus status = ButtonStatus::UNKNOWN;
+	volatile uint32_t lastFallTimeMs = 0;
+	volatile uint32_t lastRiseTimeMs = 0;
 	volatile uint8_t clicksCount = 0;
-	volatile bool clicksCountAck = false;
+	volatile uint8_t holdsCount = 0;
+	volatile bool haveClicksToNotify = false;
+	volatile bool haveHoldsToNotify = false;
 	UserInteractionMonitor uiMonitor {MsToTaskTime(10), this, gnulight};
 	Gnulight* gnulight;
 };

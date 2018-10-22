@@ -6,42 +6,48 @@
 Button::Button(Gnulight* gnulight, uint8_t pin, Button *&staticButton,
 		void (*changeISR)(void)) :
 		gnulight(gnulight) {
-	trace("Inst. Btn");
+	debug("Inst. Btn");
 	pinMode(pin, INPUT_PULLUP);
 	delay(1);
-	status = digitalRead(BUTTON_PIN) == LOW ? PRESSED : RELEASED;
+	status = digitalRead(BUTTON_PIN) == LOW ? ButtonStatus::PRESSED : ButtonStatus::RELEASED;
 	staticButton = this;
 	attachInterrupt(digitalPinToInterrupt(pin), changeISR, CHANGE);
 }
 
 void Button::onButtonFall() {
 	trace("Btn::onButtonFall");
-	if (status == PRESSED) {
-		trace("Button is returning LOW from LOW");
+	if (status == ButtonStatus::PRESSED) {
+		trace("LOW bounce filtered");
 		return;
 	}
-	status = PRESSED;
-	lastFallTime = lastChangeTime = getNow();
-	if (lastFallTime - lastRiseTime >= CONSECUTIVE_CLICK_MAX_DELAY) {
-		// se non c'è più tempo per cumulare un altro click
-		clicksCount = 0;
-	}
+	lastFallTimeMs = millis();
+	status = ButtonStatus::PRESSED;
+	holdsCount = 0;
+	haveHoldsToNotify = false;
 }
 
 void Button::onButtonRise() {
 	trace("Btn::onButtonRise");
-	if (status == RELEASED) {
-		trace("Button is returning HIGH from HIGH");
+	if (status == ButtonStatus::RELEASED) {
+		trace("HIGH bounce filtered");
 		return;
 	}
-	status = RELEASED;
-	lastRiseTime = lastChangeTime = getNow();
-	if (lastRiseTime - lastFallTime < CONSECUTIVE_CLICK_MAX_DELAY) {
+	lastRiseTimeMs = millis();
+	status = ButtonStatus::RELEASED;
+
+	if (lastRiseTimeMs - lastFallTimeMs >= BUTTON_HOLD_BEGIN_THRESHOLD_MS) {
+
+		/*
+		 * Exting from a hold
+		 */
+		refreshHoldStatus(lastRiseTimeMs, true);
+	} else {
+
+		/*
+		 * This is a click
+		 */
 		++clicksCount;
-		clicksCountAck = false;
-	} else if (lastRiseTime - lastFallTime <= CYCLE_ZERO_INTERVAL_MS) {
-		clicksCount = 1;
-		clicksCountAck = false;
+		haveClicksToNotify = true;
 	}
 }
 
@@ -51,61 +57,79 @@ void Button::statusChangeCallback() {
 }
 
 ButtonInteraction Button::ackInteraction() {
-	uint8_t _clicksCount = 0;
-	if (!clicksCountAck && getNow() - lastRiseTime >= CONSECUTIVE_CLICK_MAX_DELAY) {
-		clicksCountAck = true;
-		_clicksCount = clicksCount;
-	}
-	return ButtonInteraction(_clicksCount, convertHoldTimeToHoldStepsCount(getHoldTime()));
-}
+	uint32_t currentMs = millis();
+	uint8_t clicksToNotify = 0;
+	if (haveClicksToNotify) {
+		if (currentMs - lastRiseTimeMs < CONSECUTIVE_CLICKS_MAX_DELAY) {
 
-bool Button::isUserInteracting() {
-	if (status == PRESSED) {
-		return true;
-	} else {
-		if (getNow() - lastRiseTime < CONSECUTIVE_CLICK_MAX_DELAY) {
-			return true;
+			/*
+			* There is still time to cumulate clicks, so we cannot (already) notify them
+			*/
+			clicksToNotify = 0;
 		} else {
-			return clicksCount > 0 && !clicksCountAck;
+			clicksToNotify = clicksCount;
+			clicksCount = 0;
+			haveClicksToNotify = false;
 		}
 	}
-}
 
-uint8_t Button::convertHoldTimeToHoldStepsCount(
-		uint32_t milliseconds) {
-	if (milliseconds <= CYCLE_ZERO_INTERVAL_MS) {
-		return 0;
+	refreshHoldStatus(currentMs);
+	uint8_t holdsToNotify = 0;
+	if (haveHoldsToNotify) {
+		holdsToNotify = holdsCount;
+		if (status != ButtonStatus::PRESSED) {
+			holdsCount = 0;
+		}
+		haveHoldsToNotify = false;
 	}
-	return (milliseconds - CYCLE_ZERO_INTERVAL_MS) / CYCLE_INTERVAL_MS + 1;
+
+	return ButtonInteraction(clicksToNotify, holdsToNotify);
 }
 
-uint32_t Button::getHoldTime() const {
-	if (status != PRESSED) {
-		return 0;
+/*
+ * Used to keep alive the user interaction monitor
+ */
+bool Button::isUserInteracting() {
+	if (status == ButtonStatus::PRESSED) {
+		return true;
+	} else {
+		return haveClicksToNotify || haveHoldsToNotify;
 	}
-	return getNow() - lastFallTime;
 }
 
-uint32_t Button::getLastRiseTime() const {
-	return lastRiseTime;
+void Button::refreshHoldStatus(uint32_t millis, boolean isExitingFromHold) {
+	if (status == ButtonStatus::RELEASED && !isExitingFromHold) {
+		return;
+	}
+
+	uint32_t holdDurationMs = millis - lastFallTimeMs;
+	if (holdDurationMs < BUTTON_HOLD_BEGIN_THRESHOLD_MS) {
+
+		/*
+		 * Too soon
+		 */
+		return;
+	}
+
+	uint8_t holdsCountTemp;
+	holdsCountTemp = (holdDurationMs - BUTTON_HOLD_BEGIN_THRESHOLD_MS) / HOLD_CYCLE_DURATION_MS + 1;
+
+	if (holdsCountTemp == holdsCount) {
+
+		/*
+		 * Already notified
+		 */
+		return;
+	}
+	holdsCount = holdsCountTemp;
+	haveHoldsToNotify = true;
 }
 
-uint32_t Button::getLastFallTime() const {
-	return lastFallTime;
-}
-
-uint32_t Button::getLastChangeTime() const {
-	return lastChangeTime;
-}
-
-uint8_t Button::inspectClicksCount() const {
-	return clicksCount;
-}
-
-bool Button::isPressed() const {
-	return status == PRESSED;
-}
-
-bool Button::isHoldingFrom(uint32_t milliseconds) const {
-	return status == PRESSED && getNow() - lastFallTime >= milliseconds;
+void Button::reset() {
+	lastFallTimeMs = 0;
+	lastRiseTimeMs = 0;
+	clicksCount = 0;
+	holdsCount = 0;
+	haveClicksToNotify = false;
+	haveHoldsToNotify = false;
 }

@@ -1,19 +1,17 @@
 #include "PowerOffMode.h"
 #include "Gnulight.h"
 
-PowerOffMode::PowerOffMode(const char* className, Gnulight* gnulight) :
-		GnulightMode(className, gnulight) {
-	trace(className + "::" + className);
-}
-bool PowerOffMode::onEnterMode(ButtonInteraction* interaction) {
-	info(className + "::onEnterMode");
+PowerOffMode::PowerOffMode(Gnulight* gnulight, const char* className) :
+		GnulightMode(gnulight, className) {}
+		
+bool PowerOffMode::onEnterMode() {
+	info(modeName + "::onEnterMode");
 	pHostSystem->switchPower(POWER_STATE_OFF);
-	pHostSystem->EnterSleep();
 	return true;
 }
 
 void PowerOffMode::onExitMode() {
-	info(className + "::onExitMode");
+	info(modeName + "::onExitMode");
 	pHostSystem->switchPower(POWER_STATE_ON);
 }
 
@@ -34,8 +32,8 @@ bool PowerOffMode::interpretUserInteraction(ButtonInteraction& interaction) {
 			pHostSystem->enterMode(pHostSystem->parameterCheckMode, &LAMP_TEMPERATURE_CHECK);
 			return true;
 		case 6:
-			pHostSystem->lightDriver.setLightnessSimulationEnabled(
-					!pHostSystem->lightDriver.getLightnessSimulationEnabled());
+			pHostSystem->advancedLightDriver.setLightnessSimulationEnabled(
+					!pHostSystem->advancedLightDriver.getLightnessSimulationEnabled());
 			return true;
 		default:
 			return false;

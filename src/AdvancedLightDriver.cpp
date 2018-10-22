@@ -1,19 +1,21 @@
 #include "AdvancedLightDriver.h"
 #include "Gnulight.h"
 
-AdvancedLightDriver::AdvancedLightDriver(uint8_t temperatureSensingPin,
-		Gnulight* gnulight) :
-		temperatureSensingPin(temperatureSensingPin), HostSystemAware(gnulight) {
+AdvancedLightDriver::AdvancedLightDriver(Gnulight* gnulight, uint8_t temperatureSensingPin) :
+		HostSystemAware(gnulight), temperatureSensingPin(temperatureSensingPin) {
 	trace("Inst. ALD");
 	pinMode(temperatureSensingPin, INPUT);
 }
 
-void AdvancedLightDriver::setPotentiometerLevel(float level) {
-	setPotentiometerLevel(level, 0);
+void AdvancedLightDriver::setup() {
+	trace("ALD::setup");
+	pHostSystem->StartTask(&lightMonitor);
+	LightDriver::setup();
 }
 
 void AdvancedLightDriver::setPotentiometerLevel(float level,
 		uint32_t transitionDurationMs) {
+	level = constrain(level, 0.0f, 1.0f);
 	debug("ALD::setPotentiometerLevel(" + level + ", " + transitionDurationMs + ")");
 	potentiometerActuator.setPotentiometerLevel(level, transitionDurationMs, false);
 }
@@ -25,8 +27,7 @@ void AdvancedLightDriver::_setPotentiometerLevel(float level) {
 	} else {
 		targetCurrentLevel = level;
 	}
-	LightDriver::setPotentiometerLevel(
-			min(targetCurrentLevel, currentUpperLimit));
+	setCurrentLevel(min(targetCurrentLevel, currentUpperLimit));
 }
 
 /**
@@ -36,7 +37,7 @@ void AdvancedLightDriver::setCurrentUpperLimit(float limit,
 		uint32_t transitionDurationMs) {
 	debug("ALD::setCurrentUpperLimit(" + limit + ", " + transitionDurationMs + ")");
 	currentUpperLimit = constrain(limit, 0.0f, 1.0f);
-	float currentLevel = LightDriver::getPotentiometerLevel();
+	float currentLevel = getCurrentLevel();
 	if (currentLevel > currentUpperLimit) {
 		potentiometerActuator.setPotentiometerLevel(currentUpperLimit,
 				transitionDurationMs, true);
@@ -64,31 +65,32 @@ float AdvancedLightDriver::getPotentiometerLevel() {
 	return potentiometerLevel;
 }
 
-void AdvancedLightDriver::setMainLevel(MainLightLevel level,
+float AdvancedLightDriver::setMainLevel(MainLightLevel level,
 		uint32_t transitionDurationMs) {
-	currentMainLevelIndex = level;
-	setPotentiometerLevel(
-			mainLevels[currentMainLevelIndex][currentSubLevelsIndexes[currentMainLevelIndex]],
-			transitionDurationMs);
+	currentMainLevel = level;
+	float resultingPotentiometerLevel = mainLevels[currentMainLevel][currentSubLevelsIndexes[currentMainLevel]];
+	setPotentiometerLevel(resultingPotentiometerLevel, transitionDurationMs);
+	return resultingPotentiometerLevel;
 }
 
-float AdvancedLightDriver::getCurrentMainLevel() {
-	return mainLevels[currentMainLevelIndex][currentSubLevelsIndexes[currentMainLevelIndex]];
+MainLightLevel AdvancedLightDriver::getCurrentMainLevel() {
+	return currentMainLevel;
 }
 
-void AdvancedLightDriver::setNextMainLevel(uint32_t transitionDurationMs) {
-	currentMainLevelIndex = (currentMainLevelIndex + 1) % MAIN_LEVELS_NUM;
-	setPotentiometerLevel(
-			mainLevels[currentMainLevelIndex][currentSubLevelsIndexes[currentMainLevelIndex]],
-			transitionDurationMs);
+float AdvancedLightDriver::setNextMainLevel(uint32_t transitionDurationMs) {
+	currentMainLevel = (currentMainLevel + 1) % MAIN_LEVELS_NUM;
+	float resultingPotentiometerLevel = mainLevels[currentMainLevel][currentSubLevelsIndexes[currentMainLevel]];
+	setPotentiometerLevel(resultingPotentiometerLevel, transitionDurationMs);
+	return resultingPotentiometerLevel;
 }
-void AdvancedLightDriver::setNextSubLevel(uint32_t transitionDurationMs) {
-	currentSubLevelsIndexes[currentMainLevelIndex] =
-			(currentSubLevelsIndexes[currentMainLevelIndex] + 1)
+
+float AdvancedLightDriver::setNextSubLevel(uint32_t transitionDurationMs) {
+	currentSubLevelsIndexes[currentMainLevel] =
+			(currentSubLevelsIndexes[currentMainLevel] + 1)
 					% SUBLEVELS_NUM;
-	setPotentiometerLevel(
-			mainLevels[currentMainLevelIndex][currentSubLevelsIndexes[currentMainLevelIndex]],
-			transitionDurationMs);
+	float resultingPotentiometerLevel = mainLevels[currentMainLevel][currentSubLevelsIndexes[currentMainLevel]];
+	setPotentiometerLevel(resultingPotentiometerLevel, transitionDurationMs);
+	return resultingPotentiometerLevel;
 }
 
 float AdvancedLightDriver::convertLightnessIntoLuminance(float lightness) {
@@ -107,4 +109,8 @@ float AdvancedLightDriver::getEmitterTemperature() {
 	return ((analogRead(temperatureSensingPin)
 			+ analogRead(temperatureSensingPin)) / 2.0f) / 1023.0 * 5.0 * 100.0
 			- 50.0;
+}
+
+void AdvancedLightDriver::dim(float value) {
+	lightMonitor.dim(value);
 }

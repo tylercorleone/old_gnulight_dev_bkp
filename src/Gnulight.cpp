@@ -16,13 +16,12 @@ Gnulight::Gnulight() {
 
 void Gnulight::Setup() {
 	trace("Glht::setup");
+	TaskManager::Setup();
 	pinMode(CURRENT_SENSING_PIN, INPUT);
 	staticGnulight = this;
-	switchPower(POWER_STATE_ON);
-	TaskManager::Setup();
-	lightDriver.setup();
-	powerOffMode.onEnterMode();
-	currentMode = &powerOffMode;
+	advancedLightDriver.setup();
+	StartTask(&batteryMonitor);
+	enterMode(powerOffMode);
 
 #ifndef INFO
 	power_usart0_disable(); // 0.1 mA (28.7 mA)
@@ -34,22 +33,34 @@ void Gnulight::switchPower(PowerState state) {
 			"Glht::switchPower " + (state == POWER_STATE_ON ? "ON" : "OFF"));
 	if (state == POWER_STATE_ON) {
 		digitalWrite(DEVICES_VCC_PIN, HIGH);
-		StartTask(&batteryMonitor);
-		StartTask(&temperatureMonitor);
 		internalLifecycleState = LIFECYCLE_STATE_ON;
 		info("---\nHERE GNULIGHT\n---");
 	} else {
-		lightDriver.switchLightStatus(LIGHT_STATUS_OFF);
-		StopAllTasks();
+		advancedLightDriver.switchLightStatus(LightStatus::OFF);
+		// StopAllTasks();
 		digitalWrite(DEVICES_VCC_PIN, LOW);
 		internalLifecycleState = LIFECYCLE_STATE_OFF;
 		info("---\nGOODBYE\n---");
+		EnterSleep();
+	}
+}
+
+void Gnulight::enterMode(GnulightMode& mode) {
+	debug("Glht::enterMode " + mode.getModeName());
+	if (currentMode != nullptr) {
+		currentMode->onExitMode();
+	}
+	currentMode = &mode;
+	if (!mode.onEnterMode()) {
+		handleFallbackInteraction();
 	}
 }
 
 void Gnulight::enterMode(GnulightMode& mode, ButtonInteraction* interaction) {
-	debug("Glht::enterMode " + mode.getClassName());
-	currentMode->onExitMode();
+	debug("Glht::enterMode " + mode.getModeName());
+	if (currentMode != nullptr) {
+		currentMode->onExitMode();
+	}
 	currentMode = &mode;
 	if (!mode.onEnterMode(interaction)) {
 		handleFallbackInteraction(*interaction);
@@ -57,7 +68,7 @@ void Gnulight::enterMode(GnulightMode& mode, ButtonInteraction* interaction) {
 }
 
 void Gnulight::enterMode(GnulightMode& mode, const char* msg) {
-	debug("Glht::enterMode " + mode.getClassName());
+	debug("Glht::enterMode " + mode.getModeName());
 	currentMode->onExitMode();
 	currentMode = &mode;
 	if (!mode.onEnterMode(msg)) {
@@ -73,24 +84,21 @@ void Gnulight::interpretUserInteraction(ButtonInteraction& interaction) {
 	}
 }
 
+void Gnulight::handleFallbackInteraction() {
+	debug(currentMode->getModeName() + " couldn't handle interaction");
+	enterMode(powerOffMode);
+}
+
 void Gnulight::handleFallbackInteraction(ButtonInteraction& interaction) {
 	debug(
-			currentMode->getClassName() + " couldn't handle interaction. " + interaction.getClicksCount() + " clicks, " + interaction.getHoldStepsCount() + " hold steps");
-	if (currentMode != &powerOffMode) {
-		currentMode->onExitMode();
-	}
-	currentMode = &powerOffMode;
-	currentMode->onEnterMode();
+			currentMode->getModeName() + " couldn't handle interaction. " + interaction.getClicksCount() + " clicks, " + interaction.getHoldStepsCount() + " hold steps");
+	enterMode(powerOffMode);
 }
 
 void Gnulight::handleFallbackInteraction(const char* msg) {
 	debug(
-			currentMode->getClassName() + " couldn't handle msg " + String(msg));
-	if (currentMode != &powerOffMode) {
-		currentMode->onExitMode();
-	}
-	currentMode = &powerOffMode;
-	currentMode->onEnterMode();
+			currentMode->getModeName() + " couldn't handle msg " + String(msg));
+	enterMode(powerOffMode);
 }
 
 void Gnulight::buttonStateChangeISR() {

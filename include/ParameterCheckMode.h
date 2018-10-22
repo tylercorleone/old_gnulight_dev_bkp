@@ -7,16 +7,16 @@
 
 class AdvancedLightDriver;
 
-#define SIGNAL_STROBE_INTERVAL_MS 500UL
-#define DIGIT_SIGNAL_DUTY_CYCLE 0.08f
-#define COMMA_SIGNAL_DUTY_CYCLE 0.8f
+#define SIGNAL_STROBE_INTERVAL_MS 800UL
+#define DIGIT_SIGNAL_DUTY_CYCLE 0.15f
+#define COMMA_SIGNAL_DUTY_CYCLE 1.0f
 
 const char BATTERY_CHECK = 'b';
 const char LAMP_TEMPERATURE_CHECK = 't';
 
 class ParameterCheckMode: public GnulightMode {
 public:
-	ParameterCheckMode(const char*, Gnulight*);
+	ParameterCheckMode(Gnulight*, const char* modeName);
 protected:
 	bool onEnterMode(const char* msg) override;
 	void onExitMode() override;

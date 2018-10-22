@@ -12,7 +12,6 @@
 #include "ConstantLightMode.h"
 #include "StrobeMode.h"
 #include "ParameterCheckMode.h"
-#include "TemperatureMonitor.h"
 #include "UserInteractionMonitor.h"
 
 typedef enum PowerState {
@@ -34,12 +33,14 @@ public:
 	Gnulight();
 	void Setup();
 	void switchPower(PowerState state);
-	void enterMode(GnulightMode& mode, ButtonInteraction* interaction = nullptr);
+	void enterMode(GnulightMode& mode);
+	void enterMode(GnulightMode& mode, ButtonInteraction* interaction);
 	void enterMode(GnulightMode& mode, const char* msg);
 	void interpretUserInteraction(ButtonInteraction& interaction);
 	void EnterSleep();
 protected:
 	static void buttonStateChangeISR();
+	void handleFallbackInteraction();
 	void handleFallbackInteraction(ButtonInteraction& interaction);
 	void handleFallbackInteraction(const char* msg);
 	static void emptyBatteryCallback();
@@ -47,15 +48,14 @@ protected:
 	static Button *staticButton;
 	Button button {this, BUTTON_PIN, staticButton, buttonStateChangeISR};
 	LithiumBattery battery {4.2, 2.8, 3.2, 0.053, BATTERY_SENSING_PIN, 1};
-	AdvancedLightDriver lightDriver {TEMPERATURE_SENSING_PIN, this};
-	TemperatureMonitor temperatureMonitor {&lightDriver};
-	Dimmable<float> *batteryLevelObservers[1] = {&temperatureMonitor};
+	AdvancedLightDriver advancedLightDriver {this, TEMPERATURE_SENSING_PIN};
+	Dimmable<float> *batteryLevelObservers[1] = {&advancedLightDriver};
 	BatteryMonitor batteryMonitor {&battery, BATTERY_LEVEL_MONITORING_INTERVAL_MS, emptyBatteryCallback, batteryLevelObservers};
 	GnulightMode* currentMode = nullptr;
-	PowerOffMode powerOffMode {"PowerOffMode", this};
-	ConstantLightMode constantLightMode {"ConstantLightMode", this};
-	StrobeMode strobeMode {"StrobeMode", this};
-	ParameterCheckMode parameterCheckMode {"ParameterCheckMode", this};
+	PowerOffMode powerOffMode {this, "PowerOffMode"};
+	ConstantLightMode constantLightMode {this, "ConstLightMode"};
+	StrobeMode strobeMode {this, "StrobeMode"};
+	ParameterCheckMode parameterCheckMode {this, "ParCheckMode"};
 };
 
 #endif

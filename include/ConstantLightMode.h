@@ -4,11 +4,11 @@
 #include "defines.h"
 #include "GnulightMode.h"
 
-#define LEVEL_TRANSITION_DURATION_MS 1000
+#define CONSTANT_LIGHT_LEVEL_TRANSITION_DURATION_MS 300UL
 
 class ConstantLightMode: public GnulightMode {
 public:
-	ConstantLightMode(const char*, Gnulight*);
+	ConstantLightMode(Gnulight*, const char* modeName);
 	bool interpretUserInteraction(ButtonInteraction& interaction);
 protected:
 	bool onEnterMode(ButtonInteraction* interaction);

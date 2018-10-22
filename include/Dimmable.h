@@ -3,17 +3,7 @@
 
 template <class DimmableValueType> class Dimmable {
 public:
-	Dimmable(DimmableValueType initialDimmableValueMax) {
-		this->dimmableValueMax = dimmableValueMax;
-	}
-	void setDimmableMaxValue(DimmableValueType dimmableValueMax) {
-		this->dimmableValueMax = dimmableValueMax;
-	}
-	DimmableValueType getDimmableMaxValue() {
-		return dimmableValueMax;
-	}
-private:
-	DimmableValueType dimmableValueMax;
+	virtual void dim(DimmableValueType value) = 0;
 };
 
 #endif

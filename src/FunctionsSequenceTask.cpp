@@ -1,29 +1,27 @@
 #include "FunctionsSequenceTask.h"
 
-FunctionsSequenceTask::FunctionsSequenceTask(pNodeFunction function,
-		uint32_t intervalToNextTask, pStateHolder pStateHolder) :
+FunctionsSequenceTask::FunctionsSequenceTask(Callback callback, uint32_t intervalToNextTask) :
 		Task(0) {
-	pFirstNode = pLastNode = new SequenceNode(function, intervalToNextTask,
-			pStateHolder);
+	pFirstNode = pLastNode = new SequenceNode(callback, intervalToNextTask);
 }
 
 FunctionsSequenceTask::FunctionsSequenceTask(
 		pNodeFunctionReturningInterval functionReturningInterval,
-		pStateHolder pStateHolder) :
+		void* pStateHolder) :
 		Task(0) {
 	pFirstNode = pLastNode = new SequenceNode(functionReturningInterval,
 			pStateHolder);
 }
 
 FunctionsSequenceTask& FunctionsSequenceTask::then(pNodeFunction function,
-		uint32_t intervalToNextTask, pStateHolder pStateHolder) {
-	pLastNode->pNext = new SequenceNode(function, intervalToNextTask, pStateHolder);
+		uint32_t intervalToNextTask, void* pStateHolder) {
+	pLastNode->pNext = new SequenceNode(function, intervalToNextTask);
 	pLastNode = pLastNode->pNext;
 	return *this;
 }
 
 FunctionsSequenceTask& FunctionsSequenceTask::then(
-		pNodeFunctionReturningInterval functionReturningInterval, pStateHolder pStateHolder) {
+		pNodeFunctionReturningInterval functionReturningInterval, void* pStateHolder) {
 	pLastNode->pNext = new SequenceNode(functionReturningInterval, pStateHolder);
 	pLastNode = pLastNode->pNext;
 	return *this;

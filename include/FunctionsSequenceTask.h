@@ -4,21 +4,25 @@
 #include "defines.h"
 #include <Task.h>
 
-typedef void (*pNodeFunction)(void* pStateHolder);
-typedef uint32_t (*pNodeFunctionReturningInterval)(void* pStateHolder);
-typedef void* pStateHolder;
+using pNodeFunction = void (*)(void*);
+using pNodeFunctionReturningInterval = uint32_t (*)(void*);
+using Callback = void (*)(void*);
 
 class SequenceNode {
 	friend class FunctionsSequenceTask;
 public:
-	SequenceNode(pNodeFunction function, uint32_t intervalToNextTask, pStateHolder pStateHolder = nullptr) :
-			pFunction(function), intervalToNextTask(intervalToNextTask), pStateHolder(pStateHolder) {
+	// SequenceNode(pNodeFunction function, uint32_t intervalToNextTask, void* pStateHolder = nullptr) :
+	// 		pFunction(function), intervalToNextTask(intervalToNextTask), pStateHolder(pStateHolder) {
+	// }
+	SequenceNode(Callback callback, uint32_t intervalToNextTask) :
+			callback(callback), intervalToNextTask(intervalToNextTask) {
 	}
-	SequenceNode(pNodeFunctionReturningInterval functionReturningInterval, pStateHolder pStateHolder = nullptr) :
+	SequenceNode(pNodeFunctionReturningInterval functionReturningInterval, void* pStateHolder = nullptr) :
 			pFunctionReturningInterval(functionReturningInterval), pStateHolder(pStateHolder) {
 	}
 private:
 	pNodeFunction pFunction = nullptr;
+	Callback callback = nullptr;
 	pNodeFunctionReturningInterval pFunctionReturningInterval = nullptr;
 	void* pStateHolder = nullptr;
 	uint32_t intervalToNextTask = 0;
@@ -27,12 +31,13 @@ private:
 
 class FunctionsSequenceTask: public Task {
 public:
-	FunctionsSequenceTask(pNodeFunction function, uint32_t intervalToNextTask, pStateHolder pStateHolder = nullptr);
-	FunctionsSequenceTask(pNodeFunctionReturningInterval functionReturningInterval, pStateHolder pStateHolder = nullptr);
+	// FunctionsSequenceTask(pNodeFunction function, uint32_t intervalToNextTask, void* pStateHolder = nullptr);
+	FunctionsSequenceTask(Callback callback, uint32_t intervalToNextTask);
+	FunctionsSequenceTask(pNodeFunctionReturningInterval functionReturningInterval, void* pStateHolder = nullptr);
 	virtual ~FunctionsSequenceTask();
 	FunctionsSequenceTask& then(pNodeFunction function,
-			uint32_t intervalToNextTask, pStateHolder pStateHolder = nullptr);
-	FunctionsSequenceTask& then(pNodeFunctionReturningInterval functionReturningInterval, pStateHolder pStateHolder = nullptr);
+			uint32_t intervalToNextTask, void* pStateHolder = nullptr);
+	FunctionsSequenceTask& then(pNodeFunctionReturningInterval functionReturningInterval, void* pStateHolder = nullptr);
 	void done();
 	void thenRepeat();
 protected:

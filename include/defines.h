@@ -1,9 +1,9 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
-#define INFO
-//#define DEBUG
-//#define TRACE
+// #define INFO
+// #define DEBUG
+// #define TRACE
 
 #include <Arduino.h>
 
@@ -16,12 +16,15 @@
 #define TEMPERATURE_SENSING_PIN A1
 #define CURRENT_SENSING_PIN A3
 
+/************************************/
+#define MIN_LIGHT_CURRENT_ABOVE_ZERO 0.002f
+
 /**********   TIMING   **********/
 #define BATTERY_LEVEL_MONITORING_INTERVAL_MS 5000
 #define LIGHT_LEVEL_MONITORING_INTERVAL_MS 10000
-#define CONSECUTIVE_CLICK_MAX_DELAY 300L
-#define CYCLE_INTERVAL_MS 1000UL
-#define CYCLE_ZERO_INTERVAL_MS 400UL
+#define CONSECUTIVE_CLICKS_MAX_DELAY 600L
+#define BUTTON_HOLD_BEGIN_THRESHOLD_MS 800L
+#define HOLD_CYCLE_DURATION_MS 1200UL
 #define LOG_DELAY 5000UL
 
 #ifdef INFO
@@ -44,7 +47,5 @@
 #define trace(string)
 #define debug(string)
 #endif
-
-#define getNow() millis()
 
 #endif

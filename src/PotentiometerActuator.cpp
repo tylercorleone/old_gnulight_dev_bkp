@@ -1,20 +1,17 @@
 #include "PotentiometerActuator.h"
 #include "AdvancedLightDriver.h"
 
-PotentiometerActuator::PotentiometerActuator(
-		AdvancedLightDriver* advancedLightDriver, uint32_t timeInterval,
-		TaskManager* taskManager) :
-		advancedLightDriver(advancedLightDriver), Task(timeInterval), taskManager(
-				taskManager) {
+PotentiometerActuator::PotentiometerActuator(AdvancedLightDriver* advancedLightDriver, TaskManager* taskManager)
+		: Task(MsToTaskTime(TIMED_POTENTIOMETER_SETTER_INTERVAL_MS)), advancedLightDriver(advancedLightDriver), taskManager(taskManager) {
 }
 
 void PotentiometerActuator::setPotentiometerLevel(float level,
-		uint32_t transitionDurationMs, bool operateAtRelativeCurrentLevel) {
+		uint32_t transitionDurationMs, bool operateOnCurrent) {
 	debug(
-			"PotAct::setPotentiometerLevel(" + level + ", " + transitionDurationMs + ", " + operateAtRelativeCurrentLevel + ")");
+			"PotAct::setPotentiometerLevel(" + level + ", " + transitionDurationMs + ", " + operateOnCurrent + ")");
 	targetLevel = level;
-	stepsToGo = transitionDurationMs / _timeInterval;
-	this->operateAtRelativeCurrentLevel = operateAtRelativeCurrentLevel;
+	stepsToGo = transitionDurationMs / TaskTimeToMs(_timeInterval);
+	this->operateOnCurrent = operateOnCurrent;
 	if (stepsToGo == 0) {
 		if (this->isActive()) {
 			taskManager->StopTask(this);
@@ -39,14 +36,14 @@ void PotentiometerActuator::OnUpdate(uint32_t timeInterval) {
 }
 
 float PotentiometerActuator::readLevel() {
-	return operateAtRelativeCurrentLevel ?
-					advancedLightDriver->LightDriver::getPotentiometerLevel() :
+	return operateOnCurrent ?
+					advancedLightDriver->getCurrentLevel() :
 					advancedLightDriver->getPotentiometerLevel();
 }
 
 void PotentiometerActuator::writeLevel(float level) {
-	if (operateAtRelativeCurrentLevel) {
-		advancedLightDriver->LightDriver::setPotentiometerLevel(level);
+	if (operateOnCurrent) {
+		advancedLightDriver->setCurrentLevel(level);
 	} else {
 		advancedLightDriver->_setPotentiometerLevel(level);
 	}

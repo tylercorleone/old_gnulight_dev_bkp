@@ -5,7 +5,7 @@
 
 BatteryMonitor::BatteryMonitor(LithiumBattery *lithiumBattery,
 		uint32_t interval, void (*emptyBatteryCallback)(), Dimmable<float> **recipientsToDim) :
-		lithiumBattery(lithiumBattery), Task(interval), emptyBatteryCallback(
+		Task(interval), lithiumBattery(lithiumBattery), emptyBatteryCallback(
 				emptyBatteryCallback), recipientsToDim(recipientsToDim) {
 	trace("Inst. BM");
 }
@@ -47,7 +47,7 @@ void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
 void BatteryMonitor::notifyDimmableRecipients() {
 	int recipientsCount = sizeof(recipientsToDim) / sizeof(Dimmable<float>*);
 	for (int i = 0; i < recipientsCount; ++i) {
-		recipientsToDim[i]->setDimmableMaxValue(maxRelativeCurrent);
+		recipientsToDim[i]->dim(maxRelativeCurrent);
 	}
 }
 

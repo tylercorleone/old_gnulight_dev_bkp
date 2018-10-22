@@ -7,12 +7,11 @@
 class PowerOffMode: public GnulightMode {
 	friend class Gnulight;
 public:
-	PowerOffMode(const char*, Gnulight*);
+	PowerOffMode(Gnulight*, const char* modeName);
 	virtual bool interpretUserInteraction(ButtonInteraction& interaction);
 protected:
-	bool onEnterMode(ButtonInteraction* interaction = nullptr) override ;
-	bool onEnterMode(const char* msg) override {return onEnterMode();};
-	void onExitMode();
+	bool onEnterMode() override ;
+	void onExitMode() override;
 };
 
 #endif
