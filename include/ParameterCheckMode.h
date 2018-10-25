@@ -16,12 +16,15 @@ const char LAMP_TEMPERATURE_CHECK = 't';
 
 class ParameterCheckMode: public GnulightMode {
 public:
-	ParameterCheckMode(Gnulight*, const char* modeName);
+	ParameterCheckMode(Gnulight* gnulight, const char* modeName) :
+			GnulightMode(gnulight, modeName) {
+	}
 protected:
 	bool onEnterMode(const char* msg) override;
 	void onExitMode() override;
 	static uint32_t switchLightStatus(ParameterCheckMode* _this);
-	FunctionsSequenceTask* pRenderValueWithFlashes;
+	FunctionsSequenceTask& renderValueWithFlashes = SequenceTaskBuilder::begin(
+			ParameterCheckMode::switchLightStatus, this).thenRepeat();
 	int8_t strobesForIntegerPartCount = -1;
 	int8_t strobesForDecimalPartCount = -1;
 };

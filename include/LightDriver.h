@@ -11,7 +11,8 @@ enum class LightStatus {
 class LightDriver {
 public:
 	LightDriver();
-	virtual ~LightDriver() {};
+	virtual ~LightDriver() {
+	}
 	virtual void setup();
 	void setCurrentLevel(float level);
 	float getCurrentLevel();
@@ -22,9 +23,9 @@ protected:
 	uint8_t getPwmAmount();
 private:
 	void digPotWrite(unsigned int value);
-	LightStatus lightStatus;
+	LightStatus lightStatus = LightStatus::OFF;
 	float currentLevel = 0.0f;
-	uint8_t pwmAmount;
+	uint8_t pwmAmount = 0;
 };
 
 #endif

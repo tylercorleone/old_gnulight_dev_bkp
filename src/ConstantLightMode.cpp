@@ -1,9 +1,6 @@
 #include "ConstantLightMode.h"
 #include "Gnulight.h"
 
-ConstantLightMode::ConstantLightMode(Gnulight* gnulight, const char* modeName) :
-		GnulightMode(gnulight, modeName) {}
-
 bool ConstantLightMode::onEnterMode(ButtonInteraction* interaction) {
 	info(modeName + "::onEnterMode");
 	if (interaction->getClicksCount() > 0) {

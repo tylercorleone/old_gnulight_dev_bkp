@@ -5,16 +5,16 @@
 
 LightDriver::LightDriver() {
 	trace("Inst. LD");
+}
+
+void LightDriver::setup() {
+	trace("LD::setup");
 	pinMode(LED_PIN, OUTPUT);
 	digitalWrite(LED_PIN, HIGH);
 	lightStatus = LightStatus::OFF;
 	Utils::setPwmFrequency(LED_PIN, 256);
 	SPI.begin();
 	digitalWrite(PIN_SPI_SS, LOW); // 0.429 -> 0.168 mA
-}
-
-void LightDriver::setup() {
-	trace("LD::setup");
 	setCurrentLevel(0.0f);
 }
 

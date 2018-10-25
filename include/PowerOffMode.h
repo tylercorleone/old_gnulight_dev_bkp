@@ -7,10 +7,12 @@
 class PowerOffMode: public GnulightMode {
 	friend class Gnulight;
 public:
-	PowerOffMode(Gnulight*, const char* modeName);
+	PowerOffMode(Gnulight* gnulight, const char* modeName) :
+			GnulightMode(gnulight, modeName) {
+	}
 	virtual bool interpretUserInteraction(ButtonInteraction& interaction);
 protected:
-	bool onEnterMode() override ;
+	bool onEnterMode() override;
 	void onExitMode() override;
 };
 

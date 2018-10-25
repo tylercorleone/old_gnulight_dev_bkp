@@ -1,9 +1,6 @@
 #include "PowerOffMode.h"
 #include "Gnulight.h"
 
-PowerOffMode::PowerOffMode(Gnulight* gnulight, const char* className) :
-		GnulightMode(gnulight, className) {}
-		
 bool PowerOffMode::onEnterMode() {
 	info(modeName + "::onEnterMode");
 	pHostSystem->switchPower(POWER_STATE_OFF);

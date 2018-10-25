@@ -8,7 +8,9 @@
 
 class ConstantLightMode: public GnulightMode {
 public:
-	ConstantLightMode(Gnulight*, const char* modeName);
+	ConstantLightMode(Gnulight* gnulight, const char* modeName) :
+			GnulightMode(gnulight, modeName) {
+	}
 	bool interpretUserInteraction(ButtonInteraction& interaction);
 protected:
 	bool onEnterMode(ButtonInteraction* interaction);
