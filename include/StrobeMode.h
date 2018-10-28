@@ -1,11 +1,10 @@
 #ifndef STROBE_MODE_H
 #define STROBE_MODE_H
 
-#include "defines.h"
 #include "GnulightMode.h"
 #include "FunctionsSequenceTask.h"
 
-class AdvancedLightDriver;
+class LightDriver;
 
 #define STROBE_TYPES_COUNT 5
 

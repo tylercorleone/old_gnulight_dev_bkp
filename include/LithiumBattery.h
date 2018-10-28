@@ -2,7 +2,6 @@
 #define LITHIUMBATTERY_H
 
 #include "inttypes.h"
-#include "defines.h"
 
 class LithiumBattery {
 public:

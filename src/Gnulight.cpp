@@ -1,9 +1,6 @@
 #include "Gnulight.h"
 #include <LowPower.h>
 
-#include <avr/power.h>
-#include "UserInteractionMonitor.h"
-
 Gnulight *staticGnulight;
 
 #define USE_WDT
@@ -18,9 +15,11 @@ void Gnulight::Setup() {
 	trace("Glht::setup");
 	TaskManager::Setup();
 	pinMode(CURRENT_SENSING_PIN, INPUT);
+	pinMode(BATTERY_SENSING_PIN, INPUT);
 	staticGnulight = this;
-	advancedLightDriver.setup();
+	lightDriver.setup();
 	StartTask(&batteryMonitor);
+	StartTask(&lightMonitor);
 	enterMode(powerOffMode);
 
 #ifndef INFO
@@ -28,18 +27,16 @@ void Gnulight::Setup() {
 #endif
 }
 
-void Gnulight::switchPower(PowerState state) {
+void Gnulight::switchPower(OnOffState state) {
 	info(
-			"Glht::switchPower " + (state == POWER_STATE_ON ? "ON" : "OFF"));
-	if (state == POWER_STATE_ON) {
+			"Glht::switchPower " + (state == OnOffState::ON ? "ON" : "OFF"));
+	if (state == OnOffState::ON) {
 		digitalWrite(DEVICES_VCC_PIN, HIGH);
-		internalLifecycleState = LIFECYCLE_STATE_ON;
 		info("---\nHERE GNULIGHT\n---");
 	} else {
-		advancedLightDriver.switchLightStatus(LightStatus::OFF);
+		lightDriver.setState(OnOffState::OFF);
 		// StopAllTasks();
 		digitalWrite(DEVICES_VCC_PIN, LOW);
-		internalLifecycleState = LIFECYCLE_STATE_OFF;
 		info("---\nGOODBYE\n---");
 		EnterSleep();
 	}
@@ -106,12 +103,10 @@ void Gnulight::buttonStateChangeISR() {
 }
 
 void Gnulight::emptyBatteryCallback() {
-	if (staticGnulight->internalLifecycleState == LIFECYCLE_STATE_SHUTTING_DOWN) {
-		trace("Already shutting down");
+	if (staticGnulight->currentMode == &staticGnulight->parameterCheckMode) {
 		return;
 	}
 	info("Batt. is empty");
-	staticGnulight->internalLifecycleState = LIFECYCLE_STATE_SHUTTING_DOWN;
 	staticGnulight->enterMode(staticGnulight->parameterCheckMode,
 			&BATTERY_CHECK);
 }

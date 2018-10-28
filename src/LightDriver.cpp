@@ -1,83 +1,92 @@
-#include "LightDriver.h"
+#include "../include/LightDriver.h"
 
+#include "Gnulight.h"
+#include <PWM.h>
 #include <SPI.h>
-#include "utils.h"
 
-LightDriver::LightDriver() {
+LightDriver::LightDriver(Gnulight* gnulight, uint8_t temperatureSensingPin) :
+		LightDimmer(&currentPotentiometer), HostSystemAware(gnulight), temperatureSensingPin(
+				temperatureSensingPin) {
 	trace("Inst. LD");
 }
 
-void LightDriver::setup() {
+void LightDriver::setup() {this->toggleState();
 	trace("LD::setup");
-	pinMode(LED_PIN, OUTPUT);
-	digitalWrite(LED_PIN, HIGH);
-	lightStatus = LightStatus::OFF;
-	Utils::setPwmFrequency(LED_PIN, 256);
-	SPI.begin();
-	digitalWrite(PIN_SPI_SS, LOW); // 0.429 -> 0.168 mA
-	setCurrentLevel(0.0f);
+	pinMode(temperatureSensingPin, INPUT);
+	currentPotentiometer.setup();
 }
 
-LightStatus LightDriver::getLightStatus() {
-	return lightStatus;
+void LightDriver::setLevel(float level) {
+	LightDimmer::setLevel(level);
+}
+
+void LightDriver::setLevel(float level, uint32_t transitionDurationMs) {
+	debug("LD::setPotentiometerLevel(" + level + ", " + transitionDurationMs + ")");
+	lightLevelActuator.setLevel(constrain(level, 0.0f, 1.0f),
+			transitionDurationMs);
 }
 
 float LightDriver::getCurrentLevel() {
-	return currentLevel;
-}
-
-uint8_t LightDriver::getPwmAmount() {
-	return pwmAmount;
+	return currentPotentiometer.getLevel();
 }
 
 void LightDriver::setCurrentLevel(float level) {
-	debug("LD::setCurrentLevel " + level);
-	// Imin senza pwm = 0.191 * 3 = 0.573 A
-	// Imax = 0.616 * 3 = 1.848 A
-
-	// Ioff = 0.16 mA -> 0.694 -> 0.429
-	// ILED_ON(light off) = 9.15
-	/*
-	 il rapporto tra la corrente massima e quella minima ottenibile senza usare pwm è del 3.1%
-	 */
-	currentLevel = constrain(level, 0.0f, 1.0f);
-	float K = 0.031f;
-	float x;
-	if (currentLevel <= K) {
-		pwmAmount = 255 * currentLevel / K;
-		x = 0;
-	} else {
-		pwmAmount = 255;
-		x = (currentLevel - K) / (1.0f - K);
-	}
-	
-	if (lightStatus == LightStatus::ON) {
-		trace("LD pwmAmount: " + pwmAmount);
-		analogWrite(LED_PIN, 255 - pwmAmount);
-	}
-
-	digPotWrite((int) (256 * (1.0f - x)));
+	wantedCurrentLevel = level;
+	currentPotentiometer.setLevel(min(currentUpperLimit, level));
 }
 
-void LightDriver::switchLightStatus(LightStatus lightStatus) {
-	trace("LD::switchLightStatus " + (lightStatus == LightStatus::ON ? "ON" : "OFF"));
-	if (lightStatus == LightStatus::ON) {
-		analogWrite(LED_PIN, 255 - pwmAmount); // (255 - pwm) because of negative logic of shuttown pin of LM2596
-	} else {
-		digitalWrite(LED_PIN, HIGH);
+float LightDriver::getCurrentUpperLimit() {
+	return currentUpperLimit;
+}
+
+void LightDriver::setCurrentUpperLimit(float limit,
+		uint32_t transitionDurationMs) {
+	debug("LD::setCurrentUpperLimit(" + currentUpperLimit + ", " + transitionDurationMs + ")");
+
+	currentUpperLimit = constrain(limit, 0.0f, 1.0f);
+
+	float currentLevel = currentPotentiometer.getLevel();
+	if (currentLevel > currentUpperLimit) {
+		currentActuator.setLevel(currentUpperLimit, transitionDurationMs);
+	} else if (currentLevel != currentUpperLimit
+			&& currentLevel < wantedCurrentLevel) {
+		currentActuator.setLevel(min(wantedCurrentLevel, currentUpperLimit),
+				transitionDurationMs);
 	}
-	this->lightStatus = lightStatus;
 }
 
-void LightDriver::toggleLightStatus() {
-	switchLightStatus(lightStatus == LightStatus::ON ? LightStatus::OFF : LightStatus::ON);
+float LightDriver::setMainLevel(MainLightLevel level,
+		uint32_t transitionDurationMs) {
+	currentMainLevel = level;
+	float resultingPotentiometerLevel =
+			mainLevels[currentMainLevel][currentSubLevelsIndexes[currentMainLevel]];
+	setLevel(resultingPotentiometerLevel, transitionDurationMs);
+	return resultingPotentiometerLevel;
 }
 
-void LightDriver::digPotWrite(unsigned int value) {
-	trace("LD::digPotWrite " + value);
-	SPI.transfer16(0x01FF & value);
-	delayMicroseconds(250);
-	digitalWrite(PIN_SPI_SS, HIGH);
-	delayMicroseconds(250);
-	digitalWrite(PIN_SPI_SS, LOW);
+MainLightLevel LightDriver::getCurrentMainLevel() {
+	return currentMainLevel;
+}
+
+float LightDriver::setNextMainLevel(uint32_t transitionDurationMs) {
+	currentMainLevel = (currentMainLevel + 1) % MAIN_LEVELS_NUM;
+	float resultingPotentiometerLevel =
+			mainLevels[currentMainLevel][currentSubLevelsIndexes[currentMainLevel]];
+	setLevel(resultingPotentiometerLevel, transitionDurationMs);
+	return resultingPotentiometerLevel;
+}
+
+float LightDriver::setNextSubLevel(uint32_t transitionDurationMs) {
+	currentSubLevelsIndexes[currentMainLevel] =
+			(currentSubLevelsIndexes[currentMainLevel] + 1) % SUBLEVELS_NUM;
+	float resultingPotentiometerLevel =
+			mainLevels[currentMainLevel][currentSubLevelsIndexes[currentMainLevel]];
+	setLevel(resultingPotentiometerLevel, transitionDurationMs);
+	return resultingPotentiometerLevel;
+}
+
+float LightDriver::getEmitterTemperature() {
+	return ((analogRead(temperatureSensingPin)
+			+ analogRead(temperatureSensingPin)) / 2.0f) / 1023.0 * 5.0 * 100.0
+			- 50.0;
 }

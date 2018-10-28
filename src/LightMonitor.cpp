@@ -1,13 +1,13 @@
 #include "LightMonitor.h"
 
 #include "defines.h"
-#include "AdvancedLightDriver.h"
 #include <float.h>
+#include "../include/LightDriver.h"
 
 #define LIGHT_MONITOR_LEVEL_TRANSITION_DURATION_MS 2000
 
-LightMonitor::LightMonitor(AdvancedLightDriver *pAdvLightDriver) :
-		Task(MsToTaskTime(LIGHT_LEVEL_MONITORING_INTERVAL_MS)), pAdvLightDriver(pAdvLightDriver) {
+LightMonitor::LightMonitor(LightDriver* pLightDriver) :
+		Task(MsToTaskTime(LIGHT_LEVEL_MONITORING_INTERVAL_MS)), pLightDriver(pLightDriver) {
 }
 
 bool LightMonitor::OnStart() {
@@ -19,21 +19,21 @@ bool LightMonitor::OnStart() {
 
 void LightMonitor::OnStop() {
 	trace("TM::OnStop");
-	pAdvLightDriver->setCurrentUpperLimit(1.0);
+	pLightDriver->setCurrentUpperLimit(1.0);
 }
 
 void LightMonitor::OnUpdate(uint32_t deltaTime) {
 	trace("TM::OnUpdate");
 	float newCurrentUpperLimit = calculateCurrentUpperLimit();
-	if (newCurrentUpperLimit != pAdvLightDriver->getCurrentUpperLimit()) {
-		pAdvLightDriver->setCurrentUpperLimit(newCurrentUpperLimit, LIGHT_MONITOR_LEVEL_TRANSITION_DURATION_MS);
+	if (newCurrentUpperLimit != pLightDriver->getCurrentUpperLimit()) {
+		pLightDriver->setCurrentUpperLimit(newCurrentUpperLimit, LIGHT_MONITOR_LEVEL_TRANSITION_DURATION_MS);
 	}
 }
 
 float LightMonitor::calculateCurrentUpperLimit() {
 	float currentToTemperatureTarget = 1.0f;
-	if (pAdvLightDriver->getCurrentLevel() > CURRENT_ACTIVATION_THRESHOLD) {
-		float actualCurrentLimit = pAdvLightDriver->getCurrentUpperLimit();
+	if (pLightDriver->getCurrentLevel() > CURRENT_ACTIVATION_THRESHOLD) {
+		float actualCurrentLimit = pLightDriver->getCurrentUpperLimit();
 		float temperaturePIControlVariable = getTemperaturePIDControlVariable();
 		trace("TempPIDControlVariable: " + temperaturePIControlVariable);
 		currentToTemperatureTarget = actualCurrentLimit * (1.0f + 0.5f * temperaturePIControlVariable);
@@ -44,7 +44,7 @@ float LightMonitor::calculateCurrentUpperLimit() {
 
 float LightMonitor::getTemperaturePIDControlVariable() {
 	float dt = static_cast<float>(LIGHT_LEVEL_MONITORING_INTERVAL_MS) / 1000.0f;
-	float temperature = pAdvLightDriver->getEmitterTemperature();
+	float temperature = pLightDriver->getEmitterTemperature();
 	trace("Temp. " + temperature);
 	float temperatureError = TEMPERATURE_TARGET - temperature;
 	temperatureErrorIntegral += temperatureError * dt;

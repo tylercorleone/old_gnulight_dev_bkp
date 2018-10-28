@@ -1,31 +1,58 @@
-#ifndef LEDDRIVER_H
-#define LEDDRIVER_H
+#ifndef LIGHTDRIVER_H
+#define LIGHTDRIVER_H
 
-#include <Arduino.h>
+#include <stdint.h>
+
+#include "../lib/ComponentsOs/include/components/LightDimmer.h"
+#include "system/HostSystemAware.h"
+#include "../lib/ComponentsOs/include/components/PotentiometerActuator.h"
 #include "defines.h"
+#include "Dimmable.h"
+#include "LedCurrentPotentiometer.h"
 
-enum class LightStatus {
-	OFF, ON
+#define ACTUATORS_INTERVAL_MS MsToTaskTime(30)
+
+class Gnulight;
+
+enum MainLightLevel {
+	MIN, MED, MAX
 };
 
-class LightDriver {
+class LightDriver: public LightDimmer, public HostSystemAware<Gnulight> {
 public:
-	LightDriver();
-	virtual ~LightDriver() {
-	}
-	virtual void setup();
-	void setCurrentLevel(float level);
-	float getCurrentLevel();
-	virtual void switchLightStatus(LightStatus lightStatus);
-	virtual void toggleLightStatus();
-	LightStatus getLightStatus();
-protected:
-	uint8_t getPwmAmount();
+	LightDriver(Gnulight* gnulight, uint8_t temperatureSensingPin);
+	void setup();
+	void setLevel(float level) override;
+	void setLevel(float level, uint32_t transitionDurationMs);
+	MainLightLevel getCurrentMainLevel();
+	float setMainLevel(MainLightLevel, uint32_t transitionDurationMs = 0);
+	float setNextMainLevel(uint32_t transitionDurationMs = 0);
+	float setNextSubLevel(uint32_t transitionDurationMs = 0);
+	float getEmitterTemperature();
 private:
-	void digPotWrite(unsigned int value);
-	LightStatus lightStatus = LightStatus::OFF;
-	float currentLevel = 0.0f;
-	uint8_t pwmAmount = 0;
+	friend class LightMonitor;
+	float getCurrentLevel();
+	void setCurrentLevel(float level);
+	float getCurrentUpperLimit();
+	void setCurrentUpperLimit(float limit, uint32_t transitionDurationMs = 0);
+
+	const static uint8_t MAIN_LEVELS_NUM = 3;
+	const static uint8_t SUBLEVELS_NUM = 3;
+	const float mainLevels[MAIN_LEVELS_NUM][SUBLEVELS_NUM] = { {
+	MIN_LIGHT_CURRENT_ABOVE_ZERO, MIN_LIGHT_CURRENT_ABOVE_ZERO * 2.0, 0.02f }, {
+			0.1f, 0.3f, 0.5f }, { 0.66f, 0.8f, 1.0f } };
+	MainLightLevel currentMainLevel = MainLightLevel::MAX;
+	uint8_t currentSubLevelsIndexes[MAIN_LEVELS_NUM] = { 0, 0, 0 };
+
+	LedCurrentPotentiometer currentPotentiometer;
+	uint8_t temperatureSensingPin;
+	PotentiometerActuator lightLevelActuator { ACTUATORS_INTERVAL_MS,
+			(TaskManager*) pHostSystem, this };
+	PotentiometerActuator currentActuator { ACTUATORS_INTERVAL_MS,
+			(TaskManager*) pHostSystem, &currentPotentiometer };
+
+	float currentUpperLimit = 1.0f;
+	float wantedCurrentLevel = 0.0f;
 };
 
 #endif

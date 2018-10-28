@@ -3,13 +3,13 @@
 
 bool PowerOffMode::onEnterMode() {
 	info(modeName + "::onEnterMode");
-	pHostSystem->switchPower(POWER_STATE_OFF);
+	pHostSystem->switchPower(OnOffState::OFF);
 	return true;
 }
 
 void PowerOffMode::onExitMode() {
 	info(modeName + "::onExitMode");
-	pHostSystem->switchPower(POWER_STATE_ON);
+	pHostSystem->switchPower(OnOffState::ON);
 }
 
 bool PowerOffMode::interpretUserInteraction(ButtonInteraction& interaction) {
@@ -29,8 +29,8 @@ bool PowerOffMode::interpretUserInteraction(ButtonInteraction& interaction) {
 			pHostSystem->enterMode(pHostSystem->parameterCheckMode, &LAMP_TEMPERATURE_CHECK);
 			return true;
 		case 6:
-			pHostSystem->advancedLightDriver.setLightnessSimulationEnabled(
-					!pHostSystem->advancedLightDriver.getLightnessSimulationEnabled());
+			pHostSystem->lightDriver.setLightnessSimulationEnabled(
+					!pHostSystem->lightDriver.getLightnessSimulationEnabled());
 			return true;
 		default:
 			return false;

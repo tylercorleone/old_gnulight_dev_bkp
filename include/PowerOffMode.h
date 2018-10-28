@@ -1,7 +1,6 @@
 #ifndef POWER_OFF_TASK_H
 #define POWER_OFF_TASK_H
 
-#include "defines.h"
 #include "GnulightMode.h"
 
 class PowerOffMode: public GnulightMode {

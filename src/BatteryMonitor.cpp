@@ -1,6 +1,5 @@
 #include "BatteryMonitor.h"
 
-#include "Arduino.h"
 #include "defines.h"
 
 BatteryMonitor::BatteryMonitor(LithiumBattery *lithiumBattery,

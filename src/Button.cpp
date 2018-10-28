@@ -1,7 +1,6 @@
 #include "defines.h"
 #include "Button.h"
 #include "Gnulight.h"
-#include "UserInteractionMonitor.h"
 
 Button::Button(Gnulight* gnulight, uint8_t pin, Button *&staticButton,
 		void (*changeISR)(void)) :

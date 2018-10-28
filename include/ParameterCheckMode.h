@@ -1,11 +1,10 @@
 #ifndef PARAMETER_CHECK_MODE_H
 #define PARAMETER_CHECK_MODE_H
 
-#include "defines.h"
 #include "GnulightMode.h"
 #include "FunctionsSequenceTask.h"
 
-class AdvancedLightDriver;
+class LightDriver;
 
 #define SIGNAL_STROBE_INTERVAL_MS 800UL
 #define DIGIT_SIGNAL_DUTY_CYCLE 0.15f

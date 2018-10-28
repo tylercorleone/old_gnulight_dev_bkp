@@ -3,11 +3,11 @@
 
 bool StrobeMode::onEnterMode(ButtonInteraction* interaction) {
 	info(modeName + "::onEnterMode");debug("strobe type " + currentStrobeType);
-	varName = pHostSystem->advancedLightDriver.setMainLevel(
+	varName = pHostSystem->lightDriver.setMainLevel(
 			MainLightLevel::MED);
 	if (currentStrobeType == SINUSOIDAL_STROBE
 			|| currentStrobeType == LINEAR_STROBE) {
-		pHostSystem->advancedLightDriver.switchLightStatus(LightStatus::ON);
+		pHostSystem->lightDriver.setState(OnOffState::ON);
 	}
 	pHostSystem->StartTask(&toggleLightStatusTask);
 	return true;
@@ -34,11 +34,11 @@ bool StrobeMode::interpretUserInteraction(ButtonInteraction& interaction) {
 			if (currentStrobeType == SINUSOIDAL_STROBE
 					|| currentStrobeType == LINEAR_STROBE) {
 				MainLightLevel currentMainLevel =
-						pHostSystem->advancedLightDriver.getCurrentMainLevel();
-				varName = pHostSystem->advancedLightDriver.setMainLevel(
+						pHostSystem->lightDriver.getCurrentMainLevel();
+				varName = pHostSystem->lightDriver.setMainLevel(
 						currentMainLevel);
-				pHostSystem->advancedLightDriver.switchLightStatus(
-						LightStatus::ON);
+				pHostSystem->lightDriver.setState(
+						OnOffState::ON);
 			}
 			pHostSystem->StartTask(&toggleLightStatusTask);
 			return true;
@@ -54,7 +54,7 @@ bool StrobeMode::interpretUserInteraction(ButtonInteraction& interaction) {
 		}
 	} else {
 		if (interaction.getHoldStepsCount() > 0) {
-			varName = pHostSystem->advancedLightDriver.setNextMainLevel();
+			varName = pHostSystem->lightDriver.setNextMainLevel();
 			return true;
 		} else {
 			return false;
@@ -73,8 +73,8 @@ uint32_t StrobeMode::switchLightStatus(StrobeMode* _this) {
 				* _this->periodMultiplierX1000 / 1000;
 		break;
 	case BEACON_STROBE:
-		if (_this->pHostSystem->advancedLightDriver.getLightStatus()
-				== LightStatus::OFF) {
+		if (_this->pHostSystem->lightDriver.getState()
+				== OnOffState::OFF) {
 			nextIntervalMs = BEACON_STROBE_PERIOD_MS * BEACON_STROBE_DUTY_CYCLE;
 		} else {
 			nextIntervalMs = BEACON_STROBE_PERIOD_MS
@@ -82,8 +82,8 @@ uint32_t StrobeMode::switchLightStatus(StrobeMode* _this) {
 		}
 		break;
 	case DISCO_STROBE:
-		if (_this->pHostSystem->advancedLightDriver.getLightStatus()
-				== LightStatus::OFF) {
+		if (_this->pHostSystem->lightDriver.getState()
+				== OnOffState::OFF) {
 			nextIntervalMs = DISCO_STROBE_PERIOD_MS * DISCO_STROBE_DUTY_CYCLE;
 		} else {
 			nextIntervalMs = DISCO_STROBE_PERIOD_MS
@@ -110,9 +110,9 @@ uint32_t StrobeMode::switchLightStatus(StrobeMode* _this) {
 
 	if (_this->currentStrobeType != SINUSOIDAL_STROBE
 			&& _this->currentStrobeType != LINEAR_STROBE) {
-		_this->pHostSystem->advancedLightDriver.toggleLightStatus();
+		_this->pHostSystem->lightDriver.toggleState();
 	} else {
-		_this->pHostSystem->advancedLightDriver.setPotentiometerLevel(
+		_this->pHostSystem->lightDriver.setLevel(
 				nextPotentiometerLevel);
 		nextIntervalMs = LEVEL_REFRESH_INTERVAL_MS;
 	}

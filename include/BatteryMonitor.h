@@ -3,8 +3,6 @@
 
 #define TERMINAL_GUARANTEED_RELATIVE_CURRENT 0.01f
 
-#include "inttypes.h"
-#include "stddef.h"
 #include "Task.h"
 #include "LithiumBattery.h"
 #include "Dimmable.h"

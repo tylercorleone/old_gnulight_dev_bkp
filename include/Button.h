@@ -1,7 +1,6 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include <stdint.h>
 #include "UserInteractionMonitor.h"
 
 class Gnulight;
@@ -37,7 +36,7 @@ public:
 private:
 	void onButtonFall();
 	void onButtonRise();
-	void refreshHoldStatus(uint32_t now, boolean isExitingFromHold = false);
+	void refreshHoldStatus(uint32_t now, bool isExitingFromHold = false);
 	void reset();
 	volatile ButtonStatus status = ButtonStatus::UNKNOWN;
 	volatile uint32_t lastFallTimeMs = 0;

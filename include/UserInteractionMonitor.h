@@ -1,7 +1,6 @@
 #ifndef USER_INTERACTION_MONITOR_TASK_H
 #define USER_INTERACTION_MONITOR_TASK_H
 
-#include "defines.h"
 #include "Task.h"
 
 class Button;

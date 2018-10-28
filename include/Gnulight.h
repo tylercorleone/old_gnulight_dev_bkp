@@ -1,27 +1,22 @@
 #ifndef GNULIGHT_H
 #define GNULIGHT_H
 
-#include "defines.h"
-#include "Button.h"
-#include "LithiumBattery.h"
-#include "Task.h"
+#include <Task.h>
 
-#include "AdvancedLightDriver.h"
+#include "../lib/ComponentsOs/include/ComponentsOs.h"
 #include "BatteryMonitor.h"
-#include "PowerOffMode.h"
+#include "LightMonitor.h"
+#include "Button.h"
 #include "ConstantLightMode.h"
-#include "StrobeMode.h"
+#include "defines.h"
+#include "Dimmable.h"
+#include "LightDriver.h"
+#include "LithiumBattery.h"
 #include "ParameterCheckMode.h"
-#include "UserInteractionMonitor.h"
-
-typedef enum PowerState {
-	POWER_STATE_ON, POWER_STATE_OFF
-} PowerState;
+#include "PowerOffMode.h"
+#include "StrobeMode.h"
 
 class Gnulight : public TaskManager {
-	typedef enum InternalLifecycleState {
-		LIFECYCLE_STATE_UNKNOWN, LIFECYCLE_STATE_BOOTSTRAPPING, LIFECYCLE_STATE_ON, LIFECYCLE_STATE_SHUTTING_DOWN, LIFECYCLE_STATE_OFF
-	} InternalLifecycleState;
 	friend class Button;
 	friend class UserInteractionMonitor;
 	friend class GnulightMode;
@@ -32,7 +27,7 @@ class Gnulight : public TaskManager {
 public:
 	Gnulight();
 	void Setup();
-	void switchPower(PowerState state);
+	void switchPower(OnOffState state);
 	void enterMode(GnulightMode& mode);
 	void enterMode(GnulightMode& mode, ButtonInteraction* interaction);
 	void enterMode(GnulightMode& mode, const char* msg);
@@ -44,13 +39,13 @@ protected:
 	void handleFallbackInteraction(ButtonInteraction& interaction);
 	void handleFallbackInteraction(const char* msg);
 	static void emptyBatteryCallback();
-	InternalLifecycleState internalLifecycleState = LIFECYCLE_STATE_UNKNOWN;
 	static Button *staticButton;
 	Button button {this, BUTTON_PIN, staticButton, buttonStateChangeISR};
 	LithiumBattery battery {4.2, 2.8, 3.2, 0.053, BATTERY_SENSING_PIN, 1};
-	AdvancedLightDriver advancedLightDriver {this, TEMPERATURE_SENSING_PIN};
-	Dimmable<float> *batteryLevelObservers[1] = {&advancedLightDriver};
+	LightDriver lightDriver {this, TEMPERATURE_SENSING_PIN};
+	Dimmable<float> *batteryLevelObservers[1] = {&lightMonitor};
 	BatteryMonitor batteryMonitor {&battery, BATTERY_LEVEL_MONITORING_INTERVAL_MS, emptyBatteryCallback, batteryLevelObservers};
+	LightMonitor lightMonitor { &lightDriver };
 	GnulightMode* currentMode = nullptr;
 	PowerOffMode powerOffMode {this, "PowerOffMode"};
 	ConstantLightMode constantLightMode {this, "ConstLightMode"};

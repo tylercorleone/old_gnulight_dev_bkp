@@ -9,7 +9,6 @@ LithiumBattery::LithiumBattery(float voltageFull, float voltageEmpty,
 	this->firstLinearStepEndCapacity = firstLinearStepEndCapacity;
 	this->voltageSensingPin = voltageSensingPin;
 	this->batteriesInSeries = batteriesInSeries;
-	pinMode(BATTERY_SENSING_PIN, INPUT);
 }
 
 /**

@@ -12,7 +12,7 @@ bool ParameterCheckMode::onEnterMode(const char* msg) {
 		break;
 	case LAMP_TEMPERATURE_CHECK:
 		parameterValue =
-				pHostSystem->advancedLightDriver.getEmitterTemperature()
+				pHostSystem->lightDriver.getEmitterTemperature()
 						/ 10.0f;
 		break;
 	default:
@@ -22,8 +22,8 @@ bool ParameterCheckMode::onEnterMode(const char* msg) {
 	strobesForDecimalPartCount = static_cast<int8_t>(round(
 			parameterValue * 10.0f)) % 10;
 	debug(*msg + " value " + parameterValue);
-	pHostSystem->advancedLightDriver.setMainLevel(MainLightLevel::MED);
-	pHostSystem->advancedLightDriver.switchLightStatus(LightStatus::OFF);
+	pHostSystem->lightDriver.setMainLevel(MainLightLevel::MED);
+	pHostSystem->lightDriver.setState(OnOffState::OFF);
 	pHostSystem->StartTask(&renderValueWithFlashes);
 	return true;
 }
@@ -42,8 +42,8 @@ uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode* _this) {
 	}
 	uint32_t interval;
 	if (_this->strobesForIntegerPartCount > 0) {
-		if (_this->pHostSystem->advancedLightDriver.getLightStatus()
-				== LightStatus::OFF) {
+		if (_this->pHostSystem->lightDriver.getState()
+				== OnOffState::OFF) {
 			interval = MsToTaskTime(
 					SIGNAL_STROBE_INTERVAL_MS * DIGIT_SIGNAL_DUTY_CYCLE);
 		} else {
@@ -53,8 +53,8 @@ uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode* _this) {
 							SIGNAL_STROBE_INTERVAL_MS * (1.0f - DIGIT_SIGNAL_DUTY_CYCLE));
 		}
 	} else if (_this->strobesForIntegerPartCount == 0) {
-		if (_this->pHostSystem->advancedLightDriver.getLightStatus()
-				== LightStatus::OFF) {
+		if (_this->pHostSystem->lightDriver.getState()
+				== OnOffState::OFF) {
 			interval = MsToTaskTime(
 					SIGNAL_STROBE_INTERVAL_MS * COMMA_SIGNAL_DUTY_CYCLE);
 		} else {
@@ -64,8 +64,8 @@ uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode* _this) {
 							SIGNAL_STROBE_INTERVAL_MS * (1.0f - DIGIT_SIGNAL_DUTY_CYCLE));
 		}
 	} else {
-		if (_this->pHostSystem->advancedLightDriver.getLightStatus()
-				== LightStatus::OFF) {
+		if (_this->pHostSystem->lightDriver.getState()
+				== OnOffState::OFF) {
 			interval = MsToTaskTime(
 					SIGNAL_STROBE_INTERVAL_MS * DIGIT_SIGNAL_DUTY_CYCLE);
 		} else {
@@ -75,6 +75,6 @@ uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode* _this) {
 							SIGNAL_STROBE_INTERVAL_MS * (1.0f - DIGIT_SIGNAL_DUTY_CYCLE));
 		}
 	}
-	_this->pHostSystem->advancedLightDriver.toggleLightStatus();
+	_this->pHostSystem->lightDriver.toggleState();
 	return interval;
 }
