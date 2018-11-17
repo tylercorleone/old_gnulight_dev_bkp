@@ -31,18 +31,18 @@ class SequenceNode {
 class FunctionsSequenceTask: public Task {
 public:
 	virtual ~FunctionsSequenceTask() {
-		SequenceNode *p, *pToBeDeleted;
-		p = pFirstNode;
-		while (p != nullptr) {
-			pToBeDeleted = p;
-			p = p->pNext;
-			delete pToBeDeleted;
+		SequenceNode* pIterate;
+		pIterate = pFirstNode;
+		while (pIterate != nullptr) {
+			SequenceNode* pNext = pIterate->pNext;
+			delete pIterate;
+			pIterate = pNext;
 		}
 	}
 private:
 	FunctionsSequenceTask(Callback<void> callback, uint32_t intervalToNextTask,
 			void* stateHolder) :
-			Task(0) {
+			Task(-1) {
 		pFirstNode = pLastNode = new SequenceNode(callback, intervalToNextTask,
 				stateHolder);
 	}
@@ -50,7 +50,7 @@ private:
 	FunctionsSequenceTask(
 			CallbackReturningInterval<void> functionReturningInterval,
 			void* stateHolder) :
-			Task(0) {
+			Task(-1) {
 		pFirstNode = pLastNode = new SequenceNode(functionReturningInterval,
 				stateHolder);
 	}
@@ -69,9 +69,10 @@ private:
 
 	void OnUpdate(uint32_t taskDeltaTime) override {
 		if (sequenceCompleted && !repeat) {
-			_timeInterval = -1;
+			setTimeInterval(-1);
 			return;
 		}
+
 		if (pNodeToRun->callbackReturningInterval != nullptr) {
 			pNodeToRun->intervalToNextTask =
 					pNodeToRun->callbackReturningInterval(
@@ -79,7 +80,9 @@ private:
 		} else {
 			pNodeToRun->callback(pNodeToRun->stateHolder);
 		}
-		_timeInterval = pNodeToRun->intervalToNextTask;
+
+		setTimeInterval(pNodeToRun->intervalToNextTask);
+
 		if (pNodeToRun->pNext != nullptr) {
 			pNodeToRun = pNodeToRun->pNext;
 		} else {
@@ -91,7 +94,7 @@ private:
 				pNodeToRun = pFirstNode;
 			} else {
 				sequenceCompleted = true;
-				_timeInterval = -1;
+				setTimeInterval(-1);
 			}
 		}
 	}

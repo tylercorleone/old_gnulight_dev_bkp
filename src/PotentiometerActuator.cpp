@@ -13,7 +13,7 @@ void PotentiometerActuator::setPotentiometerLevel(float level,
 	stepsToGo = transitionDurationMs / TaskTimeToMs(_timeInterval);
 	this->operateOnCurrent = operateOnCurrent;
 	if (stepsToGo == 0) {
-		if (this->isActive()) {
+		if (this->getTaskState() == TaskState_Running) {
 			taskManager->StopTask(this);
 		}
 		writeLevel(targetLevel);

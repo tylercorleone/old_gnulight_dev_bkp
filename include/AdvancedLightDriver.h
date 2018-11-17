@@ -36,8 +36,8 @@ private:
 	const static uint8_t MAIN_LEVELS_NUM = 3;
 	const static uint8_t SUBLEVELS_NUM = 2;
 	bool lightnessSimulationEnabled = true;
-	const float mainLevels[MAIN_LEVELS_NUM][SUBLEVELS_NUM] = { { MIN_LIGHT_CURRENT_ABOVE_ZERO, 0.02f },
-			{ 0.2f, 0.5f }, { 0.75f, 1.0f } };
+	const float mainLevels[MAIN_LEVELS_NUM][SUBLEVELS_NUM] = { {
+	MIN_LIGHT_CURRENT_ABOVE_ZERO, 0.02f }, { 0.25f, 0.5f }, { 0.75f, 1.0f } };
 	MainLightLevel currentMainLevel = MainLightLevel::MAX;
 	uint8_t currentSubLevelsIndexes[MAIN_LEVELS_NUM] = { 0, 0, 0 };
 	uint8_t temperatureSensingPin;

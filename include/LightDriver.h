@@ -20,12 +20,12 @@ public:
 	virtual void toggleLightStatus();
 	LightStatus getLightStatus();
 protected:
-	uint8_t getPwmAmount();
+	uint16_t getPwmAmount();
 private:
 	void digPotWrite(unsigned int value);
 	LightStatus lightStatus = LightStatus::OFF;
 	float currentLevel = 0.0f;
-	uint8_t pwmAmount = 0;
+	uint16_t pwmAmount = 0;
 };
 
 #endif

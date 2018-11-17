@@ -19,15 +19,12 @@ void StrobeMode::onExitMode() {
 }
 
 bool StrobeMode::interpretUserInteraction(ButtonInteraction& interaction) {
-	pHostSystem->ResetTask(&toggleLightStatusTask);
 	if (interaction.getClicksCount() > 0) {
 		switch (interaction.getClicksCount()) {
 		case 1:
 			pHostSystem->enterMode(pHostSystem->powerOffMode);
 			return true;
 		case 2:
-			pHostSystem->StopTask(&toggleLightStatusTask);
-			toggleLightStatusTask.setTimeInterval(0);
 			currentStrobeType = (currentStrobeType + 1) % STROBE_TYPES_COUNT;
 			debug("strobe type " + currentStrobeType);
 
@@ -40,25 +37,26 @@ bool StrobeMode::interpretUserInteraction(ButtonInteraction& interaction) {
 				pHostSystem->advancedLightDriver.switchLightStatus(
 						LightStatus::ON);
 			}
-			pHostSystem->StartTask(&toggleLightStatusTask);
+
+			toggleLightStatusTask.setTimeInterval(0);
+			pHostSystem->ResetTask(&toggleLightStatusTask);
 			return true;
 		case 3:
 			periodMultiplierX1000 *= 2;
 			return true;
 		case 4:
-			if (periodMultiplierX1000 > 125)
+			if (periodMultiplierX1000 > 125) {
 				periodMultiplierX1000 /= 2;
+			}
 			return true;
 		default:
 			return false;
 		}
+	} else if (interaction.getHoldStepsCount() > 0) {
+		varName = pHostSystem->advancedLightDriver.setNextMainLevel();
+		return true;
 	} else {
-		if (interaction.getHoldStepsCount() > 0) {
-			varName = pHostSystem->advancedLightDriver.setNextMainLevel();
-			return true;
-		} else {
-			return false;
-		}
+		return false;
 	}
 }
 

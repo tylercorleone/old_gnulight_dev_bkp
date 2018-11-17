@@ -1,7 +1,10 @@
 #include "LightDriver.h"
 
+#include "defines.h"
 #include <SPI.h>
-#include "utils.h"
+#include <PWM.h>
+
+#define LED_PIN_PWM_MAX 65535
 
 LightDriver::LightDriver() {
 	trace("Inst. LD");
@@ -9,10 +12,8 @@ LightDriver::LightDriver() {
 
 void LightDriver::setup() {
 	trace("LD::setup");
-	pinMode(LED_PIN, OUTPUT);
-	digitalWrite(LED_PIN, HIGH);
-	lightStatus = LightStatus::OFF;
-	Utils::setPwmFrequency(LED_PIN, 256);
+	Timer1_Initialize();
+	SetPinFrequency(LED_PIN, 122);
 	SPI.begin();
 	digitalWrite(PIN_SPI_SS, LOW); // 0.429 -> 0.168 mA
 	setCurrentLevel(0.0f);
@@ -26,7 +27,7 @@ float LightDriver::getCurrentLevel() {
 	return currentLevel;
 }
 
-uint8_t LightDriver::getPwmAmount() {
+uint16_t LightDriver::getPwmAmount() {
 	return pwmAmount;
 }
 
@@ -44,16 +45,16 @@ void LightDriver::setCurrentLevel(float level) {
 	float K = 0.031f;
 	float x;
 	if (currentLevel <= K) {
-		pwmAmount = 255 * currentLevel / K;
+		pwmAmount = LED_PIN_PWM_MAX * currentLevel / K;
 		x = 0;
 	} else {
-		pwmAmount = 255;
+		pwmAmount = LED_PIN_PWM_MAX;
 		x = (currentLevel - K) / (1.0f - K);
 	}
 	
 	if (lightStatus == LightStatus::ON) {
 		trace("LD pwmAmount: " + pwmAmount);
-		analogWrite(LED_PIN, 255 - pwmAmount);
+		pwmWriteHR(LED_PIN, LED_PIN_PWM_MAX - pwmAmount);
 	}
 
 	digPotWrite((int) (256 * (1.0f - x)));
@@ -62,7 +63,7 @@ void LightDriver::setCurrentLevel(float level) {
 void LightDriver::switchLightStatus(LightStatus lightStatus) {
 	trace("LD::switchLightStatus " + (lightStatus == LightStatus::ON ? "ON" : "OFF"));
 	if (lightStatus == LightStatus::ON) {
-		analogWrite(LED_PIN, 255 - pwmAmount); // (255 - pwm) because of negative logic of shuttown pin of LM2596
+		pwmWriteHR(LED_PIN, LED_PIN_PWM_MAX - pwmAmount); // (LED_PIN_PWM_MAX - pwm) because of negative logic of shuttown pin of LM2596
 	} else {
 		digitalWrite(LED_PIN, HIGH);
 	}

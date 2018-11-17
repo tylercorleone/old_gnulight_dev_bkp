@@ -47,7 +47,7 @@ protected:
 	InternalLifecycleState internalLifecycleState = LIFECYCLE_STATE_UNKNOWN;
 	static Button *staticButton;
 	Button button {this, BUTTON_PIN, staticButton, buttonStateChangeISR};
-	LithiumBattery battery {4.2, 2.8, 3.2, 0.053, BATTERY_SENSING_PIN, 1};
+	LithiumBattery battery {4.17, 2.8, 3.2, 0.053, BATTERY_SENSING_PIN, 1};
 	AdvancedLightDriver advancedLightDriver {this, TEMPERATURE_SENSING_PIN};
 	Dimmable<float> *batteryLevelObservers[1] = {&advancedLightDriver};
 	BatteryMonitor batteryMonitor {&battery, BATTERY_LEVEL_MONITORING_INTERVAL_MS, emptyBatteryCallback, batteryLevelObservers};

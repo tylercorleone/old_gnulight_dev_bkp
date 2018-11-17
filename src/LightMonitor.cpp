@@ -31,15 +31,15 @@ void LightMonitor::OnUpdate(uint32_t deltaTime) {
 }
 
 float LightMonitor::calculateCurrentUpperLimit() {
-	float currentToTemperatureTarget = 1.0f;
+	float currentUpperLimit = 1.0f;
 	if (pAdvLightDriver->getCurrentLevel() > CURRENT_ACTIVATION_THRESHOLD) {
 		float actualCurrentLimit = pAdvLightDriver->getCurrentUpperLimit();
 		float temperaturePIControlVariable = getTemperaturePIDControlVariable();
 		trace("TempPIDControlVariable: " + temperaturePIControlVariable);
-		currentToTemperatureTarget = actualCurrentLimit * (1.0f + 0.5f * temperaturePIControlVariable);
-		trace("currentToTemperatureTarget: " + currentToTemperatureTarget);
+		currentUpperLimit = actualCurrentLimit * (1.0f + temperaturePIControlVariable);
+		trace("currentUpperLimit: " + currentUpperLimit);
 	}
-	return min(currentToTemperatureTarget, maxAppliableCurrent);
+	return min(currentUpperLimit, maxAppliableCurrent);
 }
 
 float LightMonitor::getTemperaturePIDControlVariable() {

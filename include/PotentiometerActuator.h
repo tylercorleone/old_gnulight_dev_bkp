@@ -18,9 +18,9 @@ private:
 	void OnUpdate(uint32_t timeInterval) override;
 	AdvancedLightDriver* advancedLightDriver;
 	TaskManager* taskManager;
-	float targetLevel;
-	uint32_t stepsToGo;
-	bool operateOnCurrent;
+	float targetLevel = -1.0;
+	uint32_t stepsToGo = -1;
+	bool operateOnCurrent = false;
 };
 
 #endif
