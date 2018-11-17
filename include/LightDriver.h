@@ -3,9 +3,9 @@
 
 #include <stdint.h>
 
-#include "../lib/ComponentsOs/include/components/LightDimmer.h"
+#include <LightDimmer.h>
+#include <PotentiometerActuator.h>
 #include "system/HostSystemAware.h"
-#include "../lib/ComponentsOs/include/components/PotentiometerActuator.h"
 #include "defines.h"
 #include "Dimmable.h"
 #include "LedCurrentPotentiometer.h"
@@ -37,10 +37,9 @@ private:
 	void setCurrentUpperLimit(float limit, uint32_t transitionDurationMs = 0);
 
 	const static uint8_t MAIN_LEVELS_NUM = 3;
-	const static uint8_t SUBLEVELS_NUM = 3;
+	const static uint8_t SUBLEVELS_NUM = 2;
 	const float mainLevels[MAIN_LEVELS_NUM][SUBLEVELS_NUM] = { {
-	MIN_LIGHT_CURRENT_ABOVE_ZERO, MIN_LIGHT_CURRENT_ABOVE_ZERO * 2.0, 0.02f }, {
-			0.1f, 0.3f, 0.5f }, { 0.66f, 0.8f, 1.0f } };
+	MIN_LIGHT_CURRENT_ABOVE_ZERO, 0.02f }, { 0.25f, 0.5f }, { 0.75f, 1.0f } };
 	MainLightLevel currentMainLevel = MainLightLevel::MAX;
 	uint8_t currentSubLevelsIndexes[MAIN_LEVELS_NUM] = { 0, 0, 0 };
 

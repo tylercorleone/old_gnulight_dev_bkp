@@ -1,5 +1,7 @@
 #include "Gnulight.h"
 #include <LowPower.h>
+#include <avr/power.h>
+
 
 Gnulight *staticGnulight;
 
@@ -35,7 +37,6 @@ void Gnulight::switchPower(OnOffState state) {
 		info("---\nHERE GNULIGHT\n---");
 	} else {
 		lightDriver.setState(OnOffState::OFF);
-		// StopAllTasks();
 		digitalWrite(DEVICES_VCC_PIN, LOW);
 		info("---\nGOODBYE\n---");
 		EnterSleep();

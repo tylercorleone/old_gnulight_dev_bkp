@@ -2,6 +2,8 @@
 #ifndef LIGHTMONITOR_H
 #define LIGHTMONITOR_H
 
+#include <stdint.h>
+#include <stddef.h>
 #include "Task.h"
 #include "Dimmable.h"
 
@@ -25,9 +27,9 @@ private:
     float calculateDerivate(float f_t, float f_t_1, float f_t_2, float dt);
 	LightDriver* pLightDriver;
 	float maxAppliableCurrent = 1.0;
-	float Kp = 0.002f;
-	float Ki = 0.000025f;
-	float Kd = 1.5f;
+	float Kp = 0.001f;
+	float Ki = 0.000015f;
+	float Kd = 0.5f;
 	float temperatureErrorIntegral;
 	float temperatureError_1, temperatureError_2;
 };

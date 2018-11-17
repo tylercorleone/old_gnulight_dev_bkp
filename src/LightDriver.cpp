@@ -10,18 +10,20 @@ LightDriver::LightDriver(Gnulight* gnulight, uint8_t temperatureSensingPin) :
 	trace("Inst. LD");
 }
 
-void LightDriver::setup() {this->toggleState();
+void LightDriver::setup() {
 	trace("LD::setup");
 	pinMode(temperatureSensingPin, INPUT);
 	currentPotentiometer.setup();
+	setState(OnOffState::OFF);
 }
 
 void LightDriver::setLevel(float level) {
+	debug("LD::setLevel(" + level + ")");
 	LightDimmer::setLevel(level);
 }
 
 void LightDriver::setLevel(float level, uint32_t transitionDurationMs) {
-	debug("LD::setPotentiometerLevel(" + level + ", " + transitionDurationMs + ")");
+	debug("LD::setLevel(" + level + ", " + transitionDurationMs + ")");
 	lightLevelActuator.setLevel(constrain(level, 0.0f, 1.0f),
 			transitionDurationMs);
 }
@@ -31,6 +33,7 @@ float LightDriver::getCurrentLevel() {
 }
 
 void LightDriver::setCurrentLevel(float level) {
+	debug("LD::setCurrentLevel(" + level + ")");
 	wantedCurrentLevel = level;
 	currentPotentiometer.setLevel(min(currentUpperLimit, level));
 }

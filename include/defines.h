@@ -1,9 +1,9 @@
 #ifndef DEFINITIONS_H
 #define DEFINITIONS_H
 
- #define INFO
- #define DEBUG
- #define TRACE
+//#define INFO
+//#define DEBUG
+//#define TRACE
 
 #include <Arduino.h>
 
@@ -17,7 +17,7 @@
 #define CURRENT_SENSING_PIN A3
 
 /************************************/
-#define MIN_LIGHT_CURRENT_ABOVE_ZERO 0.0003f
+#define MIN_LIGHT_CURRENT_ABOVE_ZERO 0.00035f
 
 /**********   TIMING   **********/
 #define BATTERY_LEVEL_MONITORING_INTERVAL_MS 5000

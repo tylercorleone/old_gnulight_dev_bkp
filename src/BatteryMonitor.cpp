@@ -31,7 +31,7 @@ void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
 					> maxRelativeCurrent * rechargeThresholdMultiplier
 			|| (actualMaxRelativeCurrent > 0.7f
 					&& actualMaxRelativeCurrent > maxRelativeCurrent)) {
-		trace("Upd. bareLevelTh. " + actualMaxRelativeCurrent);
+		debug("BM maxRelativeCurrent: " + maxRelativeCurrent);
 		maxRelativeCurrent = actualMaxRelativeCurrent;
 	}
 
@@ -45,6 +45,7 @@ void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
 
 void BatteryMonitor::notifyDimmableRecipients() {
 	int recipientsCount = sizeof(recipientsToDim) / sizeof(Dimmable<float>*);
+
 	for (int i = 0; i < recipientsCount; ++i) {
 		recipientsToDim[i]->dim(maxRelativeCurrent);
 	}
@@ -52,6 +53,7 @@ void BatteryMonitor::notifyDimmableRecipients() {
 
 float BatteryMonitor::calculateInstantaneousMaxRelativeCurrent() {
 	float currentCapacity = lithiumBattery->getRemainingCharge();
+
 	if (currentCapacity == 0.0f) {
 		return 0.0f;
 	} else if (currentCapacity < 0.05f) {
@@ -61,5 +63,6 @@ float BatteryMonitor::calculateInstantaneousMaxRelativeCurrent() {
 	} else if (currentCapacity < 0.3f) {
 		return 0.5f;
 	}
+
 	return 1.0f;
 }

@@ -1,9 +1,11 @@
 #ifndef GNULIGHT_H
 #define GNULIGHT_H
 
+#include <stdint.h>
+#include <stddef.h>
 #include <Task.h>
 
-#include "../lib/ComponentsOs/include/ComponentsOs.h"
+#include "Components.h"
 #include "BatteryMonitor.h"
 #include "LightMonitor.h"
 #include "Button.h"
@@ -41,7 +43,7 @@ protected:
 	static void emptyBatteryCallback();
 	static Button *staticButton;
 	Button button {this, BUTTON_PIN, staticButton, buttonStateChangeISR};
-	LithiumBattery battery {4.2, 2.8, 3.2, 0.053, BATTERY_SENSING_PIN, 1};
+	LithiumBattery battery {4.17, 2.8, 3.2, 0.053, BATTERY_SENSING_PIN, 1};
 	LightDriver lightDriver {this, TEMPERATURE_SENSING_PIN};
 	Dimmable<float> *batteryLevelObservers[1] = {&lightMonitor};
 	BatteryMonitor batteryMonitor {&battery, BATTERY_LEVEL_MONITORING_INTERVAL_MS, emptyBatteryCallback, batteryLevelObservers};

@@ -3,7 +3,7 @@
 
 #include <stdint.h>
 
-#include "../lib/ComponentsOs/include/components/Potentiometer.h"
+#include "Potentiometer.h"
 
 class LedCurrentPotentiometer : public Potentiometer {
 public:

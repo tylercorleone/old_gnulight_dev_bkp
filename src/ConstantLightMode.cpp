@@ -3,6 +3,7 @@
 
 bool ConstantLightMode::onEnterMode(ButtonInteraction* interaction) {
 	info(modeName + "::onEnterMode");
+
 	if (interaction->getClicksCount() > 0) {
 		switch (interaction->getClicksCount()) {
 		case 1:
