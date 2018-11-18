@@ -1,0 +1,14 @@
+{
+  "name": "Components",
+  "keywords": "",
+  "description": "",
+  "repository":
+  {
+    "type": "git",
+    "url": "https://github.com/tylercorleone"
+  },
+  "version": "0.9",
+  "frameworks": "arduino",
+  "platforms": "*"
+}
+
