@@ -1,10 +1,11 @@
-#ifndef STROBE_MODE_H
-#define STROBE_MODE_H
+#ifndef STROBESTATE_H
+#define STROBESTATE_H
 
-#include "GnulightMode.h"
+#include <HostSystemAware.h>
+#include <State.h>
 #include "FunctionsSequenceTask.h"
 
-class LightDriver;
+class Gnulight;
 
 #define STROBE_TYPES_COUNT 5
 
@@ -27,20 +28,20 @@ enum StrobeTypes {
 	DISCO_STROBE = 4
 };
 
-class StrobeMode: public GnulightMode {
+class StrobeState: public State, public HostSystemAware<Gnulight> {
 public:
-	StrobeMode(Gnulight* gnulight, const char* modeName) :
-			GnulightMode(gnulight, modeName) {
+	StrobeState(Gnulight* gnulight) :
+		HostSystemAware(gnulight) {
 	}
-	boolean interpretUserInteraction(ButtonInteraction& interaction);
 protected:
-	boolean onEnterMode(ButtonInteraction* interaction);
-	void onExitMode();
-	static uint32_t switchLightStatus(StrobeMode* _this);
+	bool onEnterState(const Event &event) override;
+	void onExitState() override;
+	bool receiveEvent(const Event &event) override;
+	static uint32_t switchLightStatus(StrobeState *_this);
 	static float sinWave(uint32_t millis, uint32_t periodMs);
 	static float triangularWave(uint32_t millis, uint32_t periodMs);
 	FunctionsSequenceTask& toggleLightStatusTask = SequenceTaskBuilder::begin(
-			StrobeMode::switchLightStatus, this).thenRepeat();
+			StrobeState::switchLightStatus, this).thenRepeat();
 	StrobeTypes currentStrobeType = SINUSOIDAL_STROBE;
 	float varName = 0.0;
 	uint32_t periodMultiplierX1000 = 1000UL;

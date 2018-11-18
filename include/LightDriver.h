@@ -5,7 +5,7 @@
 
 #include <LightDimmer.h>
 #include <PotentiometerActuator.h>
-#include "system/HostSystemAware.h"
+#include <HostSystemAware.h>
 #include "defines.h"
 #include "Dimmable.h"
 #include "LedCurrentPotentiometer.h"
@@ -22,7 +22,7 @@ class LightDriver: public LightDimmer, public HostSystemAware<Gnulight> {
 public:
 	LightDriver(Gnulight* gnulight, uint8_t temperatureSensingPin);
 	void setup();
-	void setLevel(float level) override;
+	using LightDimmer::setLevel;
 	void setLevel(float level, uint32_t transitionDurationMs);
 	MainLightLevel getCurrentMainLevel();
 	float setMainLevel(MainLightLevel, uint32_t transitionDurationMs = 0);
@@ -46,9 +46,9 @@ private:
 	LedCurrentPotentiometer currentPotentiometer;
 	uint8_t temperatureSensingPin;
 	PotentiometerActuator lightLevelActuator { ACTUATORS_INTERVAL_MS,
-			(TaskManager*) pHostSystem, this };
+			(TaskManager*) getHostSystem(), this };
 	PotentiometerActuator currentActuator { ACTUATORS_INTERVAL_MS,
-			(TaskManager*) pHostSystem, &currentPotentiometer };
+			(TaskManager*) getHostSystem(), &currentPotentiometer };
 
 	float currentUpperLimit = 1.0f;
 	float wantedCurrentLevel = 0.0f;

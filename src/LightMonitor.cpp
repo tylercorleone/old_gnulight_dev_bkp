@@ -35,9 +35,9 @@ float LightMonitor::calculateCurrentUpperLimit() {
 	if (pLightDriver->getCurrentLevel() > CURRENT_ACTIVATION_THRESHOLD) {
 		float actualCurrentLimit = pLightDriver->getCurrentUpperLimit();
 		float temperaturePIControlVariable = getTemperaturePIDControlVariable();
-		trace("TempPIDControlVariable: " + temperaturePIControlVariable);
+		trace("TempPIDControlVariable: %f", temperaturePIControlVariable);
 		currentUpperLimit = actualCurrentLimit * (1.0f + temperaturePIControlVariable);
-		trace("currentUpperLimit: " + currentUpperLimit);
+		trace("currentUpperLimit: %f", currentUpperLimit);
 	}
 	return min(currentUpperLimit, maxAppliableCurrent);
 }
@@ -45,7 +45,7 @@ float LightMonitor::calculateCurrentUpperLimit() {
 float LightMonitor::getTemperaturePIDControlVariable() {
 	float dt = static_cast<float>(LIGHT_LEVEL_MONITORING_INTERVAL_MS) / 1000.0f;
 	float temperature = pLightDriver->getEmitterTemperature();
-	trace("Temp. " + temperature);
+	trace("Temp. %f", temperature);
 	float temperatureError = TEMPERATURE_TARGET - temperature;
 	temperatureErrorIntegral += temperatureError * dt;
 	temperatureErrorIntegral =
@@ -55,9 +55,9 @@ float LightMonitor::getTemperaturePIDControlVariable() {
 	float derivative = calculateDerivate(temperatureError, temperatureError_1, temperatureError_2, dt);
 	temperatureError_2 = temperatureError_1;
 	temperatureError_1 = temperatureError;
-	trace("Kp * error " + (Kp * temperatureError));
-	trace("Ki * errorIntegral " + Ki * temperatureErrorIntegral);
-	trace("Kd * der " + Kd * derivative);
+	trace("Kp * error: %f", Kp * temperatureError);
+	trace("Ki * errorIntegral %f", Ki * temperatureErrorIntegral);
+	trace("Kd * der: %f", Kd * derivative);
 	return Kp * temperatureError + Ki * temperatureErrorIntegral
 			+ Kd * derivative;
 }

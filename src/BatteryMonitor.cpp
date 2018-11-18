@@ -31,7 +31,7 @@ void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
 					> maxRelativeCurrent * rechargeThresholdMultiplier
 			|| (actualMaxRelativeCurrent > 0.7f
 					&& actualMaxRelativeCurrent > maxRelativeCurrent)) {
-		debug("BM maxRelativeCurrent: " + maxRelativeCurrent);
+		debug("BM maxRelativeCurrent: %f", maxRelativeCurrent);
 		maxRelativeCurrent = actualMaxRelativeCurrent;
 	}
 

@@ -1,48 +1,52 @@
-#include "ParameterCheckMode.h"
+#include <string.h>
+#include "ParameterCheckState.h"
 #include "Gnulight.h"
 
-bool ParameterCheckMode::onEnterMode(const char* msg) {
-	info(modeName + "::onEnterMode");
+const char *ParameterCheckState::BATTERY_CHECK = "b";
+const char *ParameterCheckState::LAMP_TEMPERATURE_CHECK = "t";
+
+bool ParameterCheckState::onEnterState(const Event &event) {
+	info("PCM::onEnterMode");
+
 	float parameterValue;
-	switch (*msg) {
-	case BATTERY_CHECK:
+
+	if (event.isMessage(BATTERY_CHECK)) {
 		parameterValue =
-				static_cast<int8_t>(pHostSystem->battery.getRemainingCharge()
+				static_cast<int8_t>(getHostSystem()->battery.getRemainingCharge()
 						* 10);
-		break;
-	case LAMP_TEMPERATURE_CHECK:
+	} else if (event.isMessage(LAMP_TEMPERATURE_CHECK)) {
 		parameterValue =
-				pHostSystem->lightDriver.getEmitterTemperature()
+				getHostSystem()->lightDriver.getEmitterTemperature()
 						/ 10.0f;
-		break;
-	default:
+	} else {
 		return false;
 	}
+
 	strobesForIntegerPartCount = static_cast<int8_t>(parameterValue);
 	strobesForDecimalPartCount = static_cast<int8_t>(round(
 			parameterValue * 10.0f)) % 10;
-	debug(*msg + " value " + parameterValue);
-	pHostSystem->lightDriver.setMainLevel(MainLightLevel::MED);
-	pHostSystem->lightDriver.setState(OnOffState::OFF);
-	pHostSystem->StartTask(&renderValueWithFlashes);
+	debug("%s value: %f",event.getMessage(), parameterValue);
+	getHostSystem()->lightDriver.setMainLevel(MainLightLevel::MED);
+	getHostSystem()->lightDriver.setState(OnOffState::OFF);
+	getHostSystem()->StartTask(&renderValueWithFlashes);
 	return true;
 }
 
-void ParameterCheckMode::onExitMode() {
-	info(modeName + "::onExitMode");
-	pHostSystem->StopTask(&renderValueWithFlashes);
+void ParameterCheckState::onExitState() {
+	info("PCM::onExitMode");
+	getHostSystem()->StopTask(&renderValueWithFlashes);
 }
 
-uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode* _this) {
+uint32_t ParameterCheckState::switchLightStatus(ParameterCheckState* _this) {
 	if (_this->strobesForDecimalPartCount == 0
 			&& (_this->strobesForIntegerPartCount == -1
 					|| _this->strobesForIntegerPartCount == 0)) {
-		_this->pHostSystem->enterMode(_this->pHostSystem->powerOffMode);
+		_this->getHostSystem()->enterState(_this->getHostSystem()->powerOffState);
 		return -1;
 	}
 	uint32_t interval;
 	if (_this->strobesForIntegerPartCount > 0) {
-		if (_this->pHostSystem->lightDriver.getState()
+		if (_this->getHostSystem()->lightDriver.getState()
 				== OnOffState::OFF) {
 			interval = MsToTaskTime(
 					SIGNAL_STROBE_INTERVAL_MS * DIGIT_SIGNAL_DUTY_CYCLE);
@@ -53,7 +57,7 @@ uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode* _this) {
 							SIGNAL_STROBE_INTERVAL_MS * (1.0f - DIGIT_SIGNAL_DUTY_CYCLE));
 		}
 	} else if (_this->strobesForIntegerPartCount == 0) {
-		if (_this->pHostSystem->lightDriver.getState()
+		if (_this->getHostSystem()->lightDriver.getState()
 				== OnOffState::OFF) {
 			interval = MsToTaskTime(
 					SIGNAL_STROBE_INTERVAL_MS * COMMA_SIGNAL_DUTY_CYCLE);
@@ -64,7 +68,7 @@ uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode* _this) {
 							SIGNAL_STROBE_INTERVAL_MS * (1.0f - DIGIT_SIGNAL_DUTY_CYCLE));
 		}
 	} else {
-		if (_this->pHostSystem->lightDriver.getState()
+		if (_this->getHostSystem()->lightDriver.getState()
 				== OnOffState::OFF) {
 			interval = MsToTaskTime(
 					SIGNAL_STROBE_INTERVAL_MS * DIGIT_SIGNAL_DUTY_CYCLE);
@@ -75,6 +79,6 @@ uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode* _this) {
 							SIGNAL_STROBE_INTERVAL_MS * (1.0f - DIGIT_SIGNAL_DUTY_CYCLE));
 		}
 	}
-	_this->pHostSystem->lightDriver.toggleState();
+	_this->getHostSystem()->lightDriver.toggleState();
 	return interval;
 }

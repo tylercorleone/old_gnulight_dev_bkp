@@ -7,23 +7,18 @@
 LightDriver::LightDriver(Gnulight* gnulight, uint8_t temperatureSensingPin) :
 		LightDimmer(&currentPotentiometer), HostSystemAware(gnulight), temperatureSensingPin(
 				temperatureSensingPin) {
-	trace("Inst. LD");
+	setInstanceName("lghtDrv");
+	currentPotentiometer.setInstanceName("currPot");
 }
 
 void LightDriver::setup() {
-	trace("LD::setup");
+	debugNamedInstance("setup");
 	pinMode(temperatureSensingPin, INPUT);
 	currentPotentiometer.setup();
-	setState(OnOffState::OFF);
-}
-
-void LightDriver::setLevel(float level) {
-	debug("LD::setLevel(" + level + ")");
-	LightDimmer::setLevel(level);
 }
 
 void LightDriver::setLevel(float level, uint32_t transitionDurationMs) {
-	debug("LD::setLevel(" + level + ", " + transitionDurationMs + ")");
+	traceNamedInstance("setLevel(%f, %u)", level, transitionDurationMs);
 	lightLevelActuator.setLevel(constrain(level, 0.0f, 1.0f),
 			transitionDurationMs);
 }
@@ -33,7 +28,7 @@ float LightDriver::getCurrentLevel() {
 }
 
 void LightDriver::setCurrentLevel(float level) {
-	debug("LD::setCurrentLevel(" + level + ")");
+	traceNamedInstance("setCurrentLevel(%f)", level);
 	wantedCurrentLevel = level;
 	currentPotentiometer.setLevel(min(currentUpperLimit, level));
 }
@@ -44,7 +39,7 @@ float LightDriver::getCurrentUpperLimit() {
 
 void LightDriver::setCurrentUpperLimit(float limit,
 		uint32_t transitionDurationMs) {
-	debug("LD::setCurrentUpperLimit(" + currentUpperLimit + ", " + transitionDurationMs + ")");
+	traceNamedInstance("setCurrentUpperLimit(%f, %u)", currentUpperLimit, transitionDurationMs);
 
 	currentUpperLimit = constrain(limit, 0.0f, 1.0f);
 
