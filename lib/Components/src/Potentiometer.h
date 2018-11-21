@@ -4,31 +4,22 @@
 #include "Components.h"
 #include "Named.h"
 
-#define _constrain(value,low,high) ((value)<(low)?(low):((value)>(high)?(high):(value)))
-
 class Potentiometer: public Named {
 public:
-	Potentiometer();
 	float getLevel();
+	virtual void setLevel(float level);
 	OnOffState getState();
+	virtual void setState(OnOffState state);
 	void toggleState();
 	virtual ~Potentiometer();
-
-	virtual void levelActuationFunction(float level) = 0;
-	virtual void setLevel(float level);
-	virtual void setState(OnOffState state);
-
 protected:
+	virtual void levelActuationFunction(float level) = 0;
 	virtual void onEnterOffState();
 	virtual void onEnterOnState();
 
 	OnOffState state = OnOffState::OFF;
-	float level = 0.0;
+	float level = 1.0;
 };
-
-inline Potentiometer::Potentiometer() {
-
-}
 
 inline float Potentiometer::getLevel() {
 	return level;
@@ -36,7 +27,7 @@ inline float Potentiometer::getLevel() {
 
 inline void Potentiometer::setLevel(float level) {
 	traceNamedInstance("setLevel(%f)", level);
-	this->level = _constrain(level, 0.0, 1.0);
+	this->level = _constrain(level, 0.0f, 1.0f);
 
 	if (state == OnOffState::ON) {
 		levelActuationFunction(this->level);

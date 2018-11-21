@@ -10,11 +10,11 @@
 inline int aprintf(const char *str, va_list argv) {
 	int i, j, count = 0;
 
-	for(i = 0, j = 0; str[i] != '\0'; i++) {
+	for (i = 0, j = 0; str[i] != '\0'; i++) {
 		if (str[i] == '%') {
 			count++;
 
-			Serial.write(reinterpret_cast<const uint8_t*>(str+j), i-j);
+			Serial.write(reinterpret_cast<const uint8_t*>(str + j), i - j);
 
 			switch (str[++i]) {
 				case 'i':
@@ -30,17 +30,17 @@ inline int aprintf(const char *str, va_list argv) {
 					break;
 				case 's': Serial.print(va_arg(argv, const char *));
 					break;
-				case '%': Serial.print("%");
+				case '%': Serial.print('%');
 					break;
 				default:;
 			};
 
-			j = i+1;
+			j = i + 1;
 		}
 	};
 
-	if(i > j) {
-		Serial.write(reinterpret_cast<const uint8_t*>(str+j), i-j);
+	if (i > j) {
+		Serial.write(reinterpret_cast<const uint8_t*>(str + j), i - j);
 	}
 
 	return count;
@@ -49,8 +49,11 @@ inline int aprintf(const char *str, va_list argv) {
 inline void log(const char *fmt, ...) {
 	va_list argv;
 	va_start(argv, fmt);
+
 	aprintf(fmt, argv);
+
 	va_end(argv);
+
 	Serial.println();
 	Serial.flush();
 }
@@ -59,12 +62,16 @@ inline void logNamedInstance(Named *instance, const char *fmt, ...) {
 	if (instance->getInstanceName() == nullptr) {
 		return;
 	}
+
 	va_list argv;
 	va_start(argv, fmt);
+
 	Serial.print(instance->getInstanceName());
 	Serial.print(": ");
 	aprintf(fmt, argv);
+
 	va_end(argv);
+
 	Serial.println();
 	Serial.flush();
 }

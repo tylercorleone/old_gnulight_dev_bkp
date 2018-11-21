@@ -22,7 +22,7 @@ void LedCurrentPotentiometer::setup() {
 }
 
 void LedCurrentPotentiometer::levelActuationFunction(float level) {
-	float _level = constrain(level, 0.0f, 1.0f);
+	float _level = constrain(level, 0.0, currentUpperLimit);
 
 	// Imin senza pwm = 0.191 * 3 = 0.573 A
 	// Imax = 0.616 * 3 = 1.848 A
@@ -49,6 +49,33 @@ void LedCurrentPotentiometer::levelActuationFunction(float level) {
 	digPotWrite(digPotValue);
 
 	traceNamedInstance("pwmAmount: %u, digPotValue: %u", pwmAmount, digPotValue);
+}
+
+float LedCurrentPotentiometer::getCurrentUpperLimit() {
+	return currentUpperLimit;
+}
+
+void LedCurrentPotentiometer::setCurrentUpperLimit(float limit,
+		uint32_t transitionDurationMs) {
+	traceNamedInstance("setCurrentUpperLimit(%f, %u)", limit, transitionDurationMs);
+
+	currentUpperLimit = constrain(limit, 0.0f, 1.0f);
+
+	if (currentUpperLimit < level) {
+
+		/*
+		 * we have to reduce current
+		 */
+		currentActuator.setLevel(currentUpperLimit, transitionDurationMs);
+	} else if (currentUpperLimit > level
+			&& level < wantedCurrentLevel) {
+
+		/*
+		 * we can increase current
+		 */
+		currentActuator.setLevel(min(currentUpperLimit, wantedCurrentLevel),
+				transitionDurationMs);
+	}
 }
 
 void LedCurrentPotentiometer::digPotWrite(uint16_t value) {

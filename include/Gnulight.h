@@ -20,6 +20,7 @@ class Gnulight : public System {
 	friend class ConstantLightState;
 	friend class StrobeState;
 	friend class ParameterCheckState;
+	friend class BatteryMonitor;
 public:
 	Gnulight();
 	void Setup();
@@ -27,15 +28,14 @@ public:
 	void EnterSleep();
 protected:
 	static void buttonStateChangeISR();
-	static void emptyBatteryCallback();
 	static Button *staticButton;
 	Button button {this, BUTTON_PIN, staticButton, buttonStateChangeISR};
-	LithiumBattery battery {4.17, 2.8, 3.2, 0.053, BATTERY_SENSING_PIN, 1};
+	LithiumBattery battery {2.8, 3.2, 4.17, 0.053, readBatterVoltage};
 	LightDriver lightDriver {this, TEMPERATURE_SENSING_PIN};
 	Dimmable<float> *batteryLevelObservers[1] = {&lightMonitor};
-	BatteryMonitor batteryMonitor {&battery, BATTERY_LEVEL_MONITORING_INTERVAL_MS, emptyBatteryCallback, batteryLevelObservers};
+	BatteryMonitor batteryMonitor {this, BATTERY_LEVEL_MONITORING_INTERVAL_MS, batteryLevelObservers};
 	LightMonitor lightMonitor { &lightDriver };
-	State *currentMode = nullptr;
+	State *currentState = nullptr;
 	PowerOffState powerOffState {this};
 	ConstantLightState constantLightState {this};
 	StrobeState strobeState {this};

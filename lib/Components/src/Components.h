@@ -7,11 +7,9 @@ enum class OnOffState {
 	ON, OFF
 };
 
-#define INFO
-#define DEBUG
-#define TRACE
-
-#define LOG_BUFFER_SIZE 128
+//#define INFO
+//#define DEBUG
+//#define TRACE
 
 #ifdef INFO
 #define info(fmt, ...) log(fmt, ##__VA_ARGS__)
@@ -42,5 +40,7 @@ enum class OnOffState {
 #define debug(fmt, ...)
 #define debugNamedInstance(fmt, ...)
 #endif
+
+#define _constrain(value,low,high) ((value)<(low)?(low):((value)>(high)?(high):(value)))
 
 #endif

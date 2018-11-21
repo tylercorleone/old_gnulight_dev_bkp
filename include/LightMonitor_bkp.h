@@ -4,19 +4,17 @@
 
 #include <stdint.h>
 #include <stddef.h>
-#include <Task.h>
-#include <PotentiometerActuator.h>
+#include "Task.h"
 #include "Dimmable.h"
 
 #define TEMPERATURE_TARGET 50.0f
 #define TEMPERATURE_MAX_ERROR 500.0f
 #define CURRENT_ACTIVATION_THRESHOLD 0.2f
-#define ACTUATOR_INTERVAL_MS MsToTaskTime(30)
 
 class LightDriver;
 class ProtectedLithiumBattery;
 
-class LedMaxCurrentPotentiometer: public Potentiometer, public Task, public Dimmable<float> {
+class LightMonitor: public Task, public Dimmable<float> {
 public:
 	LightMonitor(LightDriver *pLightDriver);
 	bool OnStart() override;
@@ -34,9 +32,6 @@ private:
 	float Kd = 0.5f;
 	float temperatureErrorIntegral;
 	float temperatureError_1, temperatureError_2 ;
-
-	PotentiometerActuator currentMaxLimitActuator { ACTUATOR_INTERVAL_MS,
-			(TaskManager*) getHostSystem(), this };
 };
 
 #endif

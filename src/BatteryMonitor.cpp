@@ -1,41 +1,40 @@
 #include "BatteryMonitor.h"
 
 #include "defines.h"
+#include "Gnulight.h"
 
-BatteryMonitor::BatteryMonitor(LithiumBattery *lithiumBattery,
-		uint32_t interval, void (*emptyBatteryCallback)(), Dimmable<float> **recipientsToDim) :
-		Task(interval), lithiumBattery(lithiumBattery), emptyBatteryCallback(
-				emptyBatteryCallback), recipientsToDim(recipientsToDim) {
+BatteryMonitor::BatteryMonitor(Gnulight *pGnulight, uint32_t interval,
+		Dimmable<float> **recipientsToDim) :
+		Task(interval), pGnulight(pGnulight), recipientsToDim(recipientsToDim) {
 	trace("Inst. BM");
 }
 
 bool BatteryMonitor::OnStart() {
 	trace("BM::OnStart");
-	maxRelativeCurrent = max(TERMINAL_GUARANTEED_RELATIVE_CURRENT,
-			calculateInstantaneousMaxRelativeCurrent());
-	notifyDimmableRecipients();
 	return true;
 }
 
 void BatteryMonitor::OnStop() {
 	trace("BM::OnStop");
-	maxRelativeCurrent = 1.0;
+	maxRelativeCurrent = BATTERY_FULL_CURRENT;
 	notifyDimmableRecipients();
 }
 
 void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
 	trace("BM::OnUpdate");
+
 	float actualMaxRelativeCurrent = calculateInstantaneousMaxRelativeCurrent();
+
 	if (actualMaxRelativeCurrent < maxRelativeCurrent
 			|| actualMaxRelativeCurrent
-					> maxRelativeCurrent * rechargeThresholdMultiplier
-			|| (actualMaxRelativeCurrent > 0.7f
-					&& actualMaxRelativeCurrent > maxRelativeCurrent)) {
+					> maxRelativeCurrent * RECHARGE_THRESHOLD_MULTIPLIER
+			|| actualMaxRelativeCurrent > ALMOST_FULL_THRESHOLD_CURRENT) {
 		debug("BM maxRelativeCurrent: %f", maxRelativeCurrent);
+
 		maxRelativeCurrent = actualMaxRelativeCurrent;
 	}
 
-	if (maxRelativeCurrent <= TERMINAL_GUARANTEED_RELATIVE_CURRENT) {
+	if (maxRelativeCurrent <= BATTERY_EMPTY_CURRENT) {
 		maxRelativeCurrent = TERMINAL_GUARANTEED_RELATIVE_CURRENT;
 		emptyBatteryCallback();
 	}
@@ -52,7 +51,7 @@ void BatteryMonitor::notifyDimmableRecipients() {
 }
 
 float BatteryMonitor::calculateInstantaneousMaxRelativeCurrent() {
-	float currentCapacity = lithiumBattery->getRemainingCharge();
+	float currentCapacity = pGnulight->battery.getRemainingCharge();
 
 	if (currentCapacity == 0.0f) {
 		return 0.0f;
@@ -64,5 +63,12 @@ float BatteryMonitor::calculateInstantaneousMaxRelativeCurrent() {
 		return 0.5f;
 	}
 
-	return 1.0f;
+	return BATTERY_FULL_CURRENT;
+}
+
+void BatteryMonitor::emptyBatteryCallback() {
+	if (pGnulight->currentState != &pGnulight->parameterCheckState) {
+		info("Batt. is empty");
+		pGnulight->enterState(pGnulight->parameterCheckState, ParameterCheckState::BATTERY_CHECK);
+	}
 }

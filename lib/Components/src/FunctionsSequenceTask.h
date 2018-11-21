@@ -1,7 +1,8 @@
 #ifndef FUNCTIONS_SEQUENCE_TASK_H
 #define FUNCTIONS_SEQUENCE_TASK_H
 
-#include "defines.h"
+#include <stdint.h>
+#include <stddef.h>
 #include <Task.h>
 
 template<typename T> using Callback = void(*)(T*);
@@ -12,36 +13,36 @@ class SequenceNode {
 	friend class SequenceTaskBuilder;
 
 	SequenceNode(Callback<void> callback, uint32_t intervalToNextTask,
-			void* stateHolder = nullptr) :
+			void *stateHolder = nullptr) :
 			callback(callback), intervalToNextTask(intervalToNextTask), stateHolder(
 					stateHolder) {
 	}
 	SequenceNode(CallbackReturningInterval<void> callbackReturningInterval,
-			void* stateHolder = nullptr) :
+			void *stateHolder = nullptr) :
 			callbackReturningInterval(callbackReturningInterval), stateHolder(
 					stateHolder) {
 	}
 	Callback<void> callback = nullptr;
 	CallbackReturningInterval<void> callbackReturningInterval = nullptr;
 	uint32_t intervalToNextTask = 0;
-	void* stateHolder = nullptr;
-	SequenceNode* pNext = nullptr;
+	void *stateHolder = nullptr;
+	SequenceNode *pNext = nullptr;
 };
 
 class FunctionsSequenceTask: public Task {
 public:
 	virtual ~FunctionsSequenceTask() {
-		SequenceNode* pIterate;
+		SequenceNode *pIterate;
 		pIterate = pFirstNode;
 		while (pIterate != nullptr) {
-			SequenceNode* pNext = pIterate->pNext;
+			SequenceNode *pNext = pIterate->pNext;
 			delete pIterate;
 			pIterate = pNext;
 		}
 	}
 private:
 	FunctionsSequenceTask(Callback<void> callback, uint32_t intervalToNextTask,
-			void* stateHolder) :
+			void *stateHolder) :
 			Task(-1) {
 		pFirstNode = pLastNode = new SequenceNode(callback, intervalToNextTask,
 				stateHolder);
@@ -49,7 +50,7 @@ private:
 
 	FunctionsSequenceTask(
 			CallbackReturningInterval<void> functionReturningInterval,
-			void* stateHolder) :
+			void *stateHolder) :
 			Task(-1) {
 		pFirstNode = pLastNode = new SequenceNode(functionReturningInterval,
 				stateHolder);
@@ -99,50 +100,58 @@ private:
 		}
 	}
 
-	SequenceNode* pFirstNode;
-	SequenceNode* pLastNode;
-	SequenceNode* pNodeToRun = nullptr;
-	boolean repeat = false;
-	boolean sequenceCompleted = false;
+	SequenceNode *pFirstNode;
+	SequenceNode *pLastNode;
+	SequenceNode *pNodeToRun = nullptr;
+	bool repeat = false;
+	bool sequenceCompleted = false;
 };
 
 class SequenceTaskBuilder {
 public:
 	template<typename T>
 	static SequenceTaskBuilder begin(Callback<T> callback,
-			uint32_t intervalToNextTask, T* stateHolder = nullptr) {
+			uint32_t intervalToNextTask, T *stateHolder = nullptr) {
+
 		SequenceTaskBuilder builder { new FunctionsSequenceTask(
-				(Callback<void> ) callback, intervalToNextTask,
+				(Callback<void>) callback, intervalToNextTask,
 				(void*) stateHolder) };
+
 		return builder;
 	}
 
 	template<typename T>
 	static SequenceTaskBuilder begin(
 			CallbackReturningInterval<T> callbackReturningInterval,
-			T* stateHolder = nullptr) {
+			T *stateHolder = nullptr) {
+
 		SequenceTaskBuilder builder { new FunctionsSequenceTask(
 				(CallbackReturningInterval<void> ) callbackReturningInterval,
 				(void*) stateHolder) };
+
 		return builder;
 	}
 
 	template<typename T>
 	SequenceTaskBuilder& then(Callback<T> callback, uint32_t intervalToNextTask,
-			T* stateHolder = nullptr) {
+			T *stateHolder = nullptr) {
+
 		pInstance->pLastNode->pNext = new SequenceNode(callback,
 				intervalToNextTask, stateHolder);
 		pInstance->pLastNode = pInstance->pLastNode->pNext;
+
 		return *this;
 	}
 
 	template<typename T>
 	SequenceTaskBuilder& then(
 			CallbackReturningInterval<T> callbackReturningIntervalck,
-			T* stateHolder = nullptr) {
+			T *stateHolder = nullptr) {
+
 		pInstance->pLastNode->pNext = new SequenceNode(
 				callbackReturningIntervalck, stateHolder, stateHolder);
 		pInstance->pLastNode = pInstance->pLastNode->pNext;
+
 		return *this;
 	}
 
@@ -157,10 +166,10 @@ public:
 	}
 
 private:
-	SequenceTaskBuilder(FunctionsSequenceTask* pInstance) :
+	SequenceTaskBuilder(FunctionsSequenceTask *pInstance) :
 		pInstance(pInstance) {
 	}
-	FunctionsSequenceTask* pInstance;
+	FunctionsSequenceTask *pInstance;
 };
 
 #endif

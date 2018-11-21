@@ -1,9 +1,9 @@
 #ifndef STROBESTATE_H
 #define STROBESTATE_H
 
+#include <FunctionsSequenceTask.h>
 #include <HostSystemAware.h>
 #include <State.h>
-#include "FunctionsSequenceTask.h"
 
 class Gnulight;
 
@@ -44,7 +44,7 @@ protected:
 			StrobeState::switchLightStatus, this).thenRepeat();
 	StrobeTypes currentStrobeType = SINUSOIDAL_STROBE;
 	float varName = 0.0;
-	uint32_t periodMultiplierX1000 = 1000UL;
+	uint16_t periodMultiplierX1000 = 1000UL;
 };
 
 #endif

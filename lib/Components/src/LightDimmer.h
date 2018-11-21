@@ -6,24 +6,22 @@
 
 class LightDimmer: public Potentiometer {
 public:
-	LightDimmer(Potentiometer* currentPotentiometer);
-	void levelActuationFunction(float level) override;
-//	void setLevel(float level) override;
-//	void setState(OnOffState state) override;
-	bool getLightnessSimulationEnabled();
-	void setLightnessSimulationEnabled(bool);
+	LightDimmer(Potentiometer *currentPotentiometer);
+	bool isLightnessSimulationEnabled();
+	void isLightnessSimulationEnabled(bool);
 	virtual ~LightDimmer();
 protected:
+	void levelActuationFunction(float level) override;
 	void onEnterOffState() override;
 	void onEnterOnState() override;
 	float convertLightnessIntoLuminance(float lightness);
-	Potentiometer* currentPotentiometer;
+	Potentiometer *currentPotentiometer;
 	bool lightnessSimulationEnabled = true;
 };
 
 #define cube(x) ((x)*(x)*(x))
 
-inline LightDimmer::LightDimmer(Potentiometer* currentPotentiometer) :
+inline LightDimmer::LightDimmer(Potentiometer *currentPotentiometer) :
 		currentPotentiometer(currentPotentiometer) {
 
 }
@@ -34,21 +32,11 @@ inline void LightDimmer::levelActuationFunction(float level) {
 			currentPotentiometer->setLevel(level);
 }
 
-//inline void LightDimmer::setLevel(float level) {
-//	Potentiometer::setLevel(level);
-//	currentPotentiometer->setLevel(level);
-//}
-//
-//inline void LightDimmer::setState(OnOffState state) {
-//	currentPotentiometer->setState(state);
-//	Potentiometer::setState(state);
-//}
-
-inline bool LightDimmer::getLightnessSimulationEnabled() {
+inline bool LightDimmer::isLightnessSimulationEnabled() {
 	return lightnessSimulationEnabled;
 }
 
-inline void LightDimmer::setLightnessSimulationEnabled(bool isEnabled) {
+inline void LightDimmer::isLightnessSimulationEnabled(bool isEnabled) {
 	lightnessSimulationEnabled = isEnabled;
 }
 

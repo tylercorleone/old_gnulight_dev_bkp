@@ -2,8 +2,6 @@
 #include <LowPower.h>
 #include <avr/power.h>
 
-Gnulight *staticGnulight;
-
 #define USE_WDT
 
 Button *Gnulight::staticButton;
@@ -15,13 +13,12 @@ Gnulight::Gnulight() :
 
 void Gnulight::Setup() {
 	trace("Glht::setup");
+
+	button.setInstanceName("btn");
 	TaskManager::Setup();
-	pinMode(CURRENT_SENSING_PIN, INPUT);
 	pinMode(BATTERY_SENSING_PIN, INPUT);
-	staticGnulight = this;
 	lightDriver.setup();
 	StartTask(&batteryMonitor);
-	StartTask(&lightMonitor);
 	enterState(powerOffState);
 
 #ifndef INFO
@@ -31,6 +28,7 @@ void Gnulight::Setup() {
 
 void Gnulight::switchPower(OnOffState state) {
 	info("Glht::switchPower %s", state == OnOffState::ON ? "ON" : "OFF");
+
 	if (state == OnOffState::ON) {
 		info("---\nHERE GNULIGHT\n---");
 		digitalWrite(DEVICES_VCC_PIN, HIGH);
@@ -43,13 +41,6 @@ void Gnulight::switchPower(OnOffState state) {
 
 void Gnulight::buttonStateChangeISR() {
 	staticButton->statusChangeCallback();
-}
-
-void Gnulight::emptyBatteryCallback() {
-	if (staticGnulight->currentMode == &staticGnulight->parameterCheckState) {
-		return;
-	} info("Batt. is empty");
-	staticGnulight->enterState(staticGnulight->parameterCheckState, ParameterCheckState::BATTERY_CHECK);
 }
 
 void Gnulight::EnterSleep() {

@@ -5,22 +5,27 @@
 bool StrobeState::onEnterState(const Event &event) {
 	info("SM::onEnterMode");
 	debug("SM: strobe type %d", currentStrobeType);
+
 	varName = getHostSystem()->lightDriver.setMainLevel(MainLightLevel::MED);
+
 	if (currentStrobeType == SINUSOIDAL_STROBE
 			|| currentStrobeType == LINEAR_STROBE) {
 		getHostSystem()->lightDriver.setState(OnOffState::ON);
 	}
+
 	getHostSystem()->StartTask(&toggleLightStatusTask);
 	return true;
 }
 
 void StrobeState::onExitState() {
 	info("SM::onExitMode");
+
 	getHostSystem()->StopTask(&toggleLightStatusTask);
 }
 
 bool StrobeState::receiveEvent(const Event &event) {
 	if (event.getClicksCount() > 0) {
+
 		switch (event.getClicksCount()) {
 		case 1:
 			getHostSystem()->enterState(getHostSystem()->powerOffState);
@@ -32,7 +37,7 @@ bool StrobeState::receiveEvent(const Event &event) {
 			if (currentStrobeType == SINUSOIDAL_STROBE
 					|| currentStrobeType == LINEAR_STROBE) {
 				MainLightLevel currentMainLevel =
-						getHostSystem()->lightDriver.getCurrentMainLevel();
+						getHostSystem()->lightDriver.getMainLevel();
 				varName = getHostSystem()->lightDriver.setMainLevel(
 						currentMainLevel);
 				getHostSystem()->lightDriver.setState(OnOffState::ON);
@@ -42,7 +47,9 @@ bool StrobeState::receiveEvent(const Event &event) {
 			getHostSystem()->ResetTask(&toggleLightStatusTask);
 			return true;
 		case 3:
-			periodMultiplierX1000 *= 2;
+			if (periodMultiplierX1000 <= 32000) {
+				periodMultiplierX1000 *= 2;
+			}
 			return true;
 		case 4:
 			if (periodMultiplierX1000 > 125) {
@@ -52,6 +59,7 @@ bool StrobeState::receiveEvent(const Event &event) {
 		default:
 			return false;
 		}
+
 	} else if (event.getHoldStepsCount() > 0) {
 		varName = getHostSystem()->lightDriver.setNextMainLevel();
 		return true;
@@ -66,6 +74,7 @@ uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
 	uint32_t periodMs;
 
 	switch (_this->currentStrobeType) {
+
 	case ON_OFF_STROBE:
 		nextIntervalMs = ON_OFF_STROBE_PERIOD_MS / 2
 				* _this->periodMultiplierX1000 / 1000;

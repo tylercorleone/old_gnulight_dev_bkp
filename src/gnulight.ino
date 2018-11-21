@@ -1,6 +1,6 @@
 #include "Gnulight.h"
 
-Gnulight* pGnulight;
+Gnulight *gnulight;
 
 void setup() {
 #ifdef INFO
@@ -9,22 +9,24 @@ void setup() {
 	debug("setup()");
 
 //	setUnusedPinStatus(OUTPUT, LOW);
-	pGnulight = new Gnulight;
-	pGnulight->Setup();
+	gnulight = new Gnulight;
+	gnulight->Setup();
 }
 
 void loop() {
-	pGnulight->Loop(WDTO_X);
+	gnulight->Loop(WDTO_X);
 }
 
 void setUnusedPinStatus(int mode, int level) {
-	/* Current mA */
+	// Current (mA) OFF, ON
+	
 	// INPUT LOW (0.429, 9.04)
 	// INPUT HIGH (0.429, 5.12)
 	// OUTPUT LOW (0.429, 5.55)
 	// OUTPUT HIGH (0.429, 5.12)
 	// INPUT_PULLUP LOW (0.429, 9.04)
 	// INPUT_PULLUP HIGH (0.429, 5.15)
+	
 	pinMode(0, mode);
 	pinMode(3, mode);
 	pinMode(4, mode);

@@ -1,7 +1,7 @@
 #ifndef BUTTON_H
 #define BUTTON_H
 
-#include "defines.h"
+#include "Components.h"
 #include "Event.h"
 #include "HostSystemAware.h"
 #include "Named.h"
@@ -13,24 +13,24 @@
 
 class Button;
 
+enum class ButtonStatus {
+	UNKNOWN, PRESSED, RELEASED
+};
+
 class ButtonInteractionMonitor: public Task, public HostSystemAware<System> {
 public:
 	ButtonInteractionMonitor(uint32_t timeInterval, Button *button, System *system);
 protected:
 	void OnUpdate(uint32_t deltaTime) override;
 private:
-	uint8_t lastHoldStepsCountDelivered = 0;
 	Button *button;
 };
 
-enum class ButtonStatus {
-	UNKNOWN, PRESSED, RELEASED
-};
 
 class Button: public HostSystemAware<System>, public Named {
 	friend class ButtonInteractionMonitor;
 public:
-	Button(System *system, uint8_t pin, Button *&staticButton, void (*changeISR)(void));
+	Button(System *system, uint8_t inputPin, Button *&staticButton, void (*changeISR)(void));
 	bool isUserInteracting();
 	Event ackInteraction();
 	void statusChangeCallback();
@@ -40,6 +40,7 @@ private:
 	void refreshHoldStatus(uint32_t now, bool isExitingFromHold = false);
 	void reset();
 	volatile ButtonStatus status = ButtonStatus::UNKNOWN;
+	uint8_t inputPin;
 	volatile uint32_t lastFallTimeMs = 0;
 	volatile uint32_t lastRiseTimeMs = 0;
 	volatile uint8_t clicksCount = 0;
@@ -90,22 +91,25 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 	}
 }
 
-inline Button::Button(System* system, uint8_t pin, Button *&staticButton,
-		void (*changeISR)(void)) :
-		HostSystemAware(system) {
-	pinMode(pin, INPUT_PULLUP);
+inline Button::Button(System *system, uint8_t inputPin, Button *&staticButton, void (*changeISR)(void)) :
+		HostSystemAware(system), inputPin(inputPin) {
+	pinMode(inputPin, INPUT_PULLUP);
 	delay(1);
-	status = digitalRead(BUTTON_PIN) == LOW ? ButtonStatus::PRESSED : ButtonStatus::RELEASED;
+	status =
+			digitalRead(inputPin) == LOW ?
+					ButtonStatus::PRESSED : ButtonStatus::RELEASED;
 	staticButton = this;
-	attachInterrupt(digitalPinToInterrupt(pin), changeISR, CHANGE);
+	attachInterrupt(digitalPinToInterrupt(inputPin), changeISR, CHANGE);
 }
 
 inline void Button::onButtonFall() {
 	traceNamedInstance("onButtonFall");
+
 	if (status == ButtonStatus::PRESSED) {
 		trace("LOW bounce filtered");
 		return;
 	}
+
 	lastFallTimeMs = millis();
 	status = ButtonStatus::PRESSED;
 	holdsCount = 0;
@@ -114,10 +118,12 @@ inline void Button::onButtonFall() {
 
 inline void Button::onButtonRise() {
 	traceNamedInstance("onButtonRise");
+
 	if (status == ButtonStatus::RELEASED) {
 		trace("HIGH bounce filtered");
 		return;
 	}
+
 	lastRiseTimeMs = millis();
 	status = ButtonStatus::RELEASED;
 
@@ -138,13 +144,14 @@ inline void Button::onButtonRise() {
 }
 
 inline void Button::statusChangeCallback() {
-	digitalRead(BUTTON_PIN) == LOW ? onButtonFall() : onButtonRise();
+	digitalRead(inputPin) == LOW ? onButtonFall() : onButtonRise();
 	getHostSystem()->StartTask(&uiMonitor);
 }
 
 inline Event Button::ackInteraction() {
 	uint32_t currentMs = millis();
 	uint8_t clicksToNotify = 0;
+
 	if (haveClicksToNotify) {
 		if (currentMs - lastRiseTimeMs < CONSECUTIVE_CLICKS_MAX_DELAY) {
 
@@ -161,6 +168,7 @@ inline Event Button::ackInteraction() {
 
 	refreshHoldStatus(currentMs);
 	uint8_t holdsToNotify = 0;
+
 	if (haveHoldsToNotify) {
 		holdsToNotify = holdsCount;
 		if (status != ButtonStatus::PRESSED) {
@@ -189,6 +197,7 @@ inline void Button::refreshHoldStatus(uint32_t millis, boolean isExitingFromHold
 	}
 
 	uint32_t holdDurationMs = millis - lastFallTimeMs;
+
 	if (holdDurationMs < BUTTON_HOLD_BEGIN_THRESHOLD_MS) {
 
 		/*
@@ -207,6 +216,7 @@ inline void Button::refreshHoldStatus(uint32_t millis, boolean isExitingFromHold
 		 */
 		return;
 	}
+
 	holdsCount = holdsCountTemp;
 	haveHoldsToNotify = true;
 }

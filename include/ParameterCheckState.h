@@ -1,9 +1,9 @@
 #ifndef PARAMETERCHECKSTATE_H
 #define PARAMETERCHECKSTATE_H
 
+#include <FunctionsSequenceTask.h>
 #include <HostSystemAware.h>
 #include <State.h>
-#include "FunctionsSequenceTask.h"
 
 class Gnulight;
 
@@ -16,17 +16,15 @@ public:
 	static const char *BATTERY_CHECK;
 	static const char *LAMP_TEMPERATURE_CHECK;
 
-	ParameterCheckState(Gnulight* gnulight) :
-		HostSystemAware(gnulight) {
-	}
+	ParameterCheckState(Gnulight *gnulight);
 protected:
 	bool onEnterState(const Event &event) override;
 	void onExitState() override;
-	static uint32_t switchLightStatus(ParameterCheckState* _this);
+	static uint32_t switchLightStatus(ParameterCheckState *_this);
 	FunctionsSequenceTask& renderValueWithFlashes = SequenceTaskBuilder::begin(
 			ParameterCheckState::switchLightStatus, this).thenRepeat();
-	int8_t strobesForIntegerPartCount = -1;
-	int8_t strobesForDecimalPartCount = -1;
+	int8_t strobesForIntegerPartCount = 0;
+	int8_t strobesForDecimalPartCount = 0;
 };
 
 #endif

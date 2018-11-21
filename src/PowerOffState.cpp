@@ -8,6 +8,7 @@ PowerOffState::PowerOffState(Gnulight *gnulight) :
 
 bool PowerOffState::onEnterState() {
 	info("PowerOffState::onEnterState");
+
 	getHostSystem()->lightDriver.setState(OnOffState::OFF);
 	getHostSystem()->switchPower(OnOffState::OFF);
 	return true;
@@ -15,11 +16,13 @@ bool PowerOffState::onEnterState() {
 
 void PowerOffState::onExitState() {
 	info("PowerOffState::onExitState");
+
 	getHostSystem()->switchPower(OnOffState::ON);
 }
 
 bool PowerOffState::receiveEvent(const Event &event) {
 	if (event.getClicksCount() > 0) {
+
 		switch (event.getClicksCount()) {
 		case 1:
 		case 2:
@@ -35,12 +38,13 @@ bool PowerOffState::receiveEvent(const Event &event) {
 			getHostSystem()->enterState(getHostSystem()->parameterCheckState, Event(ParameterCheckState::LAMP_TEMPERATURE_CHECK));
 			return true;
 		case 6:
-			getHostSystem()->lightDriver.setLightnessSimulationEnabled(
-					!getHostSystem()->lightDriver.getLightnessSimulationEnabled());
+			getHostSystem()->lightDriver.isLightnessSimulationEnabled(
+					!getHostSystem()->lightDriver.isLightnessSimulationEnabled());
 			return true;
 		default:
 			return false;
 		}
+
 	} else if (event.getHoldStepsCount() > 0) {
 		getHostSystem()->enterState(getHostSystem()->constantLightState, event);
 		return true;
