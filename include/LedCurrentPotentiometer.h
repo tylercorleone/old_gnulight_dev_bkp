@@ -17,7 +17,6 @@ public:
 private:
 	void digPotWrite(uint16_t value);
 	DelayedCappablePotentiometerActuator *delayedMaxCurrentLevelSetter;
-	uint16_t pwmAmount = 0;
 };
 
 #endif

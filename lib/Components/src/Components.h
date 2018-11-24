@@ -7,10 +7,6 @@ enum class OnOffState {
 	ON, OFF
 };
 
-//#define INFO
-//#define DEBUG
-//#define TRACE
-
 #define GET_MACRO(_1, _2, NAME, ...) NAME
 
 #ifdef INFO

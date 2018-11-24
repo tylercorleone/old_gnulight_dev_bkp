@@ -10,23 +10,23 @@
 
 class System: public TaskManager , public Named {
 public:
-	System(State *failbackState = 0);
-	System(const char *systemName, State *failbackState = 0);
+	System(State *fallbackState = nullptr);
+	System(const char *systemName, State *fallbackState = nullptr);
 	void enterState(State &state);
 	void enterState(State &state, const Event &event);
 	void receiveEvent(const Event &event);
 private:
-	void reachFailbackState();
+	void reachFallbackState();
 	State *currentState = nullptr;
-	State *failbackState = nullptr;
+	State *fallbackState;
 };
 
-inline System::System(State *failbackState) :
-		failbackState(failbackState) {
+inline System::System(State *fallbackState) :
+		fallbackState(fallbackState) {
 }
 
-inline System::System(const char *systemName, State *failbackState) :
-		Named(systemName), failbackState(failbackState) {
+inline System::System(const char *systemName, State *fallbackState) :
+		Named(systemName), fallbackState(fallbackState) {
 }
 
 inline void System::enterState(State &state) {
@@ -39,7 +39,7 @@ inline void System::enterState(State &state) {
 
 	currentState = &state;
 	if (!state.onEnterState()) {
-		reachFailbackState();
+		reachFallbackState();
 	}
 }
 
@@ -53,7 +53,7 @@ inline void System::enterState(State &state, const Event &event) {
 
 	currentState = &state;
 	if (!state.onEnterState(event)) {
-		reachFailbackState();
+		reachFallbackState();
 	}
 }
 
@@ -65,20 +65,20 @@ inline void System::receiveEvent(const Event &event) {
 
 	traceIfOtherNamed(currentState, "receiveEvent");
 	if (!currentState->receiveEvent(event)) {
-		reachFailbackState();
+		reachFallbackState();
 	}
 }
 
-inline void System::reachFailbackState() {
+inline void System::reachFallbackState() {
 	if (currentState != nullptr) {
 		debugIfOtherNamed(currentState, "onExitState");
 		currentState->onExitState();
 	}
 
-	if (failbackState != nullptr) {
-		debugIfOtherNamed(failbackState, "onEnterState");
-		currentState = failbackState;
-		failbackState->onEnterState();
+	if (fallbackState != nullptr) {
+		debugIfOtherNamed(fallbackState, "onEnterState");
+		currentState = fallbackState;
+		fallbackState->onEnterState();
 	} else {
 		currentState = nullptr;
 		debugIfNamed("hanged up");

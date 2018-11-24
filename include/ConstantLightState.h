@@ -5,6 +5,8 @@
 
 #include <State.h>
 
+#define MAIN_LEVEL_TRANSITION_DURATION_MS 300UL
+
 class Gnulight;
 
 class ConstantLightState: public State {

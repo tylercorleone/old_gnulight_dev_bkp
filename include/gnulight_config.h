@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 
-#define INFO
-#define DEBUG
-#define TRACE
+//#define INFO
+//#define DEBUG
+//#define TRACE
 
 /**********   PIN MAPPING   **********/
 #define BUTTON_PIN 2
@@ -15,13 +15,8 @@
 #define BATTERY_SENSING_PIN A2
 #define TEMPERATURE_SENSING_PIN A1
 
-/************************************/
-#define MIN_LIGHT_CURRENT_ABOVE_ZERO 0.00035f
-
 /**********   TIMING   **********/
-#define BATTERY_LEVEL_MONITORING_INTERVAL_MS 5000
-#define LIGHT_LEVEL_MONITORING_INTERVAL_MS 10000
-#define ACTUATOR_INTERVAL_MS MsToTaskTime(30)
+#define DELAYED_LEVEL_SETTER_INTERVAL_MS MsToTaskTime(30)
 
 #ifdef INFO
 #define WDTO_X WDTO_2S

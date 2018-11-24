@@ -5,7 +5,7 @@
 #define LIGHT_MONITOR_LEVEL_TRANSITION_DURATION_MS 2000
 
 LightMonitor::LightMonitor(LightDriver *pLightDriver) :
-		Task(MsToTaskTime(LIGHT_LEVEL_MONITORING_INTERVAL_MS)), pLightDriver(
+		Task(MsToTaskTime(LIGHT_MONITOR_INTERVAL_MS)), pLightDriver(
 				pLightDriver) {
 	setInstanceName("lgtMon");
 }
@@ -54,13 +54,13 @@ float LightMonitor::calculateTemperatureCurrentLimit() {
 }
 
 float LightMonitor::getTemperaturePIDControlVariable() {
-	float dt = LIGHT_LEVEL_MONITORING_INTERVAL_MS / 1000.0f;
+	float dt = LIGHT_MONITOR_INTERVAL_MS / 1000.0f;
 
 	float temperature = pLightDriver->getEmitterTemperature();
 
 	traceIfNamed("temp: %f", temperature);
 
-	float temperatureError = TEMPERATURE_TARGET - temperature;
+	float temperatureError = EMITTER_TARGET_TEMPERATURE - temperature;
 
 	temperatureErrorIntegral += temperatureError * dt;
 	temperatureErrorIntegral =

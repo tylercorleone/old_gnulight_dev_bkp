@@ -30,9 +30,8 @@ void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
 					> maxRelativeCurrent * RECHARGE_THRESHOLD_MULTIPLIER
 			|| newMaxRelativeCurrent > ALMOST_FULL_THRESHOLD_CURRENT) {
 
+		traceIfNamed("maxRelativeCurrent: %f", newMaxRelativeCurrent);
 		maxRelativeCurrent = newMaxRelativeCurrent;
-
-		traceIfNamed("maxRelativeCurrent: %f", maxRelativeCurrent);
 	}
 
 	if (maxRelativeCurrent <= BATTERY_EMPTY_CURRENT) {
@@ -58,9 +57,9 @@ float BatteryMonitor::calculateInstantaneousMaxRelativeCurrent() {
 		return 0.0f;
 	} else if (currentCapacity < 0.05f) {
 		return 0.05f;
-	} else if (currentCapacity < 0.1f) {
+	} else if (currentCapacity < 0.15f) {
 		return 0.1f;
-	} else if (currentCapacity < 0.3f) {
+	} else if (currentCapacity < 0.25f) {
 		return 0.5f;
 	}
 
@@ -69,8 +68,8 @@ float BatteryMonitor::calculateInstantaneousMaxRelativeCurrent() {
 
 void BatteryMonitor::emptyBatteryCallback() {
 	if (gnulight->currentState != &gnulight->parameterCheckState) {
-		info("Batt. is empty");
 
+		infoIfNamed("Empty battery!");
 		gnulight->enterState(gnulight->parameterCheckState, ParameterCheckState::BATTERY_CHECK);
 	}
 }

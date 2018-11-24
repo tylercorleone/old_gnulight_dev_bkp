@@ -12,17 +12,25 @@ bool ParameterCheckState::onEnterState(const Event &event) {
 	float parameterValue;
 
 	if (event.isMessage(BATTERY_CHECK)) {
-		parameterValue = round(
-				gnulight->battery.getRemainingCharge() * 10);
+
+		parameterValue = round(gnulight->battery.getRemainingCharge() * 10.0f);
+
 	} else if (event.isMessage(LAMP_TEMPERATURE_CHECK)) {
-		parameterValue = gnulight->lightDriver.getEmitterTemperature()
-				/ 10.0f;
+
+		parameterValue = gnulight->lightDriver.getEmitterTemperature() / 10.0f;
+
 	} else {
 		return false;
 	}
 
+	// lets round to the first decimal
+	parameterValue = round(parameterValue * 10.0f) / 10.0f;
+
+	// the integer part
 	strobesForIntegerPartCount = (int8_t) parameterValue;
-	strobesForDecimalPartCount = round(parameterValue * 10.0f) % 10;
+
+	// the decimal part
+	strobesForDecimalPartCount = ((int8_t) (parameterValue * 10)) % 10;
 
 	traceIfNamed("%s value: %f", event.getMessage(), parameterValue);
 

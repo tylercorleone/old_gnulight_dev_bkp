@@ -9,6 +9,7 @@
 #include <HostSystemAware.h>
 #include "LedCurrentPotentiometer.h"
 
+#define MIN_LIGHT_CURRENT_ABOVE_ZERO 0.00035f
 #define MAIN_LEVELS_NUM 3
 #define SUBLEVELS_NUM 2
 
@@ -37,7 +38,7 @@ private:
 	uint8_t currentSubLevelsIndexes[MAIN_LEVELS_NUM] = { 0, 0, 0 };
 	uint8_t temperatureSensingPin;
 	DelayedPotentiometerActuator delayedLevelSetter {
-	ACTUATOR_INTERVAL_MS, taskManager, this };
+	DELAYED_LEVEL_SETTER_INTERVAL_MS, taskManager, this };
 	LedCurrentPotentiometer currentPotentiometer { taskManager };
 };
 

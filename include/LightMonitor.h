@@ -9,7 +9,8 @@
 #include <CappablePotentiometer.h>
 #include "LightDriver.h"
 
-#define TEMPERATURE_TARGET 50.0f
+#define LIGHT_MONITOR_INTERVAL_MS 10000
+#define EMITTER_TARGET_TEMPERATURE 50.0f
 #define TEMPERATURE_MAX_ERROR 500.0f
 #define CURRENT_ACTIVATION_THRESHOLD 0.2f
 

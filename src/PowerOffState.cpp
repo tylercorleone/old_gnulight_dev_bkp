@@ -44,7 +44,6 @@ bool PowerOffState::receiveEvent(const Event &event) {
 		gnulight->enterState(gnulight->constantLightState, event);
 		return true;
 	} else {
-		// we will exit PowerOffState and then re-enter again (it is the failbackState)
 		return false;
 	}
 }

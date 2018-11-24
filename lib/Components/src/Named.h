@@ -16,7 +16,7 @@ public:
 	}
 
 private:
-	const char *instanceName = nullptr;
+	const char *instanceName;
 };
 
 #endif

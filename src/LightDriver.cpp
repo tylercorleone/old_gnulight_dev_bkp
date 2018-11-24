@@ -19,8 +19,7 @@ void LightDriver::setup() {
 void LightDriver::setLevel(float level, uint32_t transitionDurationMs) {
 	traceIfNamed("setLevel(%f, %u)", level, transitionDurationMs);
 
-	delayedLevelSetter.setLevel(_constrain(level, 0.0f, 1.0f),
-			transitionDurationMs);
+	delayedLevelSetter.setLevel(level, transitionDurationMs);
 }
 
 MainLightLevel LightDriver::getMainLevel() {
@@ -55,7 +54,12 @@ float LightDriver::_setMainLevel(uint32_t transitionDurationMs) {
 	return mainLevels[currentMainLevel][currentSubLevelsIndexes[currentMainLevel]];
 }
 
+#define V_OUT (analogRead(temperatureSensingPin) * 5.0f / 1023.0f)
+#define V_0 0.5
+#define T_C 0.01
+
 float LightDriver::getEmitterTemperature() {
 	analogRead(temperatureSensingPin);
-	return analogRead(temperatureSensingPin) * 5.0f * 100.0f / 1023 - 50;
+	// it is a MCP9700A-E/TO
+	return (V_OUT - V_0) / T_C;
 }

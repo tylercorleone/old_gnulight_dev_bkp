@@ -14,7 +14,7 @@
 class Button;
 
 enum class ButtonStatus {
-	UNKNOWN, PRESSED, RELEASED
+	PRESSED, RELEASED
 };
 
 class ButtonInteractionMonitor: public Task, public HostSystemAware<System> {
@@ -39,14 +39,14 @@ private:
 	void onButtonRise();
 	void refreshHoldStatus(uint32_t now, bool isExitingFromHold = false);
 	void reset();
-	volatile ButtonStatus status = ButtonStatus::UNKNOWN;
+	volatile ButtonStatus status;
 	uint8_t inputPin;
-	volatile uint32_t lastFallTimeMs = 0;
-	volatile uint32_t lastRiseTimeMs = 0;
-	volatile uint8_t clicksCount = 0;
-	volatile uint8_t holdsCount = 0;
-	volatile bool haveClicksToNotify = false;
-	volatile bool haveHoldsToNotify = false;
+	volatile uint32_t lastFallTimeMs;
+	volatile uint32_t lastRiseTimeMs;
+	volatile uint8_t clicksCount;
+	volatile uint8_t holdsCount;
+	volatile bool haveClicksToNotify;
+	volatile bool haveHoldsToNotify;
 	ButtonInteractionMonitor uiMonitor {MsToTaskTime(10), this, getHostSystem()};
 };
 
