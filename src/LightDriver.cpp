@@ -4,65 +4,26 @@
 #include <PWM.h>
 #include <SPI.h>
 
-LightDriver::LightDriver(Gnulight *gnulight, uint8_t temperatureSensingPin) :
-		LightDimmer(&currentPotentiometer), HostSystemAware(gnulight), temperatureSensingPin(
+LightDriver::LightDriver(TaskManager *taskManager,
+		uint8_t temperatureSensingPin) :
+		LightDimmer(&currentPotentiometer), taskManager(taskManager), temperatureSensingPin(
 				temperatureSensingPin) {
-	setInstanceName("lghtDrv");
-	currentPotentiometer.setInstanceName("currPot");
+	setInstanceName("lightDrv");
 }
 
 void LightDriver::setup() {
-	debugNamedInstance("setup");
+	debugIfNamed("setup");
 
 	pinMode(temperatureSensingPin, INPUT);
 	currentPotentiometer.setup();
 }
 
 void LightDriver::setLevel(float level, uint32_t transitionDurationMs) {
-	traceNamedInstance("setLevel(%f, %u)", level, transitionDurationMs);
+	traceIfNamed("setLevel(%f, %u)", level, transitionDurationMs);
 
-	lightLevelActuator.setLevel(_constrain(level, 0.0f, 1.0f),
+	delayedLevelSetter.setLevel(_constrain(level, 0.0f, 1.0f),
 			transitionDurationMs);
 }
-
-//float LightDriver::getCurrentLevel() {
-//	return currentPotentiometer.getLevel();
-//}
-
-//void LightDriver::setCurrentLevel(float level) {
-//	traceNamedInstance("setCurrentLevel(%f)", level);
-//
-//	wantedCurrentLevel = level;
-//	currentPotentiometer.setLevel(min(currentUpperLimit, level));
-//}
-
-//float LightDriver::getCurrentUpperLimit() {
-//	return currentUpperLimit;
-//}
-//
-//void LightDriver::setCurrentUpperLimit(float limit,
-//		uint32_t transitionDurationMs) {
-//	traceNamedInstance("setCurrentUpperLimit(%f, %u)", currentUpperLimit, transitionDurationMs);
-//
-//	currentUpperLimit = constrain(limit, 0.0f, 1.0f);
-//	float currentLevel = currentPotentiometer.getLevel();
-//
-//	if (currentUpperLimit < currentLevel) {
-//
-//		/*
-//		 * we have to reduce current
-//		 */
-//		currentActuator.setLevel(currentUpperLimit, transitionDurationMs);
-//	} else if (currentUpperLimit > currentLevel
-//			&& currentLevel < wantedCurrentLevel) {
-//
-//		/*
-//		 * we can increase current
-//		 */
-//		currentActuator.setLevel(min(currentUpperLimit, wantedCurrentLevel),
-//				transitionDurationMs);
-//	}
-//}
 
 MainLightLevel LightDriver::getMainLevel() {
 	return currentMainLevel;
@@ -89,13 +50,11 @@ float LightDriver::setNextSubLevel(uint32_t transitionDurationMs) {
 }
 
 float LightDriver::_setMainLevel(uint32_t transitionDurationMs) {
+	setLevel(
+			mainLevels[currentMainLevel][currentSubLevelsIndexes[currentMainLevel]],
+			transitionDurationMs);
 
-	float resultingPotentiometerLevel =
-			mainLevels[currentMainLevel][currentSubLevelsIndexes[currentMainLevel]];
-
-	setLevel(resultingPotentiometerLevel, transitionDurationMs);
-
-	return resultingPotentiometerLevel;
+	return mainLevels[currentMainLevel][currentSubLevelsIndexes[currentMainLevel]];
 }
 
 float LightDriver::getEmitterTemperature() {

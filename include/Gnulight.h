@@ -2,15 +2,15 @@
 #define GNULIGHT_H
 
 #include <Button.h>
+#include <CappablePotentiometer.h>
+#include <LithiumBattery.h>
 #include <System.h>
 
 #include "defines.h"
 #include "BatteryMonitor.h"
 #include "LightMonitor.h"
 #include "ConstantLightState.h"
-#include "Dimmable.h"
 #include "LightDriver.h"
-#include "LithiumBattery.h"
 #include "ParameterCheckState.h"
 #include "PowerOffState.h"
 #include "StrobeState.h"
@@ -32,7 +32,7 @@ protected:
 	Button button {this, BUTTON_PIN, staticButton, buttonStateChangeISR};
 	LithiumBattery battery {2.8, 3.2, 4.17, 0.053, readBatterVoltage};
 	LightDriver lightDriver {this, TEMPERATURE_SENSING_PIN};
-	Dimmable<float> *batteryLevelObservers[1] = {&lightMonitor};
+	CappablePotentiometer *batteryLevelObservers[1] = {&lightMonitor};
 	BatteryMonitor batteryMonitor {this, BATTERY_LEVEL_MONITORING_INTERVAL_MS, batteryLevelObservers};
 	LightMonitor lightMonitor { &lightDriver };
 	State *currentState = nullptr;

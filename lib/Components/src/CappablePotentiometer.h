@@ -8,18 +8,20 @@ public:
 	void setLevel(float level) override;
 	float getLevelMaxLimit();
 	void setLevelMaxLimit(float limit);
-	virtual bool levelUpdateConditionOverride();
+	virtual bool levelUpdateForceCondition();
 	virtual ~CappablePotentiometer();
 protected:
-	float wantedLevel = 0.0f;
 	float levelMaxLimit = 1.0f;
+	float wantedLevel = -1.0f;
 };
 
-inline float CappablePotentiometer::setLevel(float level) {
+inline void CappablePotentiometer::setLevel(float level) {
 	wantedLevel = _constrain(level, 0.0f, 1.0f);
 
 	if (wantedLevel <= levelMaxLimit) {
-		Potentiometer::setLevel(level);
+		Potentiometer::setLevel(wantedLevel);
+	} else {
+		traceIfNamed("setLevel(%f) skip", wantedLevel);
 	}
 }
 
@@ -28,10 +30,11 @@ inline float CappablePotentiometer::getLevelMaxLimit() {
 }
 
 inline void CappablePotentiometer::setLevelMaxLimit(float limit) {
-	traceNamedInstance("setLevelMaxLimit(%f)", level);
-	levelMaxLimit = _constrain(level, 0.0, 1.0);
+	traceIfNamed("setLevelMaxLimit(%f)", limit);
 
-	if (levelMaxLimit < level || (level < wantedLevel && levelMaxLimit > level) || levelUpdateConditionOverride()) {
+	levelMaxLimit = _constrain(limit, 0.0, 1.0);
+
+	if (levelMaxLimit < level || (level < wantedLevel && levelMaxLimit > level) || levelUpdateForceCondition()) {
 
 		/*
 		 * we have to reduce the level || we can increase level
@@ -40,7 +43,7 @@ inline void CappablePotentiometer::setLevelMaxLimit(float limit) {
 	}
 }
 
-bool CappablePotentiometer::levelUpdateConditionOverride() {
+inline bool CappablePotentiometer::levelUpdateForceCondition() {
 	return false;
 }
 

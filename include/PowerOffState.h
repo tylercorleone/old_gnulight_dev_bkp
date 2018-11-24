@@ -3,17 +3,17 @@
 
 #include <Event.h>
 #include <State.h>
-#include <HostSystemAware.h>
 
 class Gnulight;
 
-class PowerOffState: public State, public HostSystemAware<Gnulight> {
+class PowerOffState: public State {
 public:
 	PowerOffState(Gnulight *gnulight);
 protected:
 	bool onEnterState() override;
 	void onExitState() override;
 	bool receiveEvent(const Event &event) override;
+	Gnulight *gnulight;
 };
 
 #endif

@@ -18,6 +18,14 @@
 /**********   TIMING   **********/
 #define BATTERY_LEVEL_MONITORING_INTERVAL_MS 5000
 #define LIGHT_LEVEL_MONITORING_INTERVAL_MS 10000
+#define ACTUATOR_INTERVAL_MS MsToTaskTime(30)
+
+#ifdef INFO
+#define WDTO_X WDTO_2S
+#else
+#define WDTO_X WDTO_500MS
+#endif
+
 
 inline float readBatterVoltage() {
 	analogRead(BATTERY_SENSING_PIN);

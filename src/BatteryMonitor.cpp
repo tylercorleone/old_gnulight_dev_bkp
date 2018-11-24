@@ -3,35 +3,38 @@
 #include "defines.h"
 #include "Gnulight.h"
 
-BatteryMonitor::BatteryMonitor(Gnulight *pGnulight, uint32_t interval,
-		Dimmable<float> **recipientsToDim) :
-		Task(interval), pGnulight(pGnulight), recipientsToDim(recipientsToDim) {
-	trace("Inst. BM");
+BatteryMonitor::BatteryMonitor(Gnulight *gnulight, uint32_t interval,
+		CappablePotentiometer **recipientsToDim) :
+		Task(interval), Named("battMon"), gnulight(gnulight), recipientsToDim(
+				recipientsToDim) {
 }
 
 bool BatteryMonitor::OnStart() {
-	trace("BM::OnStart");
+	traceIfNamed("OnStart");
+
 	return true;
 }
 
 void BatteryMonitor::OnStop() {
-	trace("BM::OnStop");
+	traceIfNamed("OnStop");
+
 	maxRelativeCurrent = BATTERY_FULL_CURRENT;
 	notifyDimmableRecipients();
 }
 
 void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
-	trace("BM::OnUpdate");
+	traceIfNamed("OnUpdate");
 
-	float actualMaxRelativeCurrent = calculateInstantaneousMaxRelativeCurrent();
+	float newMaxRelativeCurrent = calculateInstantaneousMaxRelativeCurrent();
 
-	if (actualMaxRelativeCurrent < maxRelativeCurrent
-			|| actualMaxRelativeCurrent
+	if (newMaxRelativeCurrent < maxRelativeCurrent
+			|| newMaxRelativeCurrent
 					> maxRelativeCurrent * RECHARGE_THRESHOLD_MULTIPLIER
-			|| actualMaxRelativeCurrent > ALMOST_FULL_THRESHOLD_CURRENT) {
-		debug("BM maxRelativeCurrent: %f", maxRelativeCurrent);
+			|| newMaxRelativeCurrent > ALMOST_FULL_THRESHOLD_CURRENT) {
 
-		maxRelativeCurrent = actualMaxRelativeCurrent;
+		maxRelativeCurrent = newMaxRelativeCurrent;
+
+		traceIfNamed("maxRelativeCurrent: %f", maxRelativeCurrent);
 	}
 
 	if (maxRelativeCurrent <= BATTERY_EMPTY_CURRENT) {
@@ -43,15 +46,15 @@ void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
 }
 
 void BatteryMonitor::notifyDimmableRecipients() {
-	int recipientsCount = sizeof(recipientsToDim) / sizeof(Dimmable<float>*);
+	int recipientsCount = sizeof(recipientsToDim) / sizeof(CappablePotentiometer*);
 
 	for (int i = 0; i < recipientsCount; ++i) {
-		recipientsToDim[i]->dim(maxRelativeCurrent);
+		recipientsToDim[i]->setLevelMaxLimit(maxRelativeCurrent);
 	}
 }
 
 float BatteryMonitor::calculateInstantaneousMaxRelativeCurrent() {
-	float currentCapacity = pGnulight->battery.getRemainingCharge();
+	float currentCapacity = gnulight->battery.getRemainingCharge();
 
 	if (currentCapacity == 0.0f) {
 		return 0.0f;
@@ -67,8 +70,9 @@ float BatteryMonitor::calculateInstantaneousMaxRelativeCurrent() {
 }
 
 void BatteryMonitor::emptyBatteryCallback() {
-	if (pGnulight->currentState != &pGnulight->parameterCheckState) {
+	if (gnulight->currentState != &gnulight->parameterCheckState) {
 		info("Batt. is empty");
-		pGnulight->enterState(pGnulight->parameterCheckState, ParameterCheckState::BATTERY_CHECK);
+
+		gnulight->enterState(gnulight->parameterCheckState, ParameterCheckState::BATTERY_CHECK);
 	}
 }

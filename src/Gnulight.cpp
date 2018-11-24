@@ -7,18 +7,19 @@
 Button *Gnulight::staticButton;
 
 Gnulight::Gnulight() :
-		System(&powerOffState) {
-	trace("Inst. Glht");
+		System("gnuLght", &powerOffState) {
+
 }
 
 void Gnulight::Setup() {
-	trace("Glht::setup");
+	traceIfNamed("setup");
 
 	button.setInstanceName("btn");
 	TaskManager::Setup();
 	pinMode(BATTERY_SENSING_PIN, INPUT);
 	lightDriver.setup();
 	StartTask(&batteryMonitor);
+	StartTask(&lightMonitor);
 	enterState(powerOffState);
 
 #ifndef INFO
@@ -27,14 +28,14 @@ void Gnulight::Setup() {
 }
 
 void Gnulight::switchPower(OnOffState state) {
-	info("Glht::switchPower %s", state == OnOffState::ON ? "ON" : "OFF");
+	infoIfNamed("switchPower(%s)", state == OnOffState::ON ? "ON" : "OFF");
 
 	if (state == OnOffState::ON) {
-		info("---\nHERE GNULIGHT\n---");
+		infoIfNamed("HERE GNULIGHT");
 		digitalWrite(DEVICES_VCC_PIN, HIGH);
 	} else {
 		digitalWrite(DEVICES_VCC_PIN, LOW);
-		info("---\nGOODBYE\n---");
+		infoIfNamed("GOODBYE");
 		EnterSleep();
 	}
 }
@@ -55,6 +56,6 @@ void Gnulight::EnterSleep() {
 #if defined(USE_WDT)
 	// enable watch dog after wake up
 	wdt_reset();
-	wdt_enable(WDTO_500MS);
+	wdt_enable(WDTO_X);
 #endif
 }

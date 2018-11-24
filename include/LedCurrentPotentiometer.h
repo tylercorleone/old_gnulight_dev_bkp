@@ -2,19 +2,20 @@
 #define LEDCURRENTPOTENTIOMETER_H
 
 #include <stdint.h>
-#include <HostSystemAware.h>
 #include <CappablePotentiometer.h>
+#include <DelayedCappablePotentiometerActuator.h>
+#include "defines.h"
 
-class Gnulight;
-
-class LedCurrentPotentiometer: public CappablePotentiometer, public HostSystemAware<Gnulight> {
+class LedCurrentPotentiometer: public CappablePotentiometer {
 public:
-	LedCurrentPotentiometer(Gnulight *gnulight);
+	LedCurrentPotentiometer(TaskManager *taskManager);
 	void setup();
+	using CappablePotentiometer::setLevelMaxLimit;
+	void setLevelMaxLimit(float level, uint32_t transitionDurationMs);
 	void levelActuationFunction(float level) override;
 private:
-	friend class LightMonitor;
 	void digPotWrite(uint16_t value);
+	DelayedCappablePotentiometerActuator *delayedMaxCurrentLevelSetter;
 	uint16_t pwmAmount = 0;
 };
 

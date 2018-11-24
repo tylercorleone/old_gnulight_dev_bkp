@@ -3,6 +3,9 @@
 
 class Named {
 public:
+	Named(const char *instanceName = nullptr) :
+			instanceName(instanceName) {
+	}
 
 	const char* getInstanceName() {
 		return instanceName;

@@ -6,7 +6,6 @@ void setup() {
 #ifdef INFO
 	Serial.begin(9600);
 #endif
-	debug("setup()");
 
 //	setUnusedPinStatus(OUTPUT, LOW);
 	gnulight = new Gnulight;

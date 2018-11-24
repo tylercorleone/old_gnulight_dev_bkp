@@ -2,25 +2,26 @@
 
 #include "Gnulight.h"
 
-bool StrobeState::onEnterState(const Event &event) {
-	info("SM::onEnterMode");
-	debug("SM: strobe type %d", currentStrobeType);
+StrobeState::StrobeState(Gnulight* gnulight) :
+		State("strobeState"), gnulight(gnulight) {
+}
 
-	varName = getHostSystem()->lightDriver.setMainLevel(MainLightLevel::MED);
+bool StrobeState::onEnterState(const Event &event) {
+	debugIfNamed("strobe type %d", currentStrobeType);
+
+	varName = gnulight->lightDriver.setMainLevel(MainLightLevel::MED);
 
 	if (currentStrobeType == SINUSOIDAL_STROBE
 			|| currentStrobeType == LINEAR_STROBE) {
-		getHostSystem()->lightDriver.setState(OnOffState::ON);
+		gnulight->lightDriver.setState(OnOffState::ON);
 	}
 
-	getHostSystem()->StartTask(&toggleLightStatusTask);
+	gnulight->StartTask(&toggleLightStatusTask);
 	return true;
 }
 
 void StrobeState::onExitState() {
-	info("SM::onExitMode");
-
-	getHostSystem()->StopTask(&toggleLightStatusTask);
+	gnulight->StopTask(&toggleLightStatusTask);
 }
 
 bool StrobeState::receiveEvent(const Event &event) {
@@ -28,23 +29,23 @@ bool StrobeState::receiveEvent(const Event &event) {
 
 		switch (event.getClicksCount()) {
 		case 1:
-			getHostSystem()->enterState(getHostSystem()->powerOffState);
+			gnulight->enterState(gnulight->powerOffState);
 			return true;
 		case 2:
 			currentStrobeType = (currentStrobeType + 1) % STROBE_TYPES_COUNT;
-			debug("SM: strobe type %d", currentStrobeType);
+			debugIfNamed("strobe type %d", currentStrobeType);
 
 			if (currentStrobeType == SINUSOIDAL_STROBE
 					|| currentStrobeType == LINEAR_STROBE) {
 				MainLightLevel currentMainLevel =
-						getHostSystem()->lightDriver.getMainLevel();
-				varName = getHostSystem()->lightDriver.setMainLevel(
+						gnulight->lightDriver.getMainLevel();
+				varName = gnulight->lightDriver.setMainLevel(
 						currentMainLevel);
-				getHostSystem()->lightDriver.setState(OnOffState::ON);
+				gnulight->lightDriver.setState(OnOffState::ON);
 			}
 
 			toggleLightStatusTask.setTimeInterval(0);
-			getHostSystem()->ResetTask(&toggleLightStatusTask);
+			gnulight->ResetTask(&toggleLightStatusTask);
 			return true;
 		case 3:
 			if (periodMultiplierX1000 <= 32000) {
@@ -61,7 +62,7 @@ bool StrobeState::receiveEvent(const Event &event) {
 		}
 
 	} else if (event.getHoldStepsCount() > 0) {
-		varName = getHostSystem()->lightDriver.setNextMainLevel();
+		varName = gnulight->lightDriver.setNextMainLevel();
 		return true;
 	} else {
 		return false;
@@ -80,7 +81,7 @@ uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
 				* _this->periodMultiplierX1000 / 1000;
 		break;
 	case BEACON_STROBE:
-		if (_this->getHostSystem()->lightDriver.getState() == OnOffState::OFF) {
+		if (_this->gnulight->lightDriver.getState() == OnOffState::OFF) {
 			nextIntervalMs = BEACON_STROBE_PERIOD_MS * BEACON_STROBE_DUTY_CYCLE;
 		} else {
 			nextIntervalMs = BEACON_STROBE_PERIOD_MS
@@ -88,7 +89,7 @@ uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
 		}
 		break;
 	case DISCO_STROBE:
-		if (_this->getHostSystem()->lightDriver.getState() == OnOffState::OFF) {
+		if (_this->gnulight->lightDriver.getState() == OnOffState::OFF) {
 			nextIntervalMs = DISCO_STROBE_PERIOD_MS * DISCO_STROBE_DUTY_CYCLE;
 		} else {
 			nextIntervalMs = DISCO_STROBE_PERIOD_MS
@@ -115,9 +116,9 @@ uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
 
 	if (_this->currentStrobeType != SINUSOIDAL_STROBE
 			&& _this->currentStrobeType != LINEAR_STROBE) {
-		_this->getHostSystem()->lightDriver.toggleState();
+		_this->gnulight->lightDriver.toggleState();
 	} else {
-		_this->getHostSystem()->lightDriver.setLevel(nextPotentiometerLevel);
+		_this->gnulight->lightDriver.setLevel(nextPotentiometerLevel);
 		nextIntervalMs = LEVEL_REFRESH_INTERVAL_MS;
 	}
 

@@ -6,19 +6,26 @@
 
 #define LED_PIN_PWM_MAX 65535
 
-LedCurrentPotentiometer::LedCurrentPotentiometer(Gnulight *gnulight) :
-		HostSystemAware(gnulight) {
+LedCurrentPotentiometer::LedCurrentPotentiometer(TaskManager *taskManager) {
+	setInstanceName("ledCurrPot");
 
+	delayedMaxCurrentLevelSetter = new DelayedCappablePotentiometerActuator(
+	ACTUATOR_INTERVAL_MS, taskManager, this);
 }
 
 void LedCurrentPotentiometer::setup() {
-	setInstanceName("ledCurrPot");
-	traceNamedInstance("setup");
+	traceIfNamed("setup");
 
 	Timer1_Initialize();
 	SetPinFrequency(LED_PIN, 122);
 	SPI.begin();
 	digitalWrite(PIN_SPI_SS, LOW); // 0.429 -> 0.168 mA
+}
+
+void LedCurrentPotentiometer::setLevelMaxLimit(float level, uint32_t transitionDurationMs) {
+	traceIfNamed("setLevelMaxLimit(%f, %u)", level, transitionDurationMs);
+
+	delayedMaxCurrentLevelSetter->setLevelMaxLimit(level, transitionDurationMs);
 }
 
 void LedCurrentPotentiometer::levelActuationFunction(float level) {
@@ -48,7 +55,7 @@ void LedCurrentPotentiometer::levelActuationFunction(float level) {
 	uint16_t digPotValue = (uint16_t) (256 * (1.0f - x));
 	digPotWrite(digPotValue);
 
-	traceNamedInstance("pwmAmount: %u, digPotValue: %u", pwmAmount, digPotValue);
+	traceIfNamed("pwmAmount: %u, digPotValue: %u", pwmAmount, digPotValue);
 }
 
 void LedCurrentPotentiometer::digPotWrite(uint16_t value) {

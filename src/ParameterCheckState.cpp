@@ -6,19 +6,17 @@ const char *ParameterCheckState::BATTERY_CHECK = "b";
 const char *ParameterCheckState::LAMP_TEMPERATURE_CHECK = "t";
 
 ParameterCheckState::ParameterCheckState(Gnulight *gnulight) :
-		HostSystemAware(gnulight) {
+		State("parCheckState"), gnulight(gnulight) {
 }
 
 bool ParameterCheckState::onEnterState(const Event &event) {
-	info("PCM::onEnterMode");
-
 	float parameterValue;
 
 	if (event.isMessage(BATTERY_CHECK)) {
 		parameterValue = round(
-				getHostSystem()->battery.getRemainingCharge() * 10);
+				gnulight->battery.getRemainingCharge() * 10);
 	} else if (event.isMessage(LAMP_TEMPERATURE_CHECK)) {
-		parameterValue = getHostSystem()->lightDriver.getEmitterTemperature()
+		parameterValue = gnulight->lightDriver.getEmitterTemperature()
 				/ 10.0f;
 	} else {
 		return false;
@@ -27,32 +25,29 @@ bool ParameterCheckState::onEnterState(const Event &event) {
 	strobesForIntegerPartCount = (int8_t) parameterValue;
 	strobesForDecimalPartCount = round(parameterValue * 10.0f) % 10;
 
-	debug("%s value: %f", event.getMessage(), parameterValue);
+	traceIfNamed("%s value: %f", event.getMessage(), parameterValue);
 
-	getHostSystem()->lightDriver.setState(OnOffState::OFF); // light could be ON!
-	getHostSystem()->lightDriver.setMainLevel(MainLightLevel::MED);
-	getHostSystem()->StartTask(&renderValueWithFlashes);
+	gnulight->lightDriver.setState(OnOffState::OFF); // light could be ON!
+	gnulight->lightDriver.setMainLevel(MainLightLevel::MED);
+	gnulight->StartTask(&renderValueWithFlashes);
 
 	return true;
 }
 
 void ParameterCheckState::onExitState() {
-	info("PCM::onExitMode");
-
-	getHostSystem()->StopTask(&renderValueWithFlashes);
+	gnulight->StopTask(&renderValueWithFlashes);
 }
 
 uint32_t ParameterCheckState::switchLightStatus(ParameterCheckState *_this) {
-
 	if (_this->strobesForIntegerPartCount <= 0
 			&& _this->strobesForDecimalPartCount == 0) {
 
-		_this->getHostSystem()->enterState(
-				_this->getHostSystem()->powerOffState);
+		_this->gnulight->enterState(
+				_this->gnulight->powerOffState);
 		return 0;
 	}
 
-	_this->getHostSystem()->lightDriver.toggleState();
+	_this->gnulight->lightDriver.toggleState();
 
 	int8_t *pCounter;
 	float intervalMultiplier;
@@ -65,7 +60,7 @@ uint32_t ParameterCheckState::switchLightStatus(ParameterCheckState *_this) {
 		pCounter = &_this->strobesForIntegerPartCount;
 
 		if (_this->strobesForIntegerPartCount == 0
-				&& _this->getHostSystem()->lightDriver.getState()
+				&& _this->gnulight->lightDriver.getState()
 						== OnOffState::ON) {
 			intervalMultiplier = COMMA_SIGNAL_DUTY_CYCLE;
 		} else {
@@ -81,7 +76,7 @@ uint32_t ParameterCheckState::switchLightStatus(ParameterCheckState *_this) {
 		intervalMultiplier = DIGIT_SIGNAL_DUTY_CYCLE;
 	}
 
-	if (_this->getHostSystem()->lightDriver.getState() == OnOffState::OFF) {
+	if (_this->gnulight->lightDriver.getState() == OnOffState::OFF) {
 		--*pCounter;
 		intervalMultiplier = 1.0f - intervalMultiplier;
 	}

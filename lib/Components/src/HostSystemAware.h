@@ -1,5 +1,5 @@
-#ifndef HOST_SYSTEM_AWARE_H
-#define HOST_SYSTEM_AWARE_H
+#ifndef HOSTSYSTEMAWARE_H
+#define HOSTSYSTEMAWARE_H
 
 template <class HostSystemClass> class HostSystemAware {
 public:

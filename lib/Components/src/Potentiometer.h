@@ -14,11 +14,11 @@ public:
 	virtual ~Potentiometer();
 protected:
 	virtual void levelActuationFunction(float level) = 0;
-	virtual void onEnterOffState();
-	virtual void onEnterOnState();
+	virtual void onSwitchOn();
+	virtual void onSwitchOff();
 
 	OnOffState state = OnOffState::OFF;
-	float level = 1.0;
+	float level = -1.0;
 };
 
 inline float Potentiometer::getLevel() {
@@ -26,7 +26,8 @@ inline float Potentiometer::getLevel() {
 }
 
 inline void Potentiometer::setLevel(float level) {
-	traceNamedInstance("setLevel(%f)", level);
+	traceIfNamed("setLevel(%f)", level);
+
 	this->level = _constrain(level, 0.0f, 1.0f);
 
 	if (state == OnOffState::ON) {
@@ -39,24 +40,26 @@ inline OnOffState Potentiometer::getState() {
 }
 
 inline void Potentiometer::setState(OnOffState state) {
-	debugNamedInstance("setState(%s)", state == OnOffState::ON ? "ON" : "OFF");
+	debugIfNamed("setState(%s)", state == OnOffState::ON ? "ON" : "OFF");
+
 	this->state = state;
-	state == OnOffState::OFF ? onEnterOffState() : onEnterOnState();
+	state == OnOffState::ON ? onSwitchOn() : onSwitchOff();
 }
 
 inline void Potentiometer::toggleState() {
 	setState(state == OnOffState::ON ? OnOffState::OFF : OnOffState::ON);
 }
 
-inline void Potentiometer::onEnterOffState() {
+inline void Potentiometer::onSwitchOff() {
 	levelActuationFunction(0.0);
 }
 
-inline void Potentiometer::onEnterOnState() {
+inline void Potentiometer::onSwitchOn() {
 	setLevel(level);
 }
 
 inline Potentiometer::~Potentiometer() {
+
 }
 
 #endif

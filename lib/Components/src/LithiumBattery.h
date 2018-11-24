@@ -1,14 +1,11 @@
 #ifndef LITHIUMBATTERY_H
 #define LITHIUMBATTERY_H
 
-#include <inttypes.h>
-#include "Components.h"
-
 class LithiumBattery {
 public:
 	LithiumBattery(float voltageEmpty, float firstLinearStepEndVoltage,
 			float voltageFull, float firstLinearStepEndCapacity,
-			float (*readBatteryVoltage)(void));
+			float (*readBatteryVoltageFunction)(void));
 
 	float getVoltageFull() {
 		return voltageFull;
@@ -29,8 +26,8 @@ private:
 
 inline LithiumBattery::LithiumBattery(float voltageEmpty,
 		float firstLinearStepEndVoltage, float voltageFull,
-		float firstLinearStepEndCapacity, float (*readBatteryVoltage)(void)) {
-	this->readBatteryVoltage = readBatteryVoltage;
+		float firstLinearStepEndCapacity, float (*readBatteryVoltageFunction)(void)) {
+	this->readBatteryVoltage = readBatteryVoltageFunction;
 	this->voltageFull = voltageFull;
 	this->voltageEmpty = voltageEmpty;
 	this->firstLinearStepEndVoltage = firstLinearStepEndVoltage;

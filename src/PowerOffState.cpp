@@ -2,22 +2,17 @@
 #include "Gnulight.h"
 
 PowerOffState::PowerOffState(Gnulight *gnulight) :
-		HostSystemAware(gnulight) {
-	info("Inst. PowerOffState");
+		State("powerOffState"), gnulight(gnulight) {
 }
 
 bool PowerOffState::onEnterState() {
-	info("PowerOffState::onEnterState");
-
-	getHostSystem()->lightDriver.setState(OnOffState::OFF);
-	getHostSystem()->switchPower(OnOffState::OFF);
+	gnulight->lightDriver.setState(OnOffState::OFF);
+	gnulight->switchPower(OnOffState::OFF);
 	return true;
 }
 
 void PowerOffState::onExitState() {
-	info("PowerOffState::onExitState");
-
-	getHostSystem()->switchPower(OnOffState::ON);
+	gnulight->switchPower(OnOffState::ON);
 }
 
 bool PowerOffState::receiveEvent(const Event &event) {
@@ -26,29 +21,30 @@ bool PowerOffState::receiveEvent(const Event &event) {
 		switch (event.getClicksCount()) {
 		case 1:
 		case 2:
-			getHostSystem()->enterState(getHostSystem()->constantLightState, event);
+			gnulight->enterState(gnulight->constantLightState, event);
 			return true;
 		case 3:
-			getHostSystem()->enterState(getHostSystem()->strobeState, event);
+			gnulight->enterState(gnulight->strobeState, event);
 			return true;
 		case 4:
-			getHostSystem()->enterState(getHostSystem()->parameterCheckState, Event(ParameterCheckState::BATTERY_CHECK));
+			gnulight->enterState(gnulight->parameterCheckState, Event(ParameterCheckState::BATTERY_CHECK));
 			return true;
 		case 5:
-			getHostSystem()->enterState(getHostSystem()->parameterCheckState, Event(ParameterCheckState::LAMP_TEMPERATURE_CHECK));
+			gnulight->enterState(gnulight->parameterCheckState, Event(ParameterCheckState::LAMP_TEMPERATURE_CHECK));
 			return true;
 		case 6:
-			getHostSystem()->lightDriver.isLightnessSimulationEnabled(
-					!getHostSystem()->lightDriver.isLightnessSimulationEnabled());
+			gnulight->lightDriver.isLightnessSimulationEnabled(
+					!gnulight->lightDriver.isLightnessSimulationEnabled());
 			return true;
 		default:
 			return false;
 		}
 
 	} else if (event.getHoldStepsCount() > 0) {
-		getHostSystem()->enterState(getHostSystem()->constantLightState, event);
+		gnulight->enterState(gnulight->constantLightState, event);
 		return true;
 	} else {
+		// we will exit PowerOffState and then re-enter again (it is the failbackState)
 		return false;
 	}
 }

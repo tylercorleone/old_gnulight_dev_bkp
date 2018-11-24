@@ -12,8 +12,8 @@ public:
 	virtual ~LightDimmer();
 protected:
 	void levelActuationFunction(float level) override;
-	void onEnterOffState() override;
-	void onEnterOnState() override;
+	void onSwitchOn() override;
+	void onSwitchOff() override;
 	float convertLightnessIntoLuminance(float lightness);
 	Potentiometer *currentPotentiometer;
 	bool lightnessSimulationEnabled = true;
@@ -51,13 +51,13 @@ inline float LightDimmer::convertLightnessIntoLuminance(float lightness) {
 	}
 }
 
-inline void LightDimmer::onEnterOffState() {
-	currentPotentiometer->setState(OnOffState::OFF);
-}
-
-inline void LightDimmer::onEnterOnState() {
+inline void LightDimmer::onSwitchOn() {
 	levelActuationFunction(level);
 	currentPotentiometer->setState(OnOffState::ON);
+}
+
+inline void LightDimmer::onSwitchOff() {
+	currentPotentiometer->setState(OnOffState::OFF);
 }
 
 inline LightDimmer::~LightDimmer() {

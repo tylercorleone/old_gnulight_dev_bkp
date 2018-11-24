@@ -6,9 +6,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <Task.h>
-#include <HostSystemAware.h>
-
-#include "Dimmable.h"
+#include <CappablePotentiometer.h>
+#include <Named.h>
 
 #define ALMOST_FULL_THRESHOLD_CURRENT 0.9f
 #define BATTERY_FULL_CURRENT 1.0f
@@ -17,10 +16,10 @@
 
 class Gnulight;
 
-class BatteryMonitor: public Task {
+class BatteryMonitor: public Task, public Named {
 public:
-	BatteryMonitor(Gnulight *pGnulight, uint32_t interval,
-			Dimmable<float> **recipientsToDim);
+	BatteryMonitor(Gnulight *gnulight, uint32_t interval,
+			CappablePotentiometer **recipientsToDim);
 private:
 	bool OnStart() override;
 	void OnStop() override;
@@ -28,8 +27,8 @@ private:
 	float calculateInstantaneousMaxRelativeCurrent();
 	void notifyDimmableRecipients();
 	void emptyBatteryCallback();
-	Gnulight *pGnulight;
-	Dimmable<float> **recipientsToDim;
+	Gnulight *gnulight;
+	CappablePotentiometer **recipientsToDim;
 	float maxRelativeCurrent = BATTERY_FULL_CURRENT;
 };
 

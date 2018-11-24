@@ -2,7 +2,6 @@
 #define STROBESTATE_H
 
 #include <FunctionsSequenceTask.h>
-#include <HostSystemAware.h>
 #include <State.h>
 
 class Gnulight;
@@ -28,11 +27,9 @@ enum StrobeTypes {
 	DISCO_STROBE = 4
 };
 
-class StrobeState: public State, public HostSystemAware<Gnulight> {
+class StrobeState: public State {
 public:
-	StrobeState(Gnulight* gnulight) :
-		HostSystemAware(gnulight) {
-	}
+	StrobeState(Gnulight* gnulight);
 protected:
 	bool onEnterState(const Event &event) override;
 	void onExitState() override;
@@ -40,6 +37,7 @@ protected:
 	static uint32_t switchLightStatus(StrobeState *_this);
 	static float sinWave(uint32_t millis, uint32_t periodMs);
 	static float triangularWave(uint32_t millis, uint32_t periodMs);
+	Gnulight *gnulight;
 	FunctionsSequenceTask& toggleLightStatusTask = SequenceTaskBuilder::begin(
 			StrobeState::switchLightStatus, this).thenRepeat();
 	StrobeTypes currentStrobeType = SINUSOIDAL_STROBE;

@@ -64,9 +64,9 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 		Event event = button->ackInteraction();
 
 		if (event.getClicksCount() > 0 || event.getHoldStepsCount() > 0) {
-			if (button->getInstanceName() != nullptr) {
-				trace("%s: %d clicks, %d holds", button->getInstanceName(), event.getClicksCount(), event.getHoldStepsCount());
-			}
+			debugIfOtherNamed(button, "%s: %d clicks, %d holds",
+					button->getInstanceName(), event.getClicksCount(),
+					event.getHoldStepsCount());
 
 			/*
 			 * We have a complete interaction
@@ -103,10 +103,10 @@ inline Button::Button(System *system, uint8_t inputPin, Button *&staticButton, v
 }
 
 inline void Button::onButtonFall() {
-	traceNamedInstance("onButtonFall");
+	traceIfNamed("onButtonFall");
 
 	if (status == ButtonStatus::PRESSED) {
-		trace("LOW bounce filtered");
+		traceIfNamed("LOW bounce filtered");
 		return;
 	}
 
@@ -117,10 +117,10 @@ inline void Button::onButtonFall() {
 }
 
 inline void Button::onButtonRise() {
-	traceNamedInstance("onButtonRise");
+	traceIfNamed("onButtonRise");
 
 	if (status == ButtonStatus::RELEASED) {
-		trace("HIGH bounce filtered");
+		traceIfNamed("HIGH bounce filtered");
 		return;
 	}
 

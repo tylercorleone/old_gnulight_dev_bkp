@@ -5,12 +5,10 @@
 #define CONSTANT_LIGHT_LEVEL_TRANSITION_DURATION_MS 300UL
 
 ConstantLightState::ConstantLightState(Gnulight *gnulight) :
-	HostSystemAware(gnulight) {
+		State("constLightState"), gnulight(gnulight) {
 }
 
 bool ConstantLightState::onEnterState(const Event &event) {
-	info("CLS::onEnterState");
-
 	MainLightLevel wantedLevel;
 
 	if (event.getClicksCount() > 0) {
@@ -32,9 +30,9 @@ bool ConstantLightState::onEnterState(const Event &event) {
 		return false;
 	}
 
-	getHostSystem()->lightDriver.setLevel(0.0);
-	getHostSystem()->lightDriver.setState(OnOffState::ON);
-	getHostSystem()->lightDriver.setMainLevel(wantedLevel, CONSTANT_LIGHT_LEVEL_TRANSITION_DURATION_MS);
+	gnulight->lightDriver.setLevel(0.0);
+	gnulight->lightDriver.setState(OnOffState::ON);
+	gnulight->lightDriver.setMainLevel(wantedLevel, CONSTANT_LIGHT_LEVEL_TRANSITION_DURATION_MS);
 
 	return true;
 }
@@ -44,17 +42,17 @@ bool ConstantLightState::receiveEvent(const Event &event) {
 
 		switch (event.getClicksCount()) {
 		case 1:
-			getHostSystem()->enterState(getHostSystem()->powerOffState);
+			gnulight->enterState(gnulight->powerOffState);
 			return true;
 		case 2:
-			getHostSystem()->lightDriver.setNextSubLevel(CONSTANT_LIGHT_LEVEL_TRANSITION_DURATION_MS);
+			gnulight->lightDriver.setNextSubLevel(CONSTANT_LIGHT_LEVEL_TRANSITION_DURATION_MS);
 			return true;
 		default:
 			return false;
 		}
 
 	} else if (event.getHoldStepsCount() > 0) {
-		getHostSystem()->lightDriver.setNextMainLevel(CONSTANT_LIGHT_LEVEL_TRANSITION_DURATION_MS);
+		gnulight->lightDriver.setNextMainLevel(CONSTANT_LIGHT_LEVEL_TRANSITION_DURATION_MS);
 		return true;
 	} else {
 		return false;

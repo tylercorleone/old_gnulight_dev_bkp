@@ -6,13 +6,12 @@
 
 #include "Named.h"
 
-// taken from https://gist.github.com/EleotleCram/eb586037e2976a8d9884
-inline int aprintf(const char *str, va_list argv) {
-	int i, j, count = 0;
+// idea taken from https://gist.github.com/EleotleCram/eb586037e2976a8d9884
+inline void aprintf(const char *str, va_list argv) {
+	int i, j;
 
 	for (i = 0, j = 0; str[i] != '\0'; i++) {
 		if (str[i] == '%') {
-			count++;
 
 			Serial.write(reinterpret_cast<const uint8_t*>(str + j), i - j);
 
@@ -37,13 +36,11 @@ inline int aprintf(const char *str, va_list argv) {
 
 			j = i + 1;
 		}
-	};
+	}
 
 	if (i > j) {
 		Serial.write(reinterpret_cast<const uint8_t*>(str + j), i - j);
 	}
-
-	return count;
 }
 
 inline void log(const char *fmt, ...) {
