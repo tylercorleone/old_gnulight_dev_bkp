@@ -1,6 +1,4 @@
 #include "LedCurrentPotentiometer.h"
-
-#include "defines.h"
 #include <SPI.h>
 #include <PWM.h>
 

@@ -1,12 +1,12 @@
 #ifndef LIGHTDRIVER_H
 #define LIGHTDRIVER_H
 
-#include <stdint.h>
+#include "gnulight_config.h"
 
+#include <stdint.h>
 #include <DelayedPotentiometerActuator.h>
 #include <LightDimmer.h>
 #include <HostSystemAware.h>
-#include "defines.h"
 #include "LedCurrentPotentiometer.h"
 
 #define MAIN_LEVELS_NUM 3

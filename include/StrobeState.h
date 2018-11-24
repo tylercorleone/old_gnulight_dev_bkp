@@ -1,6 +1,8 @@
 #ifndef STROBESTATE_H
 #define STROBESTATE_H
 
+#include "gnulight_config.h"
+
 #include <FunctionsSequenceTask.h>
 #include <State.h>
 

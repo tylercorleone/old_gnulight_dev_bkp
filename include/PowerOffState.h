@@ -1,6 +1,8 @@
 #ifndef POWEROFFSTATE_H
 #define POWEROFFSTATE_H
 
+#include "gnulight_config.h"
+
 #include <Event.h>
 #include <State.h>
 

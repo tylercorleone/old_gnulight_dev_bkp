@@ -1,5 +1,4 @@
-#include "../include/StrobeState.h"
-
+#include "StrobeState.h"
 #include "Gnulight.h"
 
 StrobeState::StrobeState(Gnulight* gnulight) :

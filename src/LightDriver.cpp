@@ -1,6 +1,4 @@
 #include "LightDriver.h"
-
-#include "Gnulight.h"
 #include <PWM.h>
 #include <SPI.h>
 

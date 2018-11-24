@@ -1,4 +1,3 @@
-#include <string.h>
 #include "ParameterCheckState.h"
 #include "Gnulight.h"
 

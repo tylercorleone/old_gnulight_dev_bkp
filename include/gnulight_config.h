@@ -2,7 +2,10 @@
 #define DEFINITIONS_H
 
 #include <Arduino.h>
-#include <Components.h>
+
+#define INFO
+#define DEBUG
+#define TRACE
 
 /**********   PIN MAPPING   **********/
 #define BUTTON_PIN 2
@@ -26,10 +29,11 @@
 #define WDTO_X WDTO_500MS
 #endif
 
-
 inline float readBatterVoltage() {
 	analogRead(BATTERY_SENSING_PIN);
 	return 5.0f * analogRead(BATTERY_SENSING_PIN) / 1023;
 }
+
+#include <Components.h>
 
 #endif

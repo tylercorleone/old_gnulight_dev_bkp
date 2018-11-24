@@ -1,6 +1,4 @@
 #include "BatteryMonitor.h"
-
-#include "defines.h"
 #include "Gnulight.h"
 
 BatteryMonitor::BatteryMonitor(Gnulight *gnulight, uint32_t interval,

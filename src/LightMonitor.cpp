@@ -1,6 +1,4 @@
 #include "LightMonitor.h"
-
-#include "defines.h"
 #include <float.h>
 #include "LightDriver.h"
 

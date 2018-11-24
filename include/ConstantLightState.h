@@ -1,6 +1,8 @@
 #ifndef CONSTANTLIGHTSTATE_H
 #define CONSTANTLIGHTSTATE_H
 
+#include "gnulight_config.h"
+
 #include <State.h>
 
 class Gnulight;

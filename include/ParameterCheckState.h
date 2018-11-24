@@ -1,6 +1,8 @@
 #ifndef PARAMETERCHECKSTATE_H
 #define PARAMETERCHECKSTATE_H
 
+#include "gnulight_config.h"
+
 #include <FunctionsSequenceTask.h>
 #include <State.h>
 

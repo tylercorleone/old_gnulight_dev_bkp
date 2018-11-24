@@ -1,6 +1,8 @@
 #ifndef LIGHTMONITOR_H
 #define LIGHTMONITOR_H
 
+#include "gnulight_config.h"
+
 #include <stdint.h>
 #include <stddef.h>
 #include <Task.h>

@@ -1,5 +1,4 @@
 #include "ConstantLightState.h"
-#include "defines.h"
 #include "Gnulight.h"
 
 #define CONSTANT_LIGHT_LEVEL_TRANSITION_DURATION_MS 300UL

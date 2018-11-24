@@ -1,12 +1,13 @@
 #ifndef GNULIGHT_H
 #define GNULIGHT_H
 
+#include "gnulight_config.h"
+
 #include <Button.h>
 #include <CappablePotentiometer.h>
 #include <LithiumBattery.h>
 #include <System.h>
 
-#include "defines.h"
 #include "BatteryMonitor.h"
 #include "LightMonitor.h"
 #include "ConstantLightState.h"

@@ -1,10 +1,11 @@
 #ifndef LEDCURRENTPOTENTIOMETER_H
 #define LEDCURRENTPOTENTIOMETER_H
 
+#include "gnulight_config.h"
+
 #include <stdint.h>
 #include <CappablePotentiometer.h>
 #include <DelayedCappablePotentiometerActuator.h>
-#include "defines.h"
 
 class LedCurrentPotentiometer: public CappablePotentiometer {
 public:

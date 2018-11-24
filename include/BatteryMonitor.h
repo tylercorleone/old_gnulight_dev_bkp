@@ -1,7 +1,7 @@
 #ifndef LITHIUMBATTERYMONITOR_H
 #define LITHIUMBATTERYMONITOR_H
 
-#define TERMINAL_GUARANTEED_RELATIVE_CURRENT 0.01f
+#include "gnulight_config.h"
 
 #include <stdint.h>
 #include <stddef.h>
@@ -9,6 +9,7 @@
 #include <CappablePotentiometer.h>
 #include <Named.h>
 
+#define TERMINAL_GUARANTEED_RELATIVE_CURRENT 0.01f
 #define ALMOST_FULL_THRESHOLD_CURRENT 0.9f
 #define BATTERY_FULL_CURRENT 1.0f
 #define BATTERY_EMPTY_CURRENT 0.01

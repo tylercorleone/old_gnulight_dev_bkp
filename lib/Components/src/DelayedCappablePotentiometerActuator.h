@@ -7,22 +7,12 @@
 class DelayedLevelMaxLimitSetter: public DelayedLevelSetter {
 public:
 	DelayedLevelMaxLimitSetter(uint32_t timeInterval, TaskManager *taskManager,
-			CappablePotentiometer *cappablePotentiometer) :
-			DelayedLevelSetter(timeInterval, taskManager), cappablePotentiometer(
-					cappablePotentiometer) {
-	}
+			CappablePotentiometer *cappablePotentiometer);
 private:
 	CappablePotentiometer *cappablePotentiometer;
-
-	float readLevel() override {
-		return cappablePotentiometer->getLevelMaxLimit();
-	}
-
-	void writeLevel(float level) override {
-		cappablePotentiometer->setLevelMaxLimit(level);
-	}
+	float readLevel() override;
+	void writeLevel(float level);
 };
-
 
 
 class DelayedCappablePotentiometerActuator: public DelayedPotentiometerActuator {
@@ -35,6 +25,21 @@ private:
 	DelayedLevelMaxLimitSetter delayedLevelMaxLimitSetter { _timeInterval, taskManager,
 		(CappablePotentiometer*) potentiometer };
 };
+
+
+inline DelayedLevelMaxLimitSetter::DelayedLevelMaxLimitSetter(uint32_t timeInterval, TaskManager *taskManager,
+		CappablePotentiometer *cappablePotentiometer) :
+		DelayedLevelSetter(timeInterval, taskManager), cappablePotentiometer(
+				cappablePotentiometer) {
+}
+
+inline float DelayedLevelMaxLimitSetter::readLevel() {
+	return cappablePotentiometer->getLevelMaxLimit();
+}
+
+inline void DelayedLevelMaxLimitSetter::writeLevel(float level) {
+	cappablePotentiometer->setLevelMaxLimit(level);
+}
 
 inline DelayedCappablePotentiometerActuator::DelayedCappablePotentiometerActuator(
 		uint32_t timeInterval, TaskManager *taskManager,
