@@ -6,23 +6,23 @@ ConstantLightState::ConstantLightState(Gnulight *gnulight) :
 }
 
 bool ConstantLightState::onEnterState(const Event &event) {
-	MainLightLevel wantedLevel;
+	LightLevelIndex wantedLevel;
 
 	if (event.getClicksCount() > 0) {
 
 		switch (event.getClicksCount()) {
 		case 1:
-			wantedLevel = MainLightLevel::MAX;
+			wantedLevel = LightLevelIndex::MAX;
 			break;
 		case 2:
-			wantedLevel = MainLightLevel::MED;
+			wantedLevel = LightLevelIndex::MED;
 			break;
 		default:
 			return false;
 		}
 
 	} else if (event.getHoldStepsCount() > 0) {
-		wantedLevel = MainLightLevel::MIN;
+		wantedLevel = LightLevelIndex::MIN;
 	} else {
 		return false;
 	}

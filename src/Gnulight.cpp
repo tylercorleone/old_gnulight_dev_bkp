@@ -18,7 +18,9 @@ void Gnulight::Setup() {
 	TaskManager::Setup();
 	pinMode(BATTERY_SENSING_PIN, INPUT);
 	lightDriver.setup();
-	StartTask(&batteryMonitor);
+	if (batteryMonitor != nullptr) {
+		StartTask(batteryMonitor);
+	}
 	StartTask(&lightMonitor);
 	enterState(powerOffState);
 

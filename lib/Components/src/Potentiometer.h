@@ -2,7 +2,7 @@
 #define POTENTIOMETER_H
 
 #include "Components.h"
-#include "Named.h"
+#include "common/Named.h"
 
 class Potentiometer: public Named {
 public:

@@ -1,5 +1,8 @@
 #include "Gnulight.h"
 
+float readBatterVoltage();
+void onEmptyBattery();
+
 Gnulight *gnulight;
 
 void setup() {
@@ -7,13 +10,32 @@ void setup() {
 	Serial.begin(9600);
 #endif
 
-//	setUnusedPinStatus(OUTPUT, LOW);
-	gnulight = new Gnulight;
+	LithiumBattery *battery = new LithiumBattery(2.8, 3.2, 4.17, 0.053, readBatterVoltage);
+	BatteryMonitor *batteryMonitor = new BatteryMonitor(battery, BATTERY_LEVEL_MONITORING_INTERVAL_MS, onEmptyBattery);
+
+	gnulight = GnulightBuilder::configureGnulight()
+		.setBattery(battery)
+		.setBatteryMonitor(batteryMonitor)
+		.build();
+	
 	gnulight->Setup();
 }
 
 void loop() {
 	gnulight->Loop(WDTO_X);
+}
+
+inline float readBatterVoltage() {
+	analogRead(BATTERY_SENSING_PIN);
+	return 5.0f * analogRead(BATTERY_SENSING_PIN) / 1023;
+}
+
+void onEmptyBattery() {/*
+	if (gnulight->currentState != &gnulight->parameterCheckState) {
+
+		infoIfNamed("Empty battery!");
+		gnulight->enterState(gnulight->parameterCheckState, ParameterCheckState::BATTERY_CHECK);
+	}*/
 }
 
 void setUnusedPinStatus(int mode, int level) {

@@ -3,10 +3,7 @@
 
 #include "gnulight_config.h"
 
-#include <Button.h>
-#include <CappablePotentiometer.h>
-#include <LithiumBattery.h>
-#include <System.h>
+#include <Components.h>
 
 #include "BatteryMonitor.h"
 #include "LightMonitor.h"
@@ -16,26 +13,31 @@
 #include "PowerOffState.h"
 #include "StrobeState.h"
 
+
+#include "GnulightBuilder.h"
+
+class GnulightBuilder;
+
 class Gnulight : public System {
 	friend class PowerOffState;
 	friend class ConstantLightState;
 	friend class StrobeState;
 	friend class ParameterCheckState;
-	friend class BatteryMonitor;
+	friend class LightMonitor;
 public:
 	Gnulight();
 	void Setup();
 	void switchPower(OnOffState state);
 	void EnterSleep();
 protected:
+	friend class GnulightBuilder;
 	static void buttonStateChangeISR();
 	static Button *staticButton;
 	Button button {this, BUTTON_PIN, staticButton, buttonStateChangeISR};
-	LithiumBattery battery {2.8, 3.2, 4.17, 0.053, readBatterVoltage};
+	Battery *battery = nullptr;
 	LightDriver lightDriver {this, TEMPERATURE_SENSING_PIN};
-	CappablePotentiometer *batteryLevelObservers[1] = {&lightMonitor};
-	BatteryMonitor batteryMonitor {this, BATTERY_LEVEL_MONITORING_INTERVAL_MS, batteryLevelObservers};
-	LightMonitor lightMonitor { &lightDriver };
+	BatteryMonitor *batteryMonitor = nullptr;
+	LightMonitor lightMonitor { this };
 	State *currentState = nullptr;
 	PowerOffState powerOffState {this};
 	ConstantLightState constantLightState {this};

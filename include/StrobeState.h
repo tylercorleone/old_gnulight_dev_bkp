@@ -3,8 +3,7 @@
 
 #include "gnulight_config.h"
 
-#include <FunctionsSequenceTask.h>
-#include <State.h>
+#include <Components.h>
 
 class Gnulight;
 
@@ -19,7 +18,7 @@ class Gnulight;
 
 #define PERIODICAL_SEQUENCE_STROBES_PERIOD_MS 2000UL
 
-#define MIN_POTENTIOMETER_LEVEL MIN_LIGHT_CURRENT_ABOVE_ZERO * 4.0
+#define MIN_POTENTIOMETER_LEVEL MIN_LIGHT_CURRENT_ABOVE_ZERO * 2.0
 
 enum StrobeTypes {
 	SINUSOIDAL_STROBE = 0,

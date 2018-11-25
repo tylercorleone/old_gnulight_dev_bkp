@@ -3,8 +3,7 @@
 
 #include "gnulight_config.h"
 
-#include <Event.h>
-#include <State.h>
+#include <Components.h>
 
 class Gnulight;
 

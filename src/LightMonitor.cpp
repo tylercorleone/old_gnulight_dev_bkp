@@ -1,12 +1,11 @@
 #include "LightMonitor.h"
 #include <float.h>
-#include "LightDriver.h"
+#include "Gnulight.h"
 
-#define LIGHT_MONITOR_LEVEL_TRANSITION_DURATION_MS 2000
+#define LIGHT_MONITOR_LEVEL_TRANSITION_MS 2000
 
-LightMonitor::LightMonitor(LightDriver *pLightDriver) :
-		Task(MsToTaskTime(LIGHT_MONITOR_INTERVAL_MS)), pLightDriver(
-				pLightDriver) {
+LightMonitor::LightMonitor(Gnulight *gnulight) :
+		Task(MsToTaskTime(LIGHT_MONITOR_INTERVAL_MS)), gnulight(gnulight) {
 	setInstanceName("lgtMon");
 }
 
@@ -21,33 +20,35 @@ bool LightMonitor::OnStart() {
 void LightMonitor::OnStop() {
 	traceIfNamed("OnStop");
 
-	pLightDriver->currentPotentiometer.setLevelMaxLimit(1.0f);
+	gnulight->lightDriver.currentPotentiometer.setLevelMaxLimit(1.0f);
 }
 
 void LightMonitor::OnUpdate(uint32_t deltaTime) {
 	traceIfNamed("OnUpdate");
 
+	float batteryCurrentLimit = 1.0f;
+
+	if (gnulight->batteryMonitor != nullptr) {
+		batteryCurrentLimit =
+				gnulight->batteryMonitor->calculateInstantaneousMaxCurrent();
+	}
+
 	float temperatureCurrentLimit = calculateTemperatureCurrentLimit();
 
-	pLightDriver->currentPotentiometer.setLevelMaxLimit(
-			min(levelMaxLimit, temperatureCurrentLimit),
-			LIGHT_MONITOR_LEVEL_TRANSITION_DURATION_MS);
+	gnulight->lightDriver.currentPotentiometer.setLevelMaxLimit(
+			min(batteryCurrentLimit, temperatureCurrentLimit),
+			LIGHT_MONITOR_LEVEL_TRANSITION_MS);
 }
 
 float LightMonitor::calculateTemperatureCurrentLimit() {
 	float temperatureCurrentLimit = 1.0f;
 
-	float currentLevel = pLightDriver->currentPotentiometer.getLevel();
+	if (gnulight->lightDriver.currentPotentiometer.getLevel() > CURRENT_ACTIVATION_THRESHOLD) {
+		float PIDvar = getTemperaturePIDControlVariable();
 
-	if (currentLevel > CURRENT_ACTIVATION_THRESHOLD) {
-		float temperaturePIControlVariable = getTemperaturePIDControlVariable();
+		temperatureCurrentLimit = levelMaxLimit * (1.0f + PIDvar);
 
-		temperatureCurrentLimit = levelMaxLimit
-				* (1.0f + temperaturePIControlVariable);
-
-		traceIfNamed(
-				"TempPIDControlVariable: %f, temperatureCurrentLimit: %f",
-				temperaturePIControlVariable, temperatureCurrentLimit);
+		traceIfNamed("PIDvar: %f, temperatureCurrentLimit: %f", PIDvar, temperatureCurrentLimit);
 	}
 
 	return _constrain(temperatureCurrentLimit, 0.0f, 1.0f);
@@ -56,17 +57,14 @@ float LightMonitor::calculateTemperatureCurrentLimit() {
 float LightMonitor::getTemperaturePIDControlVariable() {
 	float dt = LIGHT_MONITOR_INTERVAL_MS / 1000.0f;
 
-	float temperature = pLightDriver->getEmitterTemperature();
+	float temperatureError = EMITTER_TARGET_TEMPERATURE
+			- gnulight->lightDriver.getEmitterTemperature();
 
-	traceIfNamed("temp: %f", temperature);
-
-	float temperatureError = EMITTER_TARGET_TEMPERATURE - temperature;
+	traceIfNamed("temp: %f", EMITTER_TARGET_TEMPERATURE - temperatureError);
 
 	temperatureErrorIntegral += temperatureError * dt;
-	temperatureErrorIntegral =
-			temperatureErrorIntegral < 0.0f ?
-					max(temperatureErrorIntegral, -TEMPERATURE_MAX_ERROR) :
-					min(temperatureErrorIntegral, TEMPERATURE_MAX_ERROR);
+	temperatureErrorIntegral = _constrain(temperatureErrorIntegral,
+			-TEMPERATURE_MAX_ERROR, TEMPERATURE_MAX_ERROR);
 
 	float derivative = calculateDerivate(temperatureError, temperatureError_1,
 			temperatureError_2, dt);
@@ -93,5 +91,4 @@ float LightMonitor::calculateDerivate(float f_t, float f_t_1, float f_t_2,
 
 	return (3.0f * f_t - 4.0f * f_t_1 + f_t_2) / (2.0f * dt);
 }
-
 

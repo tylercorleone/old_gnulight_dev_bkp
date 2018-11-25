@@ -7,7 +7,8 @@
 #include <stddef.h>
 #include <Task.h>
 #include <CappablePotentiometer.h>
-#include "LightDriver.h"
+
+class Gnulight;
 
 #define LIGHT_MONITOR_INTERVAL_MS 10000
 #define EMITTER_TARGET_TEMPERATURE 50.0f
@@ -16,7 +17,7 @@
 
 class LightMonitor: public Task, public CappablePotentiometer {
 public:
-	LightMonitor(LightDriver *pLightDriver);
+	LightMonitor(Gnulight *gnulight);
 	bool OnStart() override;
 	void OnStop() override;
 	void OnUpdate(uint32_t deltaTime) override;
@@ -27,7 +28,7 @@ private:
 	float calculateTemperatureCurrentLimit();
 	float getTemperaturePIDControlVariable();
 	float calculateDerivate(float f_t, float f_t_1, float f_t_2, float dt);
-	LightDriver *pLightDriver;
+	Gnulight *gnulight;
 	float Kp = 0.001f;
 	float Ki = 0.000015f;
 	float Kd = 0.5f;

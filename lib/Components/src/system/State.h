@@ -2,7 +2,7 @@
 #define STATE_H
 
 #include "Event.h"
-#include "Named.h"
+#include "common/Named.h"
 
 class State : public Named {
 	friend class System;

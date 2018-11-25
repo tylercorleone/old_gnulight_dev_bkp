@@ -2,10 +2,6 @@
 #define BUTTON_H
 
 #include "Components.h"
-#include "Event.h"
-#include "HostSystemAware.h"
-#include "Named.h"
-#include "System.h"
 
 #define CONSECUTIVE_CLICKS_MAX_DELAY 600L
 #define BUTTON_HOLD_BEGIN_THRESHOLD_MS 800L
@@ -99,6 +95,7 @@ inline Button::Button(System *system, uint8_t inputPin, Button *&staticButton, v
 			digitalRead(inputPin) == LOW ?
 					ButtonStatus::PRESSED : ButtonStatus::RELEASED;
 	staticButton = this;
+	reset();
 	attachInterrupt(digitalPinToInterrupt(inputPin), changeISR, CHANGE);
 }
 

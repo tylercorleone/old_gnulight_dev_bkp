@@ -1,23 +1,17 @@
 #ifndef LITHIUMBATTERY_H
 #define LITHIUMBATTERY_H
 
-class LithiumBattery {
+#include "Battery.h"
+
+class LithiumBattery: public Battery {
 public:
 	LithiumBattery(float voltageEmpty, float firstLinearStepEndVoltage,
 			float voltageFull, float firstLinearStepEndCapacity,
-			float (*readBatteryVoltageFunction)(void));
-
-	float getVoltageFull() {
-		return voltageFull;
-	}
-
-	float getVoltageEmpty() {
-		return voltageEmpty;
-	}
-
-	float getRemainingCharge();
+			float (*readBatteryVoltageFunc)(void));
+	float getRemainingCharge() override;
+	float getVoltageFull();
+	float getVoltageEmpty();
 private:
-	float (*readBatteryVoltage)(void);
 	float voltageFull;
 	float voltageEmpty;
 	float firstLinearStepEndVoltage;
@@ -26,25 +20,37 @@ private:
 
 inline LithiumBattery::LithiumBattery(float voltageEmpty,
 		float firstLinearStepEndVoltage, float voltageFull,
-		float firstLinearStepEndCapacity, float (*readBatteryVoltageFunction)(void)) {
-	this->readBatteryVoltage = readBatteryVoltageFunction;
+		float firstLinearStepEndCapacity, float (*readVoltageFunc)(void)) :
+		Battery(readVoltageFunc) {
 	this->voltageFull = voltageFull;
 	this->voltageEmpty = voltageEmpty;
 	this->firstLinearStepEndVoltage = firstLinearStepEndVoltage;
 	this->firstLinearStepEndCapacity = firstLinearStepEndCapacity;
 }
 
+inline float LithiumBattery::getVoltageFull() {
+	return voltageFull;
+}
+
+inline float LithiumBattery::getVoltageEmpty() {
+	return voltageEmpty;
+}
+
 /**
- * Returns a value between 0.0 and 1.0
+ * An approximation of the charge/voltage function for Lithium batteries
  */
 inline float LithiumBattery::getRemainingCharge() {
-	float currentVoltage = _constrain(readBatteryVoltage(), voltageEmpty,
-			voltageFull);
+	float currentVoltage = _constrain(readVoltage(), voltageEmpty, voltageFull);
 
 	if (currentVoltage < firstLinearStepEndCapacity) {
+
+		/*
+		 * low charge zone
+		 */
 		return (currentVoltage - voltageEmpty) * (firstLinearStepEndCapacity)
 				/ (firstLinearStepEndVoltage - voltageEmpty);
 	} else {
+
 		return firstLinearStepEndCapacity
 				+ (currentVoltage - firstLinearStepEndVoltage)
 						* (1.0f - firstLinearStepEndCapacity)

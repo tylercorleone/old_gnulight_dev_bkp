@@ -2,6 +2,8 @@
 #include <PWM.h>
 #include <SPI.h>
 
+#define MAIN_LEVEL mainLevels[currentMainLevelIndex][currentSubLevelsIndexes[currentMainLevelIndex]]
+
 LightDriver::LightDriver(TaskManager *taskManager,
 		uint8_t temperatureSensingPin) :
 		LightDimmer(&currentPotentiometer), taskManager(taskManager), temperatureSensingPin(
@@ -22,36 +24,27 @@ void LightDriver::setLevel(float level, uint32_t transitionDurationMs) {
 	delayedLevelSetter.setLevel(level, transitionDurationMs);
 }
 
-MainLightLevel LightDriver::getMainLevel() {
-	return currentMainLevel;
+LightLevelIndex LightDriver::getCurrentMainLevel() {
+	return currentMainLevelIndex;
 }
 
-float LightDriver::setMainLevel(MainLightLevel level,
+float LightDriver::setMainLevel(LightLevelIndex levelIndex,
 		uint32_t transitionDurationMs) {
-	currentMainLevel = level;
-
-	return _setMainLevel(transitionDurationMs);
+	currentMainLevelIndex = levelIndex;
+	setLevel(MAIN_LEVEL, transitionDurationMs);
+	return MAIN_LEVEL;
 }
 
 float LightDriver::setNextMainLevel(uint32_t transitionDurationMs) {
-	currentMainLevel = (currentMainLevel + 1) % MAIN_LEVELS_NUM;
+	return setMainLevel((currentMainLevelIndex + 1) % MAIN_LEVELS_NUM,
+			transitionDurationMs);
 
-	return _setMainLevel(transitionDurationMs);
 }
 
 float LightDriver::setNextSubLevel(uint32_t transitionDurationMs) {
-	currentSubLevelsIndexes[currentMainLevel] =
-			(currentSubLevelsIndexes[currentMainLevel] + 1) % SUBLEVELS_NUM;
-
-	return _setMainLevel(transitionDurationMs);
-}
-
-float LightDriver::_setMainLevel(uint32_t transitionDurationMs) {
-	setLevel(
-			mainLevels[currentMainLevel][currentSubLevelsIndexes[currentMainLevel]],
-			transitionDurationMs);
-
-	return mainLevels[currentMainLevel][currentSubLevelsIndexes[currentMainLevel]];
+	currentSubLevelsIndexes[currentMainLevelIndex] =
+			(currentSubLevelsIndexes[currentMainLevelIndex] + 1) % SUBLEVELS_NUM;
+	return setMainLevel(currentMainLevelIndex, transitionDurationMs);
 }
 
 #define V_OUT (analogRead(temperatureSensingPin) * 5.0f / 1023.0f)
@@ -63,3 +56,5 @@ float LightDriver::getEmitterTemperature() {
 	// it is a MCP9700A-E/TO
 	return (V_OUT - V_0) / T_C;
 }
+
+#undef MAIN_LEVEL

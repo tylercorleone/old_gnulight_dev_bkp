@@ -5,8 +5,8 @@
 #include <stddef.h>
 #include <Task.h>
 #include "Components.h"
-#include "Named.h"
 #include "State.h"
+#include "HostSystemAware.h"
 
 class System: public TaskManager , public Named {
 public:

@@ -3,7 +3,7 @@
 
 #include "gnulight_config.h"
 
-#include <State.h>
+#include <Components.h>
 
 #define MAIN_LEVEL_TRANSITION_DURATION_MS 300UL
 

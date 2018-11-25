@@ -8,7 +8,7 @@ StrobeState::StrobeState(Gnulight* gnulight) :
 bool StrobeState::onEnterState(const Event &event) {
 	debugIfNamed("strobe type %d", currentStrobeType);
 
-	varName = gnulight->lightDriver.setMainLevel(MainLightLevel::MED);
+	varName = gnulight->lightDriver.setMainLevel(LightLevelIndex::MED);
 
 	if (currentStrobeType == SINUSOIDAL_STROBE
 			|| currentStrobeType == LINEAR_STROBE) {
@@ -36,8 +36,9 @@ bool StrobeState::receiveEvent(const Event &event) {
 
 			if (currentStrobeType == SINUSOIDAL_STROBE
 					|| currentStrobeType == LINEAR_STROBE) {
-				MainLightLevel currentMainLevel =
-						gnulight->lightDriver.getMainLevel();
+
+				LightLevelIndex currentMainLevel =
+						gnulight->lightDriver.getCurrentMainLevel();
 				varName = gnulight->lightDriver.setMainLevel(
 						currentMainLevel);
 				gnulight->lightDriver.setState(OnOffState::ON);
@@ -68,10 +69,11 @@ bool StrobeState::receiveEvent(const Event &event) {
 	}
 }
 
+#define THE_PERIOD (PERIODICAL_SEQUENCE_STROBES_PERIOD_MS * _this->periodMultiplierX1000 / 1000)
+
 uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
-	uint32_t nextIntervalMs = 0;
+	uint32_t nextIntervalMs;
 	float nextPotentiometerLevel;
-	uint32_t periodMs;
 
 	switch (_this->currentStrobeType) {
 
@@ -96,18 +98,16 @@ uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
 		}
 		break;
 	case SINUSOIDAL_STROBE:
-		periodMs = PERIODICAL_SEQUENCE_STROBES_PERIOD_MS
-				* _this->periodMultiplierX1000 / 1000;
+		nextIntervalMs = LEVEL_REFRESH_INTERVAL_MS;
 		nextPotentiometerLevel = MIN_POTENTIOMETER_LEVEL
 				+ (_this->varName - MIN_POTENTIOMETER_LEVEL)
-						* (sinWave(millis(), periodMs)) / 2.0f;
+						* (sinWave(millis(), THE_PERIOD));
 		break;
 	case LINEAR_STROBE:
-		periodMs = PERIODICAL_SEQUENCE_STROBES_PERIOD_MS
-				* _this->periodMultiplierX1000 / 1000;
+		nextIntervalMs = LEVEL_REFRESH_INTERVAL_MS;
 		nextPotentiometerLevel = MIN_POTENTIOMETER_LEVEL
 				+ (_this->varName - MIN_POTENTIOMETER_LEVEL)
-						* triangularWave(millis(), periodMs);
+						* triangularWave(millis(), THE_PERIOD);
 		break;
 	default:
 		return -1;
@@ -118,11 +118,12 @@ uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
 		_this->gnulight->lightDriver.toggleState();
 	} else {
 		_this->gnulight->lightDriver.setLevel(nextPotentiometerLevel);
-		nextIntervalMs = LEVEL_REFRESH_INTERVAL_MS;
 	}
 
 	return MsToTaskTime(nextIntervalMs);
 }
+
+#undef THE_PERIOD
 
 float StrobeState::triangularWave(uint32_t millis, uint32_t periodMs) {
 	millis = millis % periodMs;
@@ -134,5 +135,5 @@ float StrobeState::triangularWave(uint32_t millis, uint32_t periodMs) {
 }
 
 float StrobeState::sinWave(uint32_t millis, uint32_t periodMs) {
-	return sin(millis * 2.0 * PI / periodMs) + 1.0f;
+	return (_sin(millis * TWO_PI / periodMs) + 1.0f) / 2.0f;
 }
