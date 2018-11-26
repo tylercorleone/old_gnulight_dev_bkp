@@ -62,7 +62,7 @@ inline void BasicDevice::enterState(AbstractState &state, const Event &event) {
 			enterFallbackState(event);
 		}
 	} else {
-		debugIfNamed("unhandled event");
+		debugIfStateHasName(&state, "can't handle evt");
 		enterFallbackState(event);
 	}
 }
@@ -81,7 +81,9 @@ inline void BasicDevice::receiveEvent(const Event &event) {
 			enterFallbackState();
 		}
 	} else {
-		debugIfNamed("unhandled event");
+		debugIfStateHasName(currentState, "can't handle evt");
+		debugIfStateHasName(currentState, "onExitState");
+		currentState->onExitState();
 		enterFallbackState(event);
 	}
 }
@@ -100,12 +102,11 @@ inline void BasicDevice::enterFallbackState() {
 inline void BasicDevice::enterFallbackState(const Event &event) {
 	if (fallbackState != nullptr) {
 		debugIfStateHasName(fallbackState, "onEnterState");
-		if (fallbackState->canHandleEvent(event)) {
-			fallbackState->onEnterStateWithGenericEvent(event);
-		} else {
+		if (!(fallbackState->canHandleEvent(event)
+				&& fallbackState->onEnterStateWithGenericEvent(event))) {
 			fallbackState->onEnterState();
+			currentState = fallbackState;
 		}
-		currentState = fallbackState;
 	} else {
 		currentState = nullptr;
 		debugIfNamed("hanged up");

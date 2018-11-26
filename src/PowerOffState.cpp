@@ -15,7 +15,7 @@ void PowerOffState::onExitState() {
 	gnulight->switchPower(OnOffState::ON);
 }
 
-bool PowerOffState::handleEvent(const Event &event) {
+bool PowerOffState::handleEvent(const ButtonEvent &event) {
 
 	if (event.getEventTypeUUID() != ButtonEvent::eventTypeUUID()) {
 		return false;
