@@ -13,12 +13,9 @@
 #include "PowerOffState.h"
 #include "StrobeState.h"
 
-
-#include "GnulightBuilder.h"
-
 class GnulightBuilder;
 
-class Gnulight : public System {
+class Gnulight : public BasicDevice {
 	friend class PowerOffState;
 	friend class ConstantLightState;
 	friend class StrobeState;
@@ -26,6 +23,7 @@ class Gnulight : public System {
 	friend class LightMonitor;
 public:
 	Gnulight();
+	Gnulight(bool useTemplates);
 	void Setup();
 	void switchPower(OnOffState state);
 	void EnterSleep();
@@ -33,16 +31,18 @@ protected:
 	friend class GnulightBuilder;
 	static void buttonStateChangeISR();
 	static Button *staticButton;
-	Button button {this, BUTTON_PIN, staticButton, buttonStateChangeISR};
+	Button button { this, BUTTON_PIN, staticButton, buttonStateChangeISR};
 	Battery *battery = nullptr;
 	LightDriver lightDriver {this, TEMPERATURE_SENSING_PIN};
 	BatteryMonitor *batteryMonitor = nullptr;
 	LightMonitor lightMonitor { this };
-	State *currentState = nullptr;
+	State<ButtonEvent> *currentState = nullptr;
 	PowerOffState powerOffState {this};
 	ConstantLightState constantLightState {this};
 	StrobeState strobeState {this};
 	ParameterCheckState parameterCheckState {this};
 };
+
+#include "GnulightBuilder.h"
 
 #endif

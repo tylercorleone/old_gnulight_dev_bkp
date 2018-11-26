@@ -9,12 +9,12 @@
 
 class Gnulight;
 
-class ConstantLightState: public State {
+class ConstantLightState: public State<ButtonEvent> {
 public:
 	ConstantLightState(Gnulight *gnulight);
 protected:
-	bool onEnterState(const Event &event) override;
-	bool receiveEvent(const Event &event) override;
+	bool onEnterState(const ButtonEvent &event) override;
+	bool handleEvent(const ButtonEvent &event) override;
 	Gnulight *gnulight;
 };
 

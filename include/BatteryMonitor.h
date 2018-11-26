@@ -3,12 +3,10 @@
 
 #include "gnulight_config.h"
 
+#include <Components.h>
 #include <stdint.h>
 #include <stddef.h>
 #include <Task.h>
-#include <Battery.h>
-#include <CappablePotentiometer.h>
-#include <Components.h>
 
 #define EMERGENCY_CURRENT_LEVEL 0.01f
 #define BATTERY_FULL_CURRENT 1.0f

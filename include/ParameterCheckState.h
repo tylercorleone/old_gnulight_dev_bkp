@@ -11,13 +11,13 @@ class Gnulight;
 #define DIGIT_SIGNAL_DUTY_CYCLE 0.15f
 #define COMMA_SIGNAL_DUTY_CYCLE 1.0f
 
-class ParameterCheckState: public State {
+class ParameterCheckState: public State<MessageEvent> {
 public:
 	static const char *BATTERY_CHECK;
 	static const char *LAMP_TEMPERATURE_CHECK;
 	ParameterCheckState(Gnulight *gnulight);
 protected:
-	bool onEnterState(const Event &event) override;
+	bool onEnterState(const MessageEvent &event) override;
 	void onExitState() override;
 	static uint32_t switchLightStatus(ParameterCheckState *_this);
 	Gnulight *gnulight;

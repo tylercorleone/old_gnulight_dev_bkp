@@ -3,6 +3,10 @@
 
 #include "Components.h"
 
+#include <stdint.h>
+#include <stddef.h>
+#include <Task.h>
+
 #define CONSECUTIVE_CLICKS_MAX_DELAY 600L
 #define BUTTON_HOLD_BEGIN_THRESHOLD_MS 800L
 #define HOLD_CYCLE_DURATION_MS 1200UL
@@ -13,22 +17,22 @@ enum class ButtonStatus {
 	PRESSED, RELEASED
 };
 
-class ButtonInteractionMonitor: public Task, public HostSystemAware<System> {
+class ButtonInteractionMonitor: public Task {
 public:
-	ButtonInteractionMonitor(uint32_t timeInterval, Button *button, System *system);
+	ButtonInteractionMonitor(Button *button, uint32_t timeInterval);
 protected:
 	void OnUpdate(uint32_t deltaTime) override;
 private:
 	Button *button;
 };
 
-
-class Button: public HostSystemAware<System>, public Named {
+class Button: public DeviceAware<BasicDevice>, public Named {
 	friend class ButtonInteractionMonitor;
 public:
-	Button(System *system, uint8_t inputPin, Button *&staticButton, void (*changeISR)(void));
+	Button(BasicDevice *system, uint8_t inputPin, Button *&staticButton,
+			void (*changeISR)(void));
 	bool isUserInteracting();
-	Event ackInteraction();
+	ButtonEvent ackInteraction();
 	void statusChangeCallback();
 private:
 	void onButtonFall();
@@ -43,12 +47,12 @@ private:
 	volatile uint8_t holdsCount;
 	volatile bool haveClicksToNotify;
 	volatile bool haveHoldsToNotify;
-	ButtonInteractionMonitor uiMonitor {MsToTaskTime(10), this, getHostSystem()};
+	ButtonInteractionMonitor uiMonitor { this , MsToTaskTime(10)};
 };
 
-inline ButtonInteractionMonitor::ButtonInteractionMonitor(uint32_t timeInterval,
-		Button *button, System *system) :
-		Task(timeInterval), HostSystemAware(system), button(button) {
+inline ButtonInteractionMonitor::ButtonInteractionMonitor(Button *button,
+		uint32_t timeInterval) :
+		Task(timeInterval), button(button) {
 }
 
 inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
@@ -57,7 +61,7 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 		/*
 		 * User is interacting. Stay awake to intercept holds!
 		 */
-		Event event = button->ackInteraction();
+		ButtonEvent event = button->ackInteraction();
 
 		if (event.getClicksCount() > 0 || event.getHoldStepsCount() > 0) {
 			debugIfOtherNamed(button, "%s: %d clicks, %d holds",
@@ -67,7 +71,7 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 			/*
 			 * We have a complete interaction
 			 */
-			getHostSystem()->receiveEvent(event);
+			button->Device()->receiveEvent(event);
 		}
 	} else {
 
@@ -80,15 +84,16 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 			/*
 			 * Double check
 			 */
-			getHostSystem()->StopTask(this);
+			button->Device()->StopTask(this);
 			button->reset();
 		}
 		interrupts();
 	}
 }
 
-inline Button::Button(System *system, uint8_t inputPin, Button *&staticButton, void (*changeISR)(void)) :
-		HostSystemAware(system), inputPin(inputPin) {
+inline Button::Button(BasicDevice *system, uint8_t inputPin, Button *&staticButton,
+		void (*changeISR)(void)) :
+		DeviceAware(system), inputPin(inputPin) {
 	pinMode(inputPin, INPUT_PULLUP);
 	delay(1);
 	status =
@@ -142,10 +147,10 @@ inline void Button::onButtonRise() {
 
 inline void Button::statusChangeCallback() {
 	digitalRead(inputPin) == LOW ? onButtonFall() : onButtonRise();
-	getHostSystem()->StartTask(&uiMonitor);
+	Device()->StartTask(&uiMonitor);
 }
 
-inline Event Button::ackInteraction() {
+inline ButtonEvent Button::ackInteraction() {
 	uint32_t currentMs = millis();
 	uint8_t clicksToNotify = 0;
 
@@ -153,8 +158,8 @@ inline Event Button::ackInteraction() {
 		if (currentMs - lastRiseTimeMs < CONSECUTIVE_CLICKS_MAX_DELAY) {
 
 			/*
-			* There is still time to cumulate clicks, so we cannot (already) notify them
-			*/
+			 * There is still time to cumulate clicks, so we cannot (already) notify them
+			 */
 			clicksToNotify = 0;
 		} else {
 			clicksToNotify = clicksCount;
@@ -174,7 +179,7 @@ inline Event Button::ackInteraction() {
 		haveHoldsToNotify = false;
 	}
 
-	return Event(clicksToNotify, holdsToNotify);
+	return ButtonEvent(clicksToNotify, holdsToNotify);
 }
 
 /*
@@ -188,7 +193,8 @@ inline bool Button::isUserInteracting() {
 	}
 }
 
-inline void Button::refreshHoldStatus(uint32_t millis, boolean isExitingFromHold) {
+inline void Button::refreshHoldStatus(uint32_t millis,
+		boolean isExitingFromHold) {
 	if (status == ButtonStatus::RELEASED && !isExitingFromHold) {
 		return;
 	}
@@ -204,7 +210,8 @@ inline void Button::refreshHoldStatus(uint32_t millis, boolean isExitingFromHold
 	}
 
 	uint8_t holdsCountTemp;
-	holdsCountTemp = (holdDurationMs - BUTTON_HOLD_BEGIN_THRESHOLD_MS) / HOLD_CYCLE_DURATION_MS + 1;
+	holdsCountTemp = (holdDurationMs - BUTTON_HOLD_BEGIN_THRESHOLD_MS)
+			/ HOLD_CYCLE_DURATION_MS + 1;
 
 	if (holdsCountTemp == holdsCount) {
 

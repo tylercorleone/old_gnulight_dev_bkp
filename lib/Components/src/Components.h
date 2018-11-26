@@ -1,16 +1,11 @@
 #ifndef COMPONENTS_H
 #define COMPONENTS_H
 
-#define _constrain(value,low,high) ((value)<(low)?(low):((value)>(high)?(high):(value)))
+#include "common/components_commons.h"
 
-#include "common/Enums.h"
-#include "common/FunctionsSequenceTask.h"
-#include "common/Named.h"
-
-#include "utils/print_utils.h"
-#include "utils/fixed_trigonometry.h"
-
-#include "system/System.h"
+#include "device/event/Event.h"
+#include "device/BasicDevice.h"
+#include "device/DeviceAware.h"
 
 #include "Battery.h"
 #include "Button.h"

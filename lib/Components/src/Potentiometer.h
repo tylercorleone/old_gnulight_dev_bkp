@@ -1,8 +1,7 @@
 #ifndef POTENTIOMETER_H
 #define POTENTIOMETER_H
 
-#include "Components.h"
-#include "common/Named.h"
+#include "common/components_commons.h"
 
 class Potentiometer: public Named {
 public:

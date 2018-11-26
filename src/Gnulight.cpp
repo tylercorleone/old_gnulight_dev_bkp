@@ -7,7 +7,7 @@
 Button *Gnulight::staticButton;
 
 Gnulight::Gnulight() :
-		System("gnuLght", &powerOffState) {
+		BasicDevice("Gnulight", &powerOffState) {
 
 }
 

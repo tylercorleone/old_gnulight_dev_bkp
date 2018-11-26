@@ -5,7 +5,7 @@ StrobeState::StrobeState(Gnulight* gnulight) :
 		State("strobeState"), gnulight(gnulight) {
 }
 
-bool StrobeState::onEnterState(const Event &event) {
+bool StrobeState::onEnterState(const ButtonEvent &event) {
 	debugIfNamed("strobe type %d", currentStrobeType);
 
 	varName = gnulight->lightDriver.setMainLevel(LightLevelIndex::MED);
@@ -23,7 +23,7 @@ void StrobeState::onExitState() {
 	gnulight->StopTask(&toggleLightStatusTask);
 }
 
-bool StrobeState::receiveEvent(const Event &event) {
+bool StrobeState::handleEvent(const ButtonEvent &event) {
 	if (event.getClicksCount() > 0) {
 
 		switch (event.getClicksCount()) {

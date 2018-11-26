@@ -28,13 +28,13 @@ enum StrobeTypes {
 	DISCO_STROBE = 4
 };
 
-class StrobeState: public State {
+class StrobeState: public State<ButtonEvent> {
 public:
 	StrobeState(Gnulight* gnulight);
 protected:
-	bool onEnterState(const Event &event) override;
+	bool onEnterState(const ButtonEvent &event) override;
 	void onExitState() override;
-	bool receiveEvent(const Event &event) override;
+	bool handleEvent(const ButtonEvent &event) override;
 	static uint32_t switchLightStatus(StrobeState *_this);
 	static float sinWave(uint32_t millis, uint32_t periodMs);
 	static float triangularWave(uint32_t millis, uint32_t periodMs);

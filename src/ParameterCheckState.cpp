@@ -8,14 +8,14 @@ ParameterCheckState::ParameterCheckState(Gnulight *gnulight) :
 		State("parCheckState"), gnulight(gnulight) {
 }
 
-bool ParameterCheckState::onEnterState(const Event &event) {
+bool ParameterCheckState::onEnterState(const MessageEvent &event) {
 	float parameterValue;
 
-	if (event.isMessage(BATTERY_CHECK) && gnulight->battery != nullptr) {
+	if (event.equals(BATTERY_CHECK) && gnulight->battery != nullptr) {
 
 		parameterValue = round(gnulight->battery->getRemainingCharge() * 10.0f);
 
-	} else if (event.isMessage(LAMP_TEMPERATURE_CHECK)) {
+	} else if (event.equals(LAMP_TEMPERATURE_CHECK)) {
 
 		parameterValue = gnulight->lightDriver.getEmitterTemperature() / 10.0f;
 
@@ -49,6 +49,9 @@ uint32_t ParameterCheckState::switchLightStatus(ParameterCheckState *_this) {
 	if (_this->strobesForIntegerPartCount <= 0
 			&& _this->strobesForDecimalPartCount == 0) {
 
+		/*
+		 * finished
+		 */
 		_this->gnulight->enterState(_this->gnulight->powerOffState);
 		return 0;
 	}

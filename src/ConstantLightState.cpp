@@ -5,7 +5,7 @@ ConstantLightState::ConstantLightState(Gnulight *gnulight) :
 		State("constLightState"), gnulight(gnulight) {
 }
 
-bool ConstantLightState::onEnterState(const Event &event) {
+bool ConstantLightState::onEnterState(const ButtonEvent &event) {
 	LightLevelIndex wantedLevel;
 
 	if (event.getClicksCount() > 0) {
@@ -34,7 +34,7 @@ bool ConstantLightState::onEnterState(const Event &event) {
 	return true;
 }
 
-bool ConstantLightState::receiveEvent(const Event &event) {
+bool ConstantLightState::handleEvent(const ButtonEvent &event) {
 	if (event.getClicksCount() > 0) {
 
 		switch (event.getClicksCount()) {

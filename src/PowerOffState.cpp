@@ -15,7 +15,7 @@ void PowerOffState::onExitState() {
 	gnulight->switchPower(OnOffState::ON);
 }
 
-bool PowerOffState::receiveEvent(const Event &event) {
+bool PowerOffState::handleEvent(const ButtonEvent &event) {
 	if (event.getClicksCount() > 0) {
 
 		switch (event.getClicksCount()) {
@@ -27,10 +27,10 @@ bool PowerOffState::receiveEvent(const Event &event) {
 			gnulight->enterState(gnulight->strobeState, event);
 			return true;
 		case 4:
-			gnulight->enterState(gnulight->parameterCheckState, Event(ParameterCheckState::BATTERY_CHECK));
+			gnulight->enterState(gnulight->parameterCheckState, MessageEvent(ParameterCheckState::BATTERY_CHECK));
 			return true;
 		case 5:
-			gnulight->enterState(gnulight->parameterCheckState, Event(ParameterCheckState::LAMP_TEMPERATURE_CHECK));
+			gnulight->enterState(gnulight->parameterCheckState, MessageEvent(ParameterCheckState::LAMP_TEMPERATURE_CHECK));
 			return true;
 		case 6:
 			gnulight->lightDriver.isLightnessSimulationEnabled(

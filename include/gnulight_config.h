@@ -25,6 +25,4 @@
 #define WDTO_X WDTO_500MS
 #endif
 
-#include <Components.h>
-
 #endif
