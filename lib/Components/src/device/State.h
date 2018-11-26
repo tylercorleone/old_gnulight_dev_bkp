@@ -14,6 +14,7 @@ protected:
 	virtual ~AbstractState() {};
 protected:
 	AbstractState(const char *stateName = nullptr) : Named(stateName) {}
+	virtual bool canHandleEvent(const Event &event) {return false;}
 	virtual bool handleGenericEvent(const Event &event) {return false;}
 	virtual bool onEnterStateWithGenericEvent(const Event &event) {return false;}
 };
@@ -26,28 +27,17 @@ protected:
 	virtual bool handleEvent(const T &event) override {return false;}
 	virtual ~State() {};
 protected:
+
+	bool canHandleEvent(const Event &event) {
+		return event.getEventTypeUUID() == T::eventTypeUUID();
+	}
+
 	bool handleGenericEvent(const Event &event) override {
-//		trace("%c", *event.getEventTypeUUID());
-//		trace("%c", *T::eventTypeUUID());
-//		trace("%d", event.getEventTypeUUID() == T::eventTypeUUID());
-		if (event.getEventTypeUUID() == T::eventTypeUUID()) {
-//			trace("here1");
-			return handleEvent(static_cast<const T&>(event));
-		} else {
-			return false;
-		}
+		return handleEvent(static_cast<const T&>(event));
 	}
 
 	bool onEnterStateWithGenericEvent(const Event &event) override {
-//		trace("%c", *event.getEventTypeUUID());
-//		trace("%c", *T::eventTypeUUID());
-//		trace("%d", event.getEventTypeUUID() == T::eventTypeUUID());
-		if (event.getEventTypeUUID() == T::eventTypeUUID()) {
-//			trace("here2");
-			return onEnterState(static_cast<const T&>(event));
-		} else {
-			return false;
-		}
+		return onEnterState(static_cast<const T&>(event));
 	}
 };
 

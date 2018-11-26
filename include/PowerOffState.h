@@ -7,13 +7,14 @@
 
 class Gnulight;
 
-class PowerOffState: public State<ButtonEvent> {
+class PowerOffState: public State<Event> {
 public:
 	PowerOffState(Gnulight *gnulight);
 protected:
 	bool onEnterState() override;
+	bool onEnterState(const Event &event) override;
 	void onExitState() override;
-	bool handleEvent(const ButtonEvent &event) override;
+	bool handleEvent(const Event &event) override;
 	Gnulight *gnulight;
 };
 

@@ -3,9 +3,9 @@
 
 #include <Arduino.h>
 
-//#define INFO
-//#define DEBUG
-//#define TRACE
+#define INFO
+#define DEBUG
+#define TRACE
 
 /**********   PIN MAPPING   **********/
 #define BUTTON_PIN 2

@@ -11,14 +11,24 @@ bool PowerOffState::onEnterState() {
 	return true;
 }
 
+bool PowerOffState::onEnterState(const Event &event) {
+	return onEnterState();
+}
+
 void PowerOffState::onExitState() {
 	gnulight->switchPower(OnOffState::ON);
 }
 
-bool PowerOffState::handleEvent(const ButtonEvent &event) {
-	if (event.getClicksCount() > 0) {
+bool PowerOffState::handleEvent(const Event &event) {
 
-		switch (event.getClicksCount()) {
+	if (event.getEventTypeUUID() != ButtonEvent::eventTypeUUID()) {
+		return false;
+	}
+
+	ButtonEvent *buttonEvent = (ButtonEvent*) &event;
+	if (buttonEvent->getClicksCount() > 0) {
+
+		switch (buttonEvent->getClicksCount()) {
 		case 1:
 		case 2:
 			gnulight->enterState(gnulight->constantLightState, event);
@@ -40,7 +50,7 @@ bool PowerOffState::handleEvent(const ButtonEvent &event) {
 			return false;
 		}
 
-	} else if (event.getHoldStepsCount() > 0) {
+	} else if (buttonEvent->getHoldStepsCount() > 0) {
 		gnulight->enterState(gnulight->constantLightState, event);
 		return true;
 	} else {
