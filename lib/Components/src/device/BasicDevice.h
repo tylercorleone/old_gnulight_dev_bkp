@@ -8,11 +8,6 @@
 #include "../common/components_commons.h"
 #include "device/State.h"
 
-// let's save some data and program space...
-enum class DeviceInteraction {
-	ENTER_STATE, ENTER_STATE_WITH_EVENT, RECEIVE_EVENT, ENTER_FALLBACK, ENTER_FALLBACK_WITH_EVENT
-};
-
 class BasicDevice: public TaskManager , public Named {
 public:
 	BasicDevice(AbstractState *fallbackState = nullptr);
@@ -21,7 +16,8 @@ public:
 	void enterState(AbstractState &state, const Event &event);
 	void receiveEvent(const Event &event);
 private:
-	void handleInteraction(DeviceInteraction interaction, AbstractState &state, const Event *pEvent = nullptr);
+	void enterFallbackState();
+	void enterFallbackState(const Event &event);
 	AbstractState *currentState;
 	AbstractState *fallbackState;
 };
@@ -38,98 +34,81 @@ inline BasicDevice::BasicDevice(const char *systemName,
 #define debugIfStateHasName debugIfOtherNamed
 
 inline void BasicDevice::enterState(AbstractState &state) {
-	handleInteraction(DeviceInteraction::ENTER_STATE, state);
-}
-
-inline void BasicDevice::enterState(AbstractState &state, const Event &event) {
-	handleInteraction(DeviceInteraction::ENTER_STATE_WITH_EVENT, state, &event);
-}
-
-inline void BasicDevice::receiveEvent(const Event &event) {
-	handleInteraction(DeviceInteraction::RECEIVE_EVENT, *currentState, &event);
-}
-
-// ENTER_STATE, ENTER_STATE_WITH_EVENT, RECEIVE_EVENT, ENTER_FALLBACK, ENTER_FALLBACK_WITH_EVENT
-
-/**
- * SThis is not very elegant but saves data and program space
- */
-inline void BasicDevice::handleInteraction(DeviceInteraction interaction, AbstractState &state, const Event *pEvent) {
-	if (interaction != DeviceInteraction::RECEIVE_EVENT && currentState != nullptr) {
+	if (currentState != nullptr) {
 		debugIfStateHasName(currentState, "onExitState");
 		currentState->onExitState();
 	}
 
-	if (interaction != DeviceInteraction::ENTER_STATE && interaction != DeviceInteraction::ENTER_FALLBACK) {
+	debugIfStateHasName(&state, "onEnterState");
 
-		/*
-		 * we have an event
-		 */
+	if (state.onEnterState()) {
+		currentState = &state;
+	} else {
+		enterFallbackState();
+	}
+}
 
-		bool eventCorrectlyHandled = false;
+inline void BasicDevice::enterState(AbstractState &state, const Event &event) {
+	if (currentState != nullptr) {
+		debugIfStateHasName(currentState, "onExitState");
+		currentState->onExitState();
+	}
 
-		if (state.canHandleEvent(*pEvent)) {
-			if (interaction == DeviceInteraction::RECEIVE_EVENT) {
-				debugIfStateHasName(&state, "handleEvent");
-				eventCorrectlyHandled = state.handleGenericEvent(*pEvent);
-			} else {
-				debugIfStateHasName(&state, "onEnterState");
-				eventCorrectlyHandled = state.onEnterStateWithGenericEvent(*pEvent);
-			}
-		} else {
-			debugIfStateHasName(&state, "unhandled event");
-		}
-
-		if (!eventCorrectlyHandled) {
-			if (interaction != DeviceInteraction::ENTER_FALLBACK_WITH_EVENT) {
-				if (fallbackState != nullptr) {
-
-					/*
-					 * let's try to enter fallbackState
-					 */
-					handleInteraction(DeviceInteraction::ENTER_FALLBACK_WITH_EVENT, *fallbackState, pEvent);
-				} else {
-					currentState = nullptr;
-					debugIfNamed("hanged up");
-				}
-			} else {
-
-				/*
-				 * fallbackState couldn't handle the event. We don't mind!
-				 */
-				currentState = fallbackState;
-			}
-		} else {
+	if (state.canHandleEvent(event)) {
+		debugIfStateHasName(&state, "onEnterState");
+		if (state.onEnterStateWithGenericEvent(event)) {
 			currentState = &state;
+		} else {
+			enterFallbackState(event);
 		}
 	} else {
+		debugIfNamed("unhandled event");
+		enterFallbackState(event);
+	}
+}
 
-		/*
-		 * enter state without event
-		 */
-		debugIfStateHasName(&state, "onEnterState");
-		if (!state.onEnterState()) {
-			currentState = &state;
-		} else {
-			if (interaction == DeviceInteraction::ENTER_STATE) {
-				if (fallbackState != nullptr) {
+inline void BasicDevice::receiveEvent(const Event &event) {
+	if (currentState == nullptr) {
+		debugIfNamed("not in a valid state");
+		return;
+	}
 
-					/*
-					 * let's try to enter fallbackState
-					 */
-					handleInteraction(DeviceInteraction::ENTER_FALLBACK, *fallbackState);
-				} else {
-					currentState = nullptr;
-					debugIfNamed("hanged up");
-				}
-			} else {
-
-				/*
-				 * Couldn't enter fallbackState. We don't mind!
-				 */
-				currentState = fallbackState;
-			}
+	if (currentState->canHandleEvent(event)) {
+		debugIfStateHasName(currentState, "handleEvent");
+		if (!currentState->handleGenericEvent(event)) {
+			debugIfStateHasName(currentState, "onExitState");
+			currentState->onExitState();
+			enterFallbackState();
 		}
+	} else {
+		debugIfNamed("unhandled event");
+		enterFallbackState(event);
+	}
+}
+
+inline void BasicDevice::enterFallbackState() {
+	if (fallbackState != nullptr) {
+		debugIfStateHasName(fallbackState, "onEnterState");
+		fallbackState->onEnterState();
+		currentState = fallbackState;
+	} else {
+		currentState = nullptr;
+		debugIfNamed("hanged up");
+	}
+}
+
+inline void BasicDevice::enterFallbackState(const Event &event) {
+	if (fallbackState != nullptr) {
+		debugIfStateHasName(fallbackState, "onEnterState");
+		if (fallbackState->canHandleEvent(event)) {
+			fallbackState->onEnterStateWithGenericEvent(event);
+		} else {
+			fallbackState->onEnterState();
+		}
+		currentState = fallbackState;
+	} else {
+		currentState = nullptr;
+		debugIfNamed("hanged up");
 	}
 }
 

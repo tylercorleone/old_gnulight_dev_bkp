@@ -11,10 +11,6 @@ bool PowerOffState::onEnterState() {
 	return true;
 }
 
-bool PowerOffState::onEnterState(const Event &event) {
-	return onEnterState();
-}
-
 void PowerOffState::onExitState() {
 	gnulight->switchPower(OnOffState::ON);
 }
