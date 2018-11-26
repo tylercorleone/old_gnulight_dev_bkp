@@ -23,7 +23,7 @@ void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
 
 	float currentLimit = calculateInstantaneousMaxCurrent();
 
-	traceIfNamed("currentLimit: %f", currentLimit);
+	traceIfNamed("currLimit: %f", currentLimit);
 
 	if (currentLimit == BATTERY_EMPTY_CURRENT) {
 		onEmptyBattery();

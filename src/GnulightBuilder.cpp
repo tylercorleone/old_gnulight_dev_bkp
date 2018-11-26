@@ -11,7 +11,6 @@ GnulightBuilder GnulightBuilder::configureGnulight() {
 
 GnulightBuilder GnulightBuilder::setBatteryMonitor(
 		BatteryMonitor *batteryMonitor) {
-	batteryMonitor->setInstanceName("batteryMonitor");
 	instance->batteryMonitor = batteryMonitor;
 	return *this;
 }

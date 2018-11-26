@@ -32,7 +32,7 @@ bool ParameterCheckState::onEnterState(const MessageEvent &event) {
 	// the decimal part
 	strobesForDecimalPartCount = ((int8_t) (parameterValue * 10)) % 10;
 
-	traceIfNamed("%s value: %f", event.getMessage(), parameterValue);
+	traceIfNamed("%s: %f", event.getMessage(), parameterValue);
 
 	gnulight->lightDriver.setState(OnOffState::OFF); // light could be ON!
 	gnulight->lightDriver.setMainLevel(LightLevelIndex::MED);
@@ -50,7 +50,7 @@ uint32_t ParameterCheckState::switchLightStatus(ParameterCheckState *_this) {
 			&& _this->strobesForDecimalPartCount == 0) {
 
 		/*
-		 * finished
+		 * signal finished
 		 */
 		_this->gnulight->enterState(_this->gnulight->powerOffState);
 		return 0;

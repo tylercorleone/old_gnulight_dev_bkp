@@ -5,8 +5,8 @@
 #define LIGHT_MONITOR_LEVEL_TRANSITION_MS 2000
 
 LightMonitor::LightMonitor(Gnulight *gnulight) :
-		Task(MsToTaskTime(LIGHT_MONITOR_INTERVAL_MS)), gnulight(gnulight) {
-	setInstanceName("lgtMon");
+		Task(MsToTaskTime(LIGHT_MONITOR_INTERVAL_MS)), Named("lgtMon"), gnulight(
+				gnulight) {
 }
 
 bool LightMonitor::OnStart() {
@@ -46,9 +46,11 @@ float LightMonitor::calculateTemperatureCurrentLimit() {
 	if (gnulight->lightDriver.currentPotentiometer.getLevel() > CURRENT_ACTIVATION_THRESHOLD) {
 		float PIDvar = getTemperaturePIDControlVariable();
 
-		temperatureCurrentLimit = levelMaxLimit * (1.0f + PIDvar);
+		temperatureCurrentLimit =
+				gnulight->lightDriver.currentPotentiometer.getLevelMaxLimit()
+						* (1.0f + PIDvar);
 
-		traceIfNamed("PIDvar: %f, temperatureCurrentLimit: %f", PIDvar, temperatureCurrentLimit);
+		traceIfNamed("PID: %f, tempCurrentLimit: %f", PIDvar, temperatureCurrentLimit);
 	}
 
 	return _constrain(temperatureCurrentLimit, 0.0f, 1.0f);
@@ -72,7 +74,7 @@ float LightMonitor::getTemperaturePIDControlVariable() {
 	temperatureError_2 = temperatureError_1;
 	temperatureError_1 = temperatureError;
 
-	traceIfNamed("Kp * error: %f, Ki * errorIntegral %f, Kd * der: %f", Kp * temperatureError, Ki * temperatureErrorIntegral, Kd * derivative);
+	traceIfNamed("P: %f, I: %f, D: %f", Kp * temperatureError, Ki * temperatureErrorIntegral, Kd * derivative);
 
 	return Kp * temperatureError + Ki * temperatureErrorIntegral
 			+ Kd * derivative;

@@ -12,6 +12,7 @@ void setup() {
 
 	LithiumBattery *battery = new LithiumBattery(2.8, 3.2, 4.17, 0.053, readBatterVoltage);
 	BatteryMonitor *batteryMonitor = new BatteryMonitor(battery, BATTERY_LEVEL_MONITORING_INTERVAL_MS, onEmptyBattery);
+	batteryMonitor->setInstanceName("batteryMonitor");
 
 	gnulight = GnulightBuilder::configureGnulight()
 		.setBattery(battery)

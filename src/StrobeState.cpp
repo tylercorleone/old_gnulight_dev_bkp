@@ -6,7 +6,7 @@ StrobeState::StrobeState(Gnulight* gnulight) :
 }
 
 bool StrobeState::onEnterState(const ButtonEvent &event) {
-	debugIfNamed("strobe type %d", currentStrobeType);
+	debugIfNamed("type %d", currentStrobeType);
 
 	varName = gnulight->lightDriver.setMainLevel(LightLevelIndex::MED);
 
@@ -32,7 +32,7 @@ bool StrobeState::handleEvent(const ButtonEvent &event) {
 			return true;
 		case 2:
 			currentStrobeType = (currentStrobeType + 1) % STROBE_TYPES_COUNT;
-			debugIfNamed("strobe type %d", currentStrobeType);
+			debugIfNamed("type %d", currentStrobeType);
 
 			if (currentStrobeType == SINUSOIDAL_STROBE
 					|| currentStrobeType == LINEAR_STROBE) {
@@ -115,8 +115,16 @@ uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
 
 	if (_this->currentStrobeType != SINUSOIDAL_STROBE
 			&& _this->currentStrobeType != LINEAR_STROBE) {
+
+		/*
+		 * it is an ON/OFF strobe
+		 */
 		_this->gnulight->lightDriver.toggleState();
 	} else {
+
+		/*
+		 * it is a "level-change" sequence
+		 */
 		_this->gnulight->lightDriver.setLevel(nextPotentiometerLevel);
 	}
 
@@ -135,5 +143,5 @@ float StrobeState::triangularWave(uint32_t millis, uint32_t periodMs) {
 }
 
 float StrobeState::sinWave(uint32_t millis, uint32_t periodMs) {
-	return (_sin(millis * TWO_PI / periodMs) + 1.0f) / 2.0f;
+	return (_sin(millis * (TWO_PI / periodMs)) + 1.0f) / 2.0f;
 }

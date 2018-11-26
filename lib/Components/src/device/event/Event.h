@@ -10,7 +10,7 @@ class Event {
 public:
 	virtual const char* getEventTypeUUID() const;
 	static const char* eventTypeUUID();
-	virtual ~ Event();
+	virtual ~Event();
 protected:
 	Event() {
 	}

@@ -9,9 +9,10 @@ public:
 	MessageEvent(const char *message);
 	const char* getMessage() const;
 	bool equals(const char *message) const;
+	bool equals(const MessageEvent &event) const;
 	const char* getEventTypeUUID() const override;
 	static const char* eventTypeUUID();
-	virtual ~ MessageEvent();
+	virtual ~MessageEvent();
 private:
 	const char *message = nullptr;
 };
@@ -26,6 +27,10 @@ inline const char* MessageEvent::getMessage() const {
 
 inline bool MessageEvent::equals(const char *message) const {
 	return strcmp(this->message, message) == 0;
+}
+
+inline bool MessageEvent::equals(const MessageEvent &event) const {
+	return strcmp(this->message, event.message) == 0;
 }
 
 inline const char* MessageEvent::getEventTypeUUID() const {

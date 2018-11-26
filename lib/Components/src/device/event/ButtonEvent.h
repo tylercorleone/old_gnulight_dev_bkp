@@ -11,7 +11,7 @@ public:
 	uint8_t getHoldStepsCount() const;
 	const char* getEventTypeUUID() const override;
 	static const char* eventTypeUUID();
-	virtual ~ ButtonEvent();
+	virtual ~ButtonEvent();
 private:
 	uint8_t clicksCount = 0;
 	uint8_t holdStepsCount = 0;

@@ -6,7 +6,7 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <Task.h>
-#include <CappablePotentiometer.h>
+#include <Components.h>
 
 class Gnulight;
 
@@ -15,16 +15,13 @@ class Gnulight;
 #define TEMPERATURE_MAX_ERROR 500.0f
 #define CURRENT_ACTIVATION_THRESHOLD 0.2f
 
-class LightMonitor: public Task, public CappablePotentiometer {
+class LightMonitor: public Task, public Named {
 public:
 	LightMonitor(Gnulight *gnulight);
 	bool OnStart() override;
 	void OnStop() override;
 	void OnUpdate(uint32_t deltaTime) override;
 private:
-	void levelActuationFunction(float level) override {
-		// does nothing
-	}
 	float calculateTemperatureCurrentLimit();
 	float getTemperaturePIDControlVariable();
 	float calculateDerivate(float f_t, float f_t_1, float f_t_2, float dt);
