@@ -3,24 +3,18 @@
 
 class Battery {
 public:
-	Battery(float (*readVoltageFunc)());
+	Battery(float (*readVoltageFunc)()) :
+			readVoltage(readVoltageFunc) {
 
+	}
 	/**
 	 * Returns a value between 0.0 and 1.0
 	 */
-	virtual float getRemainingCharge() = 0;
-	virtual ~Battery();
+	virtual float getRemainingCharge() const = 0;
+	virtual ~Battery() {
+	}
 protected:
 	float (*readVoltage)(void);
 };
-
-inline Battery::Battery(float (*readVoltageFunc)()) :
-		readVoltage(readVoltageFunc) {
-
-}
-
-inline Battery::~Battery() {
-
-}
 
 #endif

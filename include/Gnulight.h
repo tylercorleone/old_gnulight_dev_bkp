@@ -6,41 +6,50 @@
 #include <Components.h>
 
 #include "BatteryMonitor.h"
-#include "LightMonitor.h"
-#include "ConstantLightState.h"
+#include "ConstantLightMode.h"
 #include "LightDriver.h"
-#include "ParameterCheckState.h"
-#include "PowerOffState.h"
-#include "StrobeState.h"
+#include "ParameterCheckMode.h"
+#include "PowerOffMode.h"
+#include "StrobeMode.h"
+#include "TempMonitor.h"
 
 class GnulightBuilder;
 
-class Gnulight : public BasicDevice {
-	friend class PowerOffState;
-	friend class ConstantLightState;
-	friend class StrobeState;
-	friend class ParameterCheckState;
-	friend class LightMonitor;
+class Gnulight : public GenericDevice {
+	friend class GnulightBuilder;
+	friend class TempMonitor;
+	friend class BatteryMonitor;
+	friend class PowerOffMode;
+	friend class ConstantLightMode;
+	friend class StrobeMode;
+	friend class ParameterCheckMode;
 public:
 	Gnulight();
-	Gnulight(bool useTemplates);
-	void Setup();
+private:
+	void setup();
 	void switchPower(OnOffState state);
 	void EnterSleep();
-protected:
-	friend class GnulightBuilder;
 	static void buttonStateChangeISR();
 	static Button *staticButton;
-	Button button { this, BUTTON_PIN, staticButton, buttonStateChangeISR};
-	Battery *battery = nullptr;
-	LightDriver lightDriver {this, TEMPERATURE_SENSING_PIN};
+
+	/*
+	 * Components
+	 */
+	Button button { *this, BUTTON_PIN, staticButton, buttonStateChangeISR};
+	LedCurrentPotentiometer currentPotentiometer { *this };
+	LightDriver lightDriver { currentPotentiometer, *this };
+
+	// optional components
 	BatteryMonitor *batteryMonitor = nullptr;
-	LightMonitor lightMonitor { this };
-	State<ButtonEvent> *currentState = nullptr;
-	PowerOffState powerOffState {this};
-	ConstantLightState constantLightState {this};
-	StrobeState strobeState {this};
-	ParameterCheckState parameterCheckState {this};
+	TempMonitor *tempMonitor = nullptr;
+
+	/*
+	 * Modes
+	 */
+	PowerOffMode powerOffMode {*this};
+	ConstantLightMode constantLightMode {*this};
+	StrobeMode strobeMode {*this};
+	ParameterCheckMode parameterCheckMode {*this};
 };
 
 #include "GnulightBuilder.h"

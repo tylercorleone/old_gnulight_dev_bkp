@@ -1,11 +1,12 @@
-#include "ConstantLightState.h"
+#include "../include/ConstantLightMode.h"
+
 #include "Gnulight.h"
 
-ConstantLightState::ConstantLightState(Gnulight *gnulight) :
-		State("constLightState"), gnulight(gnulight) {
+ConstantLightMode::ConstantLightMode(Gnulight &gnulight) :
+		State(gnulight, "constLightState") {
 }
 
-bool ConstantLightState::onEnterState(const ButtonEvent &event) {
+bool ConstantLightMode::onEnterState(const ButtonEvent &event) {
 	LightLevelIndex wantedLevel;
 
 	if (event.getClicksCount() > 0) {
@@ -27,29 +28,29 @@ bool ConstantLightState::onEnterState(const ButtonEvent &event) {
 		return false;
 	}
 
-	gnulight->lightDriver.setLevel(0.0);
-	gnulight->lightDriver.setState(OnOffState::ON);
-	gnulight->lightDriver.setMainLevel(wantedLevel, MAIN_LEVEL_TRANSITION_DURATION_MS);
+	Device().lightDriver.setLevel(0.0);
+	Device().lightDriver.setState(OnOffState::ON);
+	Device().lightDriver.setMainLevel(wantedLevel, MAIN_LEVEL_TRANSITION_DURATION_MS);
 
 	return true;
 }
 
-bool ConstantLightState::handleEvent(const ButtonEvent &event) {
+bool ConstantLightMode::handleEvent(const ButtonEvent &event) {
 	if (event.getClicksCount() > 0) {
 
 		switch (event.getClicksCount()) {
 		case 1:
-			gnulight->enterState(gnulight->powerOffState);
+			Device().enterState(Device().powerOffMode);
 			return true;
 		case 2:
-			gnulight->lightDriver.setNextSubLevel(MAIN_LEVEL_TRANSITION_DURATION_MS);
+			Device().lightDriver.setNextSubLevel(MAIN_LEVEL_TRANSITION_DURATION_MS);
 			return true;
 		default:
 			return false;
 		}
 
 	} else if (event.getHoldStepsCount() > 0) {
-		gnulight->lightDriver.setNextMainLevel(MAIN_LEVEL_TRANSITION_DURATION_MS);
+		Device().lightDriver.setNextMainLevel(MAIN_LEVEL_TRANSITION_DURATION_MS);
 		return true;
 	} else {
 		return false;

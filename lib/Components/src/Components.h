@@ -1,10 +1,10 @@
 #ifndef COMPONENTS_H
 #define COMPONENTS_H
 
+#include <device/event/GenericEvent.h>
+#include <device/GenericDevice.h>
 #include "common/components_commons.h"
 
-#include "device/event/Event.h"
-#include "device/BasicDevice.h"
 #include "device/DeviceAware.h"
 
 #include "Battery.h"

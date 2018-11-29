@@ -12,7 +12,7 @@ public:
 	void toggleState();
 	virtual ~Potentiometer();
 protected:
-	virtual void levelActuationFunction(float level) = 0;
+	virtual void onSetLevel(float level) = 0;
 	virtual void onSwitchOn();
 	virtual void onSwitchOff();
 
@@ -30,7 +30,7 @@ inline void Potentiometer::setLevel(float level) {
 	this->level = _constrain(level, 0.0f, 1.0f);
 
 	if (state == OnOffState::ON) {
-		levelActuationFunction(this->level);
+		onSetLevel(this->level);
 	}
 }
 
@@ -50,7 +50,7 @@ inline void Potentiometer::toggleState() {
 }
 
 inline void Potentiometer::onSwitchOff() {
-	levelActuationFunction(0.0);
+	onSetLevel(0.0);
 }
 
 inline void Potentiometer::onSwitchOn() {

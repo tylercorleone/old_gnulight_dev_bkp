@@ -3,13 +3,12 @@
 #include <PWM.h>
 
 #define LED_PIN_PWM_MAX 65535
-#define MIN_LEVEL_WITHOUT_PWM 0.031f
 
-LedCurrentPotentiometer::LedCurrentPotentiometer(TaskManager *taskManager) {
+LedCurrentPotentiometer::LedCurrentPotentiometer(TaskManager &taskManager) {
 	setInstanceName("ledCurrPot");
 
 	delayedMaxCurrentLevelSetter = new DelayedCappablePotentiometerActuator(
-			DELAYED_LEVEL_SETTER_INTERVAL_MS, taskManager, this);
+	DELAYED_LEVEL_SETTER_INTERVAL_MS, taskManager, *this);
 }
 
 void LedCurrentPotentiometer::setup() {
@@ -21,15 +20,28 @@ void LedCurrentPotentiometer::setup() {
 	digitalWrite(PIN_SPI_SS, LOW); // 0.429 -> 0.168 mA
 }
 
-void LedCurrentPotentiometer::setLevelMaxLimit(float level, uint32_t transitionDurationMs) {
-	traceIfNamed("setLevelMaxLimit(%f, %u)", level, transitionDurationMs);
+void LedCurrentPotentiometer::updateLevelMaxLimit() {
+	traceIfNamed("updateLevelMaxLimit");
 
-	delayedMaxCurrentLevelSetter->setLevelMaxLimit(level, transitionDurationMs);
+	float limit = min(tempCausedLimit, battCausedLimit);
+
+	delayedMaxCurrentLevelSetter->setLevelMaxLimit(limit,
+			MsToTaskTime(LEVEL_MAX_LIMIT_TRANSITION_MS));
+}
+
+void LedCurrentPotentiometer::setBatteryCausedLimit(float limit) {
+	tempCausedLimit = limit;
+	updateLevelMaxLimit();
+}
+
+void LedCurrentPotentiometer::setTemperatureCausedLimit(float limit) {
+	battCausedLimit = limit;
+	updateLevelMaxLimit();
 }
 
 #define DIG_POT_LEVEL (level - MIN_LEVEL_WITHOUT_PWM) / (1.0f - MIN_LEVEL_WITHOUT_PWM)
 
-void LedCurrentPotentiometer::levelActuationFunction(float level) {
+void LedCurrentPotentiometer::onSetLevel(float level) {
 	// Imin senza pwm = 0.191 * 3 = 0.573 A
 	// Imax = 0.616 * 3 = 1.848 A
 
@@ -38,7 +50,7 @@ void LedCurrentPotentiometer::levelActuationFunction(float level) {
 
 	uint16_t digPotValue;
 	uint16_t pwmAmount;
-	if (level <= MIN_LEVEL_WITHOUT_PWM) {
+	if (level < MIN_LEVEL_WITHOUT_PWM) {
 
 		/*
 		 * PWM mode

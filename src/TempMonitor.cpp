@@ -1,0 +1,82 @@
+#include "../include/TempMonitor.h"
+
+#include <float.h>
+#include "Gnulight.h"
+
+TempMonitor::TempMonitor(Gnulight &gnulight,
+		float (*temperatureReadFunction)() = nullptr) :
+		Task(MsToTaskTime(TEMP_MONITOR_INTERVAL_MS)), DeviceAware(gnulight), Named(
+				"lightMonitor"), readTemperature(temperatureReadFunction) {
+}
+
+bool TempMonitor::OnStart() {
+	traceIfNamed("OnStart");
+
+	temperatureErrorIntegral = 0.0f;
+	temperatureError_1 = temperatureError_2 = FLT_MAX;
+	return true;
+}
+
+void TempMonitor::OnStop() {
+	traceIfNamed("OnStop");
+
+	Device().currentPotentiometer.setTemperatureCausedLimit(1.0f);
+}
+
+void TempMonitor::OnUpdate(uint32_t deltaTime) {
+	traceIfNamed("OnUpdate");
+
+	if (Device().currentPotentiometer.getLevel() > CURRENT_ACTIVATION_THRESHOLD) {
+		Device().currentPotentiometer.setTemperatureCausedLimit(
+				calculateTemperatureCurrentLimit());
+	}
+}
+
+float TempMonitor::calculateTemperatureCurrentLimit() {
+	float PIDvar = getTemperaturePIDVar();
+
+	float currentLimit = Device().currentPotentiometer.getLevelMaxLimit()
+			* (1.0f + PIDvar);
+
+	traceIfNamed("PID: %f, currLimit: %f", PIDvar, currentLimit);
+
+	return _constrain(currentLimit, 0.0f, 1.0f);
+}
+
+float TempMonitor::getTemperaturePIDVar() {
+	float dt = TEMP_MONITOR_INTERVAL_MS / 1000.0f;
+
+	float temperatureError = EMITTER_TARGET_TEMPERATURE - readTemperature();
+
+	traceIfNamed("temp: %f", EMITTER_TARGET_TEMPERATURE - temperatureError);
+
+	temperatureErrorIntegral += temperatureError * dt;
+	temperatureErrorIntegral = _constrain(temperatureErrorIntegral,
+			-TEMPERATURE_MAX_ERROR, TEMPERATURE_MAX_ERROR);
+
+	float derivative = calculateDerivate(temperatureError, temperatureError_1,
+			temperatureError_2, dt);
+
+	temperatureError_2 = temperatureError_1;
+	temperatureError_1 = temperatureError;
+
+	traceIfNamed("P: %f, I: %f, D: %f", Kp * temperatureError, Ki * temperatureErrorIntegral, Kd * derivative);
+
+	return Kp * temperatureError + Ki * temperatureErrorIntegral
+			+ Kd * derivative;
+}
+
+float TempMonitor::calculateDerivate(float f_t, float f_t_1, float f_t_2,
+		float dt) {
+
+	if (f_t_2 == FLT_MAX) {
+		if (f_t_1 == FLT_MAX) {
+			return 0.0f;
+		} else {
+			return (f_t - f_t_1) / dt;
+		}
+	}
+
+	return (3.0f * f_t - 4.0f * f_t_1 + f_t_2) / (2.0f * dt);
+}
+

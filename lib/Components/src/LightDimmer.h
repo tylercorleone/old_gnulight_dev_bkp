@@ -1,35 +1,39 @@
 #ifndef LIGHTDIMMER_H
 #define LIGHTDIMMER_H
 
-#include "Components.h"
 #include "Potentiometer.h"
+
+/**
+ * Lightness to brightness conversion
+
+ * lightness = the human-perceived brightness (L* of the CIE L*a*b* color space: https://en.wikipedia.org/wiki/CIELAB_color_space)
+ * brightness = measure of the luminous intensity (Y of the CIE 1931 XYZ color space: https://en.wikipedia.org/wiki/CIE_1931_color_space)
+ */
+#define _cube(x) ((x)*(x)*(x))
+#define lightnessToBrightness(lightness) ((lightness) > 0.08f ? _cube(((lightness) + 0.16f) / 1.16f) : (0.11071f * (lightness)))
 
 class LightDimmer: public Potentiometer {
 public:
-	LightDimmer(Potentiometer *currentPotentiometer);
+	LightDimmer(Potentiometer &brightnessPotentiometer);
 	bool isLightnessSimulationEnabled();
 	void isLightnessSimulationEnabled(bool);
 	virtual ~LightDimmer();
 protected:
-	void levelActuationFunction(float level) override;
+	void onSetLevel(float level) override;
 	void onSwitchOn() override;
 	void onSwitchOff() override;
-	float convertLightnessIntoLuminance(float lightness);
-	Potentiometer *currentPotentiometer;
+	Potentiometer &brightnessPotentiometer;
 	bool lightnessSimulationEnabled = true;
 };
 
-#define cube(x) ((x)*(x)*(x))
-
-inline LightDimmer::LightDimmer(Potentiometer *currentPotentiometer) :
-		currentPotentiometer(currentPotentiometer) {
+inline LightDimmer::LightDimmer(Potentiometer &brightnessPotentiometer) :
+		brightnessPotentiometer(brightnessPotentiometer) {
 
 }
 
-inline void LightDimmer::levelActuationFunction(float level) {
-	lightnessSimulationEnabled ?
-			currentPotentiometer->setLevel(convertLightnessIntoLuminance(level)) :
-			currentPotentiometer->setLevel(level);
+inline void LightDimmer::onSetLevel(float level) {
+	float _level = lightnessSimulationEnabled ? lightnessToBrightness(level) : level;
+	brightnessPotentiometer.setLevel(_level);
 }
 
 inline bool LightDimmer::isLightnessSimulationEnabled() {
@@ -40,27 +44,17 @@ inline void LightDimmer::isLightnessSimulationEnabled(bool isEnabled) {
 	lightnessSimulationEnabled = isEnabled;
 }
 
-inline float LightDimmer::convertLightnessIntoLuminance(float lightness) {
-	// lightness = the normalized L value of L*a*b* color space.
-	// luminance = the relative emitted luminance (Y)
-
-	if (lightness < 0.08f) {
-		return 0.12842f * ((lightness + 0.16f) / 1.16f - 0.04f / 0.29f);
-	} else {
-		return cube((lightness + 0.16f) / 1.16f);
-	}
-}
-
 inline void LightDimmer::onSwitchOn() {
-	levelActuationFunction(level);
-	currentPotentiometer->setState(OnOffState::ON);
+	onSetLevel(level);
+	brightnessPotentiometer.setState(OnOffState::ON);
 }
 
 inline void LightDimmer::onSwitchOff() {
-	currentPotentiometer->setState(OnOffState::OFF);
+	brightnessPotentiometer.setState(OnOffState::OFF);
 }
 
 inline LightDimmer::~LightDimmer() {
+
 }
 
 #endif

@@ -7,8 +7,8 @@ class LithiumBattery: public Battery {
 public:
 	LithiumBattery(float voltageEmpty, float firstLinearStepEndVoltage,
 			float voltageFull, float firstLinearStepEndCapacity,
-			float (*readBatteryVoltageFunc)(void));
-	float getRemainingCharge() override;
+			float (*readVoltageFunc)(void));
+	float getRemainingCharge() const override;
 	float getVoltageFull();
 	float getVoltageEmpty();
 private:
@@ -39,8 +39,9 @@ inline float LithiumBattery::getVoltageEmpty() {
 /**
  * An approximation of the charge/voltage function for Lithium batteries
  */
-inline float LithiumBattery::getRemainingCharge() {
-	float currentVoltage = _constrain(readVoltage(), voltageEmpty, voltageFull);
+inline float LithiumBattery::getRemainingCharge() const {
+	float currentVoltage = readVoltage();
+	currentVoltage = _constrain(currentVoltage, voltageEmpty, voltageFull);
 
 	if (currentVoltage < firstLinearStepEndCapacity) {
 

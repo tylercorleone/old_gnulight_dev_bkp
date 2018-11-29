@@ -1,12 +1,16 @@
 #ifndef EVENTHANDLER_H
 #define EVENTHANDLER_H
 
-class Event;
+#include "GenericEvent.h"
 
-template<typename T = Event> class EventHandler {
+template<typename E = GenericEvent> class EventHandler {
 public:
-	virtual bool handleEvent(const T &event) = 0;
+	virtual bool handleEvent(const E &event) = 0;
 	virtual ~EventHandler() {}
+protected:
+	bool canHandleEvent(const GenericEvent &event) {
+		return E::isEventInstanceOf(event);
+	}
 };
 
 #endif

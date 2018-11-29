@@ -1,39 +1,39 @@
-#ifndef BASICDEVICE_H
-#define BASICDEVICE_H
+#ifndef GENERICDEVICE_H
+#define GENERICDEVICE_H
 
 #include <stdint.h>
 #include <stddef.h>
 #include <Task.h>
 
-#include "../common/components_commons.h"
-#include "device/State.h"
+#include "common/components_commons.h"
+#include "State.h"
 
-class BasicDevice: public TaskManager , public Named {
+class GenericDevice: public TaskManager, public Named {
 public:
-	BasicDevice(AbstractState *fallbackState = nullptr);
-	BasicDevice(const char *systemName, AbstractState *fallbackState = nullptr);
+	GenericDevice(AbstractState *fallbackState = nullptr);
+	GenericDevice(const char *deviceName, AbstractState *fallbackState = nullptr);
 	void enterState(AbstractState &state);
-	void enterState(AbstractState &state, const Event &event);
-	void receiveEvent(const Event &event);
+	void enterState(AbstractState &state, const GenericEvent &event);
+	void receiveEvent(const GenericEvent &event);
 private:
 	void enterFallbackState();
-	void enterFallbackState(const Event &event);
-	AbstractState *currentState;
-	AbstractState *fallbackState;
+	void enterFallbackState(const GenericEvent &event);
+	AbstractState *currentState = nullptr;
+	AbstractState *fallbackState = nullptr;
 };
 
-inline BasicDevice::BasicDevice(AbstractState *fallbackState) :
-		currentState(nullptr), fallbackState(fallbackState) {
+inline GenericDevice::GenericDevice(AbstractState *fallbackState) :
+		fallbackState(fallbackState) {
 }
 
-inline BasicDevice::BasicDevice(const char *systemName,
+inline GenericDevice::GenericDevice(const char *deviceName,
 		AbstractState *fallbackState) :
-		Named(systemName), currentState(nullptr), fallbackState(fallbackState) {
+		Named(deviceName), fallbackState(fallbackState) {
 }
 
 #define debugIfStateHasName debugIfOtherNamed
 
-inline void BasicDevice::enterState(AbstractState &state) {
+inline void GenericDevice::enterState(AbstractState &state) {
 	if (currentState != nullptr) {
 		debugIfStateHasName(currentState, "onExitState");
 		currentState->onExitState();
@@ -48,7 +48,7 @@ inline void BasicDevice::enterState(AbstractState &state) {
 	}
 }
 
-inline void BasicDevice::enterState(AbstractState &state, const Event &event) {
+inline void GenericDevice::enterState(AbstractState &state, const GenericEvent &event) {
 	if (currentState != nullptr) {
 		debugIfStateHasName(currentState, "onExitState");
 		currentState->onExitState();
@@ -62,14 +62,14 @@ inline void BasicDevice::enterState(AbstractState &state, const Event &event) {
 			enterFallbackState(event);
 		}
 	} else {
-		debugIfStateHasName(&state, "can't handle evt");
+		debugIfStateHasName(&state, "can't handle event");
 		enterFallbackState(event);
 	}
 }
 
-inline void BasicDevice::receiveEvent(const Event &event) {
+inline void GenericDevice::receiveEvent(const GenericEvent &event) {
 	if (currentState == nullptr) {
-		debugIfNamed("not in a valid state");
+		debugIfNamed("can't handle event");
 		return;
 	}
 
@@ -81,14 +81,14 @@ inline void BasicDevice::receiveEvent(const Event &event) {
 			enterFallbackState();
 		}
 	} else {
-		debugIfStateHasName(currentState, "can't handle evt");
+		debugIfStateHasName(currentState, "can't handle event");
 		debugIfStateHasName(currentState, "onExitState");
 		currentState->onExitState();
 		enterFallbackState(event);
 	}
 }
 
-inline void BasicDevice::enterFallbackState() {
+inline void GenericDevice::enterFallbackState() {
 	if (fallbackState != nullptr) {
 		debugIfStateHasName(fallbackState, "onEnterState");
 		fallbackState->onEnterState();
@@ -99,7 +99,7 @@ inline void BasicDevice::enterFallbackState() {
 	}
 }
 
-inline void BasicDevice::enterFallbackState(const Event &event) {
+inline void GenericDevice::enterFallbackState(const GenericEvent &event) {
 	if (fallbackState != nullptr) {
 		debugIfStateHasName(fallbackState, "onEnterState");
 		if (!(fallbackState->canHandleEvent(event)

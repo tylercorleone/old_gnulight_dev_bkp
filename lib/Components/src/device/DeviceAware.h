@@ -1,16 +1,17 @@
 #ifndef DEVICEAWARE_H
 #define DEVICEAWARE_H
 
-template <class DeviceClass> class DeviceAware {
+template<class D> class DeviceAware {
 public:
-	DeviceAware(DeviceClass *hostDevice) {
-		this->hostDevice = hostDevice;
+	DeviceAware(D &device) :
+			device(device) {
 	}
-	DeviceClass* Device() {
-		return hostDevice;
+
+	D& Device() {
+		return device;
 	}
 private:
-	DeviceClass *hostDevice;
+	D &device;
 };
 
 #endif

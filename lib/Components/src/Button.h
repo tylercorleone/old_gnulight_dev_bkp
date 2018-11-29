@@ -19,17 +19,17 @@ enum class ButtonStatus {
 
 class ButtonInteractionMonitor: public Task {
 public:
-	ButtonInteractionMonitor(Button *button, uint32_t timeInterval);
+	ButtonInteractionMonitor(Button &button, uint32_t timeInterval);
 protected:
 	void OnUpdate(uint32_t deltaTime) override;
 private:
-	Button *button;
+	Button &button;
 };
 
-class Button: public DeviceAware<BasicDevice>, public Named {
+class Button: public DeviceAware<GenericDevice>, public Named {
 	friend class ButtonInteractionMonitor;
 public:
-	Button(BasicDevice *system, uint8_t inputPin, Button *&staticButton,
+	Button(GenericDevice &device, uint8_t inputPin, Button *&staticButton,
 			void (*changeISR)(void));
 	bool isUserInteracting();
 	ButtonEvent ackInteraction();
@@ -47,31 +47,31 @@ private:
 	volatile uint8_t holdsCount;
 	volatile bool haveClicksToNotify;
 	volatile bool haveHoldsToNotify;
-	ButtonInteractionMonitor uiMonitor { this , MsToTaskTime(10)};
+	ButtonInteractionMonitor uiMonitor { *this , MsToTaskTime(10)};
 };
 
-inline ButtonInteractionMonitor::ButtonInteractionMonitor(Button *button,
+inline ButtonInteractionMonitor::ButtonInteractionMonitor(Button &button,
 		uint32_t timeInterval) :
 		Task(timeInterval), button(button) {
 }
 
 inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
-	if (button->isUserInteracting()) {
+	if (button.isUserInteracting()) {
 
 		/*
 		 * User is interacting. Stay awake to intercept holds!
 		 */
-		ButtonEvent event = button->ackInteraction();
+		ButtonEvent event = button.ackInteraction();
 
 		if (event.getClicksCount() > 0 || event.getHoldStepsCount() > 0) {
-			debugIfOtherNamed(button, "%s: %d clicks, %d holds",
-					button->getInstanceName(), event.getClicksCount(),
+			debugIfOtherNamed(&button, "%s: %d clicks, %d holds",
+					button.getInstanceName(), event.getClicksCount(),
 					event.getHoldStepsCount());
 
 			/*
 			 * We have a complete interaction
 			 */
-			button->Device()->receiveEvent(event);
+			button.Device().receiveEvent(event);
 		}
 	} else {
 
@@ -79,21 +79,21 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 		 * No interaction. No hold to intercept.
 		 */
 		noInterrupts();
-		if (!button->isUserInteracting()) {
+		if (!button.isUserInteracting()) {
 
 			/*
 			 * Double check
 			 */
-			button->Device()->StopTask(this);
-			button->reset();
+			button.Device().StopTask(this);
+			button.reset();
 		}
 		interrupts();
 	}
 }
 
-inline Button::Button(BasicDevice *system, uint8_t inputPin, Button *&staticButton,
+inline Button::Button(GenericDevice &device, uint8_t inputPin, Button *&staticButton,
 		void (*changeISR)(void)) :
-		DeviceAware(system), inputPin(inputPin) {
+		DeviceAware(device), inputPin(inputPin) {
 	pinMode(inputPin, INPUT_PULLUP);
 	delay(1);
 	status =
@@ -147,7 +147,7 @@ inline void Button::onButtonRise() {
 
 inline void Button::statusChangeCallback() {
 	digitalRead(inputPin) == LOW ? onButtonFall() : onButtonRise();
-	Device()->StartTask(&uiMonitor);
+	Device().StartTask(&uiMonitor);
 }
 
 inline ButtonEvent Button::ackInteraction() {

@@ -1,5 +1,5 @@
-#ifndef PARAMETERCHECKSTATE_H
-#define PARAMETERCHECKSTATE_H
+#ifndef PARAMETERCHECKMODE_H
+#define PARAMETERCHECKMODE_H
 
 #include "gnulight_config.h"
 
@@ -11,18 +11,17 @@ class Gnulight;
 #define DIGIT_SIGNAL_DUTY_CYCLE 0.15f
 #define COMMA_SIGNAL_DUTY_CYCLE 1.0f
 
-class ParameterCheckState: public State<MessageEvent> {
+class ParameterCheckMode: public State<Gnulight, MessageEvent> {
 public:
-	static const char *BATTERY_CHECK;
-	static const char *LAMP_TEMPERATURE_CHECK;
-	ParameterCheckState(Gnulight *gnulight);
+	static const char *BATTERY_CHECK_MSG;
+	static const char *LAMP_TEMPERATURE_CHECK_MSG;
+	ParameterCheckMode(Gnulight &gnulight);
 protected:
 	bool onEnterState(const MessageEvent &event) override;
 	void onExitState() override;
-	static uint32_t switchLightStatus(ParameterCheckState *_this);
-	Gnulight *gnulight;
+	static uint32_t switchLightStatus(ParameterCheckMode *_this);
 	FunctionsSequenceTask& renderValueWithFlashes = SequenceTaskBuilder::begin(
-			ParameterCheckState::switchLightStatus, this).thenRepeat();
+			ParameterCheckMode::switchLightStatus, this).thenRepeat();
 	int8_t strobesForIntegerPartCount = 0;
 	int8_t strobesForDecimalPartCount = 0;
 };

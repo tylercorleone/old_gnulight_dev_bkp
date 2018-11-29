@@ -17,7 +17,7 @@ enum LightLevelIndex {
 
 class LightDriver: public LightDimmer {
 public:
-	LightDriver(TaskManager *taskManager, uint8_t temperatureSensingPin);
+	LightDriver(Potentiometer &currentPotentiometer, TaskManager &taskManager);
 	void setup();
 	using LightDimmer::setLevel;
 	void setLevel(float level, uint32_t transitionDurationMs);
@@ -25,18 +25,12 @@ public:
 	float setMainLevel(LightLevelIndex, uint32_t transitionDurationMs = 0);
 	float setNextMainLevel(uint32_t transitionDurationMs = 0);
 	float setNextSubLevel(uint32_t transitionDurationMs = 0);
-	float getEmitterTemperature();
 private:
-	friend class LightMonitor;
-	TaskManager *taskManager;
 	const float mainLevels[MAIN_LEVELS_NUM][SUBLEVELS_NUM] = { {
-			MIN_LIGHT_CURRENT_ABOVE_ZERO, 0.02f }, { 0.25f, 0.5f }, { 0.75f, 1.0f } };
+			MIN_LIGHT_CURRENT_ABOVE_ZERO, 0.02f }, { 0.2f, 0.5f }, { 0.75f, 1.0f } };
 	LightLevelIndex currentMainLevelIndex = LightLevelIndex::MAX;
 	uint8_t currentSubLevelsIndexes[MAIN_LEVELS_NUM] = { 0, 0, 0 };
-	uint8_t temperatureSensingPin;
-	LedCurrentPotentiometer currentPotentiometer { taskManager };
-	DelayedPotentiometerActuator delayedLevelSetter {
-		DELAYED_LEVEL_SETTER_INTERVAL_MS, taskManager, this };
+	DelayedPotentiometerActuator *delayedLevelSetter;
 };
 
 #endif

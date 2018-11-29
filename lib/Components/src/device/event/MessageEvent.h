@@ -1,20 +1,21 @@
 #ifndef MESSAGEEVENT_H
 #define MESSAGEEVENT_H
 
-#include "Event.h"
+#include "GenericEvent.h"
 #include <string.h>
 
-class MessageEvent: public Event {
+class MessageEvent: public GenericEvent {
 public:
 	MessageEvent(const char *message);
 	const char* getMessage() const;
 	bool equals(const char *message) const;
 	bool equals(const MessageEvent &event) const;
-	const char* getEventTypeUUID() const override;
-	static const char* eventTypeUUID();
+	virtual const char* getEventTypeHash() const override;
+	static bool isEventInstanceOf(const GenericEvent &event);
 	virtual ~MessageEvent();
 private:
-	const char *message = nullptr;
+	static const char* MessageEventTypeHash();
+	const char *message;
 };
 
 inline MessageEvent::MessageEvent(const char *message) :
@@ -33,16 +34,21 @@ inline bool MessageEvent::equals(const MessageEvent &event) const {
 	return strcmp(this->message, event.message) == 0;
 }
 
-inline const char* MessageEvent::getEventTypeUUID() const {
-	return eventTypeUUID();
+inline const char* MessageEvent::getEventTypeHash() const {
+	return MessageEvent::MessageEventTypeHash();
 }
 
-inline const char* MessageEvent::eventTypeUUID() {
-	const static char messageEventUUID = 'M';
-	return &messageEventUUID;
+inline bool MessageEvent::isEventInstanceOf(const GenericEvent &event) {
+	return MessageEvent::MessageEventTypeHash() == event.getEventTypeHash();
+}
+
+inline const char* MessageEvent::MessageEventTypeHash() {
+	const static char staticVar = 'M';
+	return &staticVar;
 }
 
 inline MessageEvent::~MessageEvent() {
+
 }
 
 #endif

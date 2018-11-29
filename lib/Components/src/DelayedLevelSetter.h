@@ -7,13 +7,13 @@
 
 class DelayedLevelSetter: public Task {
 public:
-	DelayedLevelSetter(uint32_t timeInterval, TaskManager *taskManager);
+	DelayedLevelSetter(uint32_t timeInterval, TaskManager &taskManager);
 	void setLevel(float level, uint32_t transitionDurationMs);
 	virtual ~DelayedLevelSetter();
 protected:
 	virtual float readLevel() = 0;
 	virtual void writeLevel(float level) = 0;
-	TaskManager *taskManager;
+	TaskManager &taskManager;
 private:
 	void OnUpdate(uint32_t timeInterval) override;
 	float targetLevel = 0.0;
@@ -21,14 +21,14 @@ private:
 };
 
 inline DelayedLevelSetter::DelayedLevelSetter(uint32_t timeInterval,
-		TaskManager *taskManager) :
+		TaskManager &taskManager) :
 		Task(timeInterval), taskManager(taskManager) {
 }
 
 inline void DelayedLevelSetter::setLevel(float level,
 		uint32_t transitionDurationMs) {
 	if (getTaskState() == TaskState_Running) {
-		taskManager->StopTask(this);
+		taskManager.StopTask(this);
 	}
 
 	stepsToGo = transitionDurationMs / TaskTimeToMs(_timeInterval);
@@ -37,7 +37,7 @@ inline void DelayedLevelSetter::setLevel(float level,
 		writeLevel(level);
 	} else {
 		targetLevel = level;
-		taskManager->StartTask(this);
+		taskManager.StartTask(this);
 	}
 }
 
@@ -53,7 +53,7 @@ inline void DelayedLevelSetter::OnUpdate(uint32_t deltaTime) {
 	--stepsToGo;
 
 	if (stepsToGo == 0) {
-		taskManager->StopTask(this);
+		taskManager.StopTask(this);
 	}
 }
 

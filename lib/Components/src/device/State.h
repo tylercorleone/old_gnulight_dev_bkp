@@ -1,43 +1,44 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include "event/Event.h"
 #include "event/EventHandler.h"
+#include "event/GenericEvent.h"
+#include "DeviceAware.h"
 #include "common/Named.h"
 
 class AbstractState : public Named {
-	friend class BasicDevice;
-	template<typename T> friend class State;
+	friend class GenericDevice;
+	template<typename D, typename E> friend class State;
 protected:
 	virtual bool onEnterState() {return false;}
 	virtual void onExitState() {}
 	virtual ~AbstractState() {};
 protected:
 	AbstractState(const char *stateName = nullptr) : Named(stateName) {}
-	virtual bool canHandleEvent(const Event &event) {return false;}
-	virtual bool handleGenericEvent(const Event &event) {return false;}
-	virtual bool onEnterStateWithGenericEvent(const Event &event) {return false;}
+	virtual bool canHandleEvent(const GenericEvent &event) = 0;
+	virtual bool handleGenericEvent(const GenericEvent &event) = 0;
+	virtual bool onEnterStateWithGenericEvent(const GenericEvent &event) = 0;
 };
 
-template<typename T> class State : public AbstractState, public EventHandler<T> {
-	friend class BasicDevice;
+template<typename D, typename E> class State : public AbstractState, public DeviceAware<D>, public EventHandler<E> {
+	friend class GenericDevice;
 protected:
-	State(const char *stateName = nullptr) : AbstractState(stateName) {}
-	virtual bool onEnterState(const T &event) {return false;}
-	virtual bool handleEvent(const T &event) override {return false;}
+	State(D &device, const char *stateName = nullptr) : AbstractState(stateName), DeviceAware<D>::DeviceAware(device) {}
+	virtual bool onEnterState(const E &event) {return false;}
+	virtual bool handleEvent(const E &event) override {return false;}
 	virtual ~State() {};
 protected:
 
-	bool canHandleEvent(const Event &event) {
-		return event.getEventTypeUUID() == T::eventTypeUUID();
+	bool canHandleEvent(const GenericEvent &event) override {
+		return EventHandler<E>::EventHandler::canHandleEvent(event);
 	}
 
-	bool handleGenericEvent(const Event &event) override {
-		return handleEvent(static_cast<const T&>(event));
+	bool handleGenericEvent(const GenericEvent &event) override {
+		return handleEvent(static_cast<const E&>(event));
 	}
 
-	bool onEnterStateWithGenericEvent(const Event &event) override {
-		return onEnterState(static_cast<const T&>(event));
+	bool onEnterStateWithGenericEvent(const GenericEvent &event) override {
+		return onEnterState(static_cast<const E&>(event));
 	}
 };
 

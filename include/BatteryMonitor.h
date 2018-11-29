@@ -8,23 +8,22 @@
 #include <stddef.h>
 #include <Task.h>
 
-#define EMERGENCY_CURRENT_LEVEL 0.01f
-#define BATTERY_FULL_CURRENT 1.0f
-#define BATTERY_EMPTY_CURRENT 0.0f
-#define RECHARGE_THRESHOLD_MULTIPLIER 1.05f
+#define BATTERY_LEVEL_MONITORING_INTERVAL_MS 15000
+#define FILTERED_RECHARGE_AMOUNT 0.1f
 
-class BatteryMonitor: public Task, public Named {
+class Gnulight;
+
+class BatteryMonitor: public Task, public DeviceAware<Gnulight>, public Named {
 public:
-	BatteryMonitor(Battery *battery, uint32_t monitoringInterval,
-			void (*onEmptyBatteryFunc)());
-	float calculateInstantaneousMaxCurrent();
+	BatteryMonitor(Gnulight &gnulight, Battery &battery);
+	const Battery &battery;
 private:
 	bool OnStart() override;
 	void OnStop() override;
 	void OnUpdate(uint32_t deltaTime) override;
-	Battery *battery;
-	float currentLimit_1 = BATTERY_FULL_CURRENT;
-	void (*onEmptyBattery)();
+	float calculateInstantaneousMaxCurrent(float remainingCharge);
+	void onEmptyBattery();
+	float remainingCharge_1 = 1.0f;
 };
 
 #endif

@@ -8,8 +8,8 @@
 class GnulightBuilder {
 public:
 	static GnulightBuilder configureGnulight();
-	GnulightBuilder setBattery(Battery *battery);
-	GnulightBuilder setBatteryMonitor(BatteryMonitor *batteryMonitor);
+	GnulightBuilder setBattery(Battery &battery);
+	GnulightBuilder setTemperatureReadFunction(float (*temperatureReadFunction)());
 	Gnulight* build();
 private:
 	GnulightBuilder(Gnulight *instance);

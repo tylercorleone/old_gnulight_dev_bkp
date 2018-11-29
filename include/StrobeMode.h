@@ -1,5 +1,5 @@
-#ifndef STROBESTATE_H
-#define STROBESTATE_H
+#ifndef STROBEMODE_H
+#define STROBEMODE_H
 
 #include "gnulight_config.h"
 
@@ -18,7 +18,7 @@ class Gnulight;
 
 #define PERIODICAL_SEQUENCE_STROBES_PERIOD_MS 2000UL
 
-#define MIN_POTENTIOMETER_LEVEL MIN_LIGHT_CURRENT_ABOVE_ZERO * 2.0
+#define MIN_POTENTIOMETER_LEVEL MIN_LIGHT_CURRENT_ABOVE_ZERO
 
 enum StrobeTypes {
 	SINUSOIDAL_STROBE = 0,
@@ -28,19 +28,18 @@ enum StrobeTypes {
 	DISCO_STROBE = 4
 };
 
-class StrobeState: public State<ButtonEvent> {
+class StrobeMode: public State<Gnulight, ButtonEvent> {
 public:
-	StrobeState(Gnulight* gnulight);
+	StrobeMode(Gnulight &gnulight);
 protected:
 	bool onEnterState(const ButtonEvent &event) override;
 	void onExitState() override;
 	bool handleEvent(const ButtonEvent &event) override;
-	static uint32_t switchLightStatus(StrobeState *_this);
+	static uint32_t switchLightStatus(StrobeMode *_this);
 	static float sinWave(uint32_t millis, uint32_t periodMs);
 	static float triangularWave(uint32_t millis, uint32_t periodMs);
-	Gnulight *gnulight;
 	FunctionsSequenceTask& toggleLightStatusTask = SequenceTaskBuilder::begin(
-			StrobeState::switchLightStatus, this).thenRepeat();
+			StrobeMode::switchLightStatus, this).thenRepeat();
 	StrobeTypes currentStrobeType = SINUSOIDAL_STROBE;
 	float varName = 0.0;
 	uint16_t periodMultiplierX1000 = 1000UL;

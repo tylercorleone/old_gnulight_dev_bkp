@@ -7,22 +7,25 @@
 Button *Gnulight::staticButton;
 
 Gnulight::Gnulight() :
-		BasicDevice("Gnulight", &powerOffState) {
+		GenericDevice("Gnulight", &powerOffMode) {
 
 }
 
-void Gnulight::Setup() {
+void Gnulight::setup() {
 	traceIfNamed("setup");
 
 	button.setInstanceName("btn");
 	TaskManager::Setup();
 	pinMode(BATTERY_SENSING_PIN, INPUT);
+	currentPotentiometer.setup();
 	lightDriver.setup();
 	if (batteryMonitor != nullptr) {
 		StartTask(batteryMonitor);
 	}
-	StartTask(&lightMonitor);
-	enterState(powerOffState);
+	if (tempMonitor != nullptr) {
+		StartTask(tempMonitor);
+	}
+	enterState(powerOffMode);
 
 #ifndef INFO
 	power_usart0_disable(); // 0.1 mA (28.7 mA)

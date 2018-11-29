@@ -1,34 +1,35 @@
-#include "StrobeState.h"
+#include "../include/StrobeMode.h"
+
 #include "Gnulight.h"
 
-StrobeState::StrobeState(Gnulight* gnulight) :
-		State("strobeState"), gnulight(gnulight) {
+StrobeMode::StrobeMode(Gnulight &gnulight) :
+		State(gnulight, "strobeState") {
 }
 
-bool StrobeState::onEnterState(const ButtonEvent &event) {
+bool StrobeMode::onEnterState(const ButtonEvent &event) {
 	debugIfNamed("type %d", currentStrobeType);
 
-	varName = gnulight->lightDriver.setMainLevel(LightLevelIndex::MED);
+	varName = Device().lightDriver.setMainLevel(LightLevelIndex::MED);
 
 	if (currentStrobeType == SINUSOIDAL_STROBE
 			|| currentStrobeType == LINEAR_STROBE) {
-		gnulight->lightDriver.setState(OnOffState::ON);
+		Device().lightDriver.setState(OnOffState::ON);
 	}
 
-	gnulight->StartTask(&toggleLightStatusTask);
+	Device().StartTask(&toggleLightStatusTask);
 	return true;
 }
 
-void StrobeState::onExitState() {
-	gnulight->StopTask(&toggleLightStatusTask);
+void StrobeMode::onExitState() {
+	Device().StopTask(&toggleLightStatusTask);
 }
 
-bool StrobeState::handleEvent(const ButtonEvent &event) {
+bool StrobeMode::handleEvent(const ButtonEvent &event) {
 	if (event.getClicksCount() > 0) {
 
 		switch (event.getClicksCount()) {
 		case 1:
-			gnulight->enterState(gnulight->powerOffState);
+			Device().enterState(Device().powerOffMode);
 			return true;
 		case 2:
 			currentStrobeType = (currentStrobeType + 1) % STROBE_TYPES_COUNT;
@@ -38,14 +39,14 @@ bool StrobeState::handleEvent(const ButtonEvent &event) {
 					|| currentStrobeType == LINEAR_STROBE) {
 
 				LightLevelIndex currentMainLevel =
-						gnulight->lightDriver.getCurrentMainLevel();
-				varName = gnulight->lightDriver.setMainLevel(
+						Device().lightDriver.getCurrentMainLevel();
+				varName = Device().lightDriver.setMainLevel(
 						currentMainLevel);
-				gnulight->lightDriver.setState(OnOffState::ON);
+				Device().lightDriver.setState(OnOffState::ON);
 			}
 
 			toggleLightStatusTask.setTimeInterval(0);
-			gnulight->ResetTask(&toggleLightStatusTask);
+			Device().ResetTask(&toggleLightStatusTask);
 			return true;
 		case 3:
 			if (periodMultiplierX1000 <= 32000) {
@@ -62,7 +63,7 @@ bool StrobeState::handleEvent(const ButtonEvent &event) {
 		}
 
 	} else if (event.getHoldStepsCount() > 0) {
-		varName = gnulight->lightDriver.setNextMainLevel();
+		varName = Device().lightDriver.setNextMainLevel();
 		return true;
 	} else {
 		return false;
@@ -71,7 +72,7 @@ bool StrobeState::handleEvent(const ButtonEvent &event) {
 
 #define THE_PERIOD (PERIODICAL_SEQUENCE_STROBES_PERIOD_MS * _this->periodMultiplierX1000 / 1000)
 
-uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
+uint32_t StrobeMode::switchLightStatus(StrobeMode* _this) {
 	uint32_t nextIntervalMs;
 	float nextPotentiometerLevel;
 
@@ -82,7 +83,7 @@ uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
 				* _this->periodMultiplierX1000 / 1000;
 		break;
 	case BEACON_STROBE:
-		if (_this->gnulight->lightDriver.getState() == OnOffState::OFF) {
+		if (_this->Device().lightDriver.getState() == OnOffState::OFF) {
 			nextIntervalMs = BEACON_STROBE_PERIOD_MS * BEACON_STROBE_DUTY_CYCLE;
 		} else {
 			nextIntervalMs = BEACON_STROBE_PERIOD_MS
@@ -90,7 +91,7 @@ uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
 		}
 		break;
 	case DISCO_STROBE:
-		if (_this->gnulight->lightDriver.getState() == OnOffState::OFF) {
+		if (_this->Device().lightDriver.getState() == OnOffState::OFF) {
 			nextIntervalMs = DISCO_STROBE_PERIOD_MS * DISCO_STROBE_DUTY_CYCLE;
 		} else {
 			nextIntervalMs = DISCO_STROBE_PERIOD_MS
@@ -119,13 +120,13 @@ uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
 		/*
 		 * it is an ON/OFF strobe
 		 */
-		_this->gnulight->lightDriver.toggleState();
+		_this->Device().lightDriver.toggleState();
 	} else {
 
 		/*
 		 * it is a "level-change" sequence
 		 */
-		_this->gnulight->lightDriver.setLevel(nextPotentiometerLevel);
+		_this->Device().lightDriver.setLevel(nextPotentiometerLevel);
 	}
 
 	return MsToTaskTime(nextIntervalMs);
@@ -133,7 +134,7 @@ uint32_t StrobeState::switchLightStatus(StrobeState* _this) {
 
 #undef THE_PERIOD
 
-float StrobeState::triangularWave(uint32_t millis, uint32_t periodMs) {
+float StrobeMode::triangularWave(uint32_t millis, uint32_t periodMs) {
 	millis = millis % periodMs;
 	if (millis < periodMs / 2) {
 		return static_cast<float>(millis) / (periodMs / 2);
@@ -142,6 +143,6 @@ float StrobeState::triangularWave(uint32_t millis, uint32_t periodMs) {
 	}
 }
 
-float StrobeState::sinWave(uint32_t millis, uint32_t periodMs) {
+float StrobeMode::sinWave(uint32_t millis, uint32_t periodMs) {
 	return (_sin(millis * (TWO_PI / periodMs)) + 1.0f) / 2.0f;
 }

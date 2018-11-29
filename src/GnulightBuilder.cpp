@@ -9,17 +9,19 @@ GnulightBuilder GnulightBuilder::configureGnulight() {
 	return GnulightBuilder { new Gnulight() };
 }
 
-GnulightBuilder GnulightBuilder::setBatteryMonitor(
-		BatteryMonitor *batteryMonitor) {
-	instance->batteryMonitor = batteryMonitor;
+GnulightBuilder GnulightBuilder::setTemperatureReadFunction(
+		float (*temperatureReadFunction)()) {
+	instance->tempMonitor = new TempMonitor(*instance,
+			temperatureReadFunction);
 	return *this;
 }
 
-GnulightBuilder GnulightBuilder::setBattery(Battery *battery) {
-	instance->battery = battery;
+GnulightBuilder GnulightBuilder::setBattery(Battery &battery) {
+	instance->batteryMonitor = new BatteryMonitor(*instance, battery);
 	return *this;
 }
 
 Gnulight* GnulightBuilder::build() {
+	instance->setup();
 	return instance;
 }

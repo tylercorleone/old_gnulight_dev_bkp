@@ -1,20 +1,21 @@
 #ifndef BUTTONEVENT_H
 #define BUTTONEVENT_H
 
-#include "Event.h"
+#include "GenericEvent.h"
 #include <stdint.h>
 
-class ButtonEvent: public Event {
+class ButtonEvent: public GenericEvent {
 public:
 	ButtonEvent(uint8_t clicksCount, uint8_t holdStepsCount);
 	uint8_t getClicksCount() const;
 	uint8_t getHoldStepsCount() const;
-	const char* getEventTypeUUID() const override;
-	static const char* eventTypeUUID();
+	virtual const char* getEventTypeHash() const override;
+	static bool isEventInstanceOf(const GenericEvent &event);
 	virtual ~ButtonEvent();
 private:
-	uint8_t clicksCount = 0;
-	uint8_t holdStepsCount = 0;
+	static const char* ButtonEventTypeHash();
+	uint8_t clicksCount;
+	uint8_t holdStepsCount;
 };
 
 inline ButtonEvent::ButtonEvent(uint8_t clicksCount, uint8_t holdStepsCount) :
@@ -29,16 +30,21 @@ inline uint8_t ButtonEvent::getHoldStepsCount() const {
 	return holdStepsCount;
 }
 
-inline const char* ButtonEvent::getEventTypeUUID() const {
-	return eventTypeUUID();
+inline const char* ButtonEvent::getEventTypeHash() const {
+	return ButtonEvent::ButtonEventTypeHash();
 }
 
-inline const char* ButtonEvent::eventTypeUUID() {
-	const static char buttonEventUUID = 'B';
-	return &buttonEventUUID;
+inline bool ButtonEvent::isEventInstanceOf(const GenericEvent &event) {
+	return ButtonEvent::ButtonEventTypeHash() == event.getEventTypeHash();
+}
+
+inline const char* ButtonEvent::ButtonEventTypeHash() {
+	const static char staticVar = 'B';
+	return &staticVar;
 }
 
 inline ButtonEvent::~ButtonEvent() {
+
 }
 
 #endif

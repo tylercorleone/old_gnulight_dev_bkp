@@ -4,24 +4,25 @@
 
 #define MAIN_LEVEL mainLevels[currentMainLevelIndex][currentSubLevelsIndexes[currentMainLevelIndex]]
 
-LightDriver::LightDriver(TaskManager *taskManager,
-		uint8_t temperatureSensingPin) :
-		LightDimmer(&currentPotentiometer), taskManager(taskManager), temperatureSensingPin(
-				temperatureSensingPin) {
+LightDriver::LightDriver(Potentiometer &currentPotentiometer,
+		TaskManager &taskManager) :
+		LightDimmer(currentPotentiometer) {
 	setInstanceName("lightDrv");
+
+	delayedLevelSetter = new DelayedPotentiometerActuator(
+	DELAYED_LEVEL_SETTER_INTERVAL_MS, taskManager, *this);
 }
 
 void LightDriver::setup() {
 	debugIfNamed("setup");
 
-	pinMode(temperatureSensingPin, INPUT);
-	currentPotentiometer.setup();
+	pinMode(TEMPERATURE_SENSING_PIN, INPUT);
 }
 
 void LightDriver::setLevel(float level, uint32_t transitionDurationMs) {
 	traceIfNamed("setLevel(%f, %u)", level, transitionDurationMs);
 
-	delayedLevelSetter.setLevel(level, transitionDurationMs);
+	delayedLevelSetter->setLevel(level, transitionDurationMs);
 }
 
 LightLevelIndex LightDriver::getCurrentMainLevel() {
@@ -45,16 +46,6 @@ float LightDriver::setNextSubLevel(uint32_t transitionDurationMs) {
 	currentSubLevelsIndexes[currentMainLevelIndex] =
 			(currentSubLevelsIndexes[currentMainLevelIndex] + 1) % SUBLEVELS_NUM;
 	return setMainLevel(currentMainLevelIndex, transitionDurationMs);
-}
-
-#define V_OUT (analogRead(temperatureSensingPin) * 5.0f / 1023.0f)
-#define V_0 0.5
-#define T_C 0.01
-
-float LightDriver::getEmitterTemperature() {
-	analogRead(temperatureSensingPin);
-	// it is a MCP9700A-E/TO
-	return (V_OUT - V_0) / T_C;
 }
 
 #undef MAIN_LEVEL
