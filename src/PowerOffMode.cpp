@@ -7,7 +7,7 @@ PowerOffMode::PowerOffMode(Gnulight &gnulight) :
 }
 
 bool PowerOffMode::onEnterState() {
-	Device().lightDriver.setState(OnOffState::OFF);
+	Device().lightDimmer.setState(OnOffState::OFF);
 	Device().switchPower(OnOffState::OFF);
 	return true;
 }
@@ -35,8 +35,8 @@ bool PowerOffMode::handleEvent(const ButtonEvent &event) {
 			Device().enterState(Device().parameterCheckMode, MessageEvent(ParameterCheckMode::LAMP_TEMPERATURE_CHECK_MSG));
 			return true;
 		case 6:
-			Device().lightDriver.isLightnessSimulationEnabled(
-					!Device().lightDriver.isLightnessSimulationEnabled());
+			Device().lightDimmer.isLightnessSimulationEnabled(
+					!Device().lightDimmer.isLightnessSimulationEnabled());
 			return true;
 		default:
 			return false;

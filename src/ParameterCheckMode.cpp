@@ -35,8 +35,8 @@ bool ParameterCheckMode::onEnterState(const MessageEvent &event) {
 
 	traceIfNamed("%s: %f", event.getMessage(), parameterValue);
 
-	Device().lightDriver.setState(OnOffState::OFF); // light could be ON!
-	Device().lightDriver.setMainLevel(LightLevelIndex::MED);
+	Device().lightDimmer.setState(OnOffState::OFF); // light could be ON!
+	Device().lightDimmer.setMainLevel(LightLevelIndex::MED);
 	Device().StartTask(&renderValueWithFlashes);
 
 	return true;
@@ -57,7 +57,7 @@ uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode *_this) {
 		return 0;
 	}
 
-	_this->Device().lightDriver.toggleState();
+	_this->Device().lightDimmer.toggleState();
 
 	int8_t *pCounter;
 	float intervalMultiplier;
@@ -70,7 +70,7 @@ uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode *_this) {
 		pCounter = &_this->strobesForIntegerPartCount;
 
 		if (_this->strobesForIntegerPartCount == 0
-				&& _this->Device().lightDriver.getState() == OnOffState::ON) {
+				&& _this->Device().lightDimmer.getState() == OnOffState::ON) {
 			intervalMultiplier = COMMA_SIGNAL_DUTY_CYCLE;
 		} else {
 			intervalMultiplier = DIGIT_SIGNAL_DUTY_CYCLE;
@@ -85,7 +85,7 @@ uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode *_this) {
 		intervalMultiplier = DIGIT_SIGNAL_DUTY_CYCLE;
 	}
 
-	if (_this->Device().lightDriver.getState() == OnOffState::OFF) {
+	if (_this->Device().lightDimmer.getState() == OnOffState::OFF) {
 		--*pCounter;
 		intervalMultiplier = 1.0f - intervalMultiplier;
 	}

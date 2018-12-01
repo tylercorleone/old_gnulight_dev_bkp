@@ -13,7 +13,7 @@
 
 class Button;
 
-enum class ButtonStatus {
+enum class ButtonState {
 	PRESSED, RELEASED
 };
 
@@ -29,18 +29,16 @@ private:
 class Button: public DeviceAware<GenericDevice>, public Named {
 	friend class ButtonInteractionMonitor;
 public:
-	Button(GenericDevice &device, uint8_t inputPin, Button *&staticButton,
-			void (*changeISR)(void));
-	bool isUserInteracting();
-	ButtonEvent ackInteraction();
-	void statusChangeCallback();
-private:
+	Button(GenericDevice &device);
+	void setState(ButtonState state);
+protected:
 	void onButtonFall();
 	void onButtonRise();
-	void refreshHoldStatus(uint32_t now, bool isExitingFromHold = false);
 	void reset();
-	volatile ButtonStatus status;
-	uint8_t inputPin;
+	bool isUserInteracting();
+	ButtonEvent ackInteraction();
+	void refreshHoldStatus(uint32_t now, bool isExitingFromHold = false);
+	volatile ButtonState state = ButtonState::RELEASED;
 	volatile uint32_t lastFallTimeMs;
 	volatile uint32_t lastRiseTimeMs;
 	volatile uint8_t clicksCount;
@@ -65,7 +63,7 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 
 		if (event.getClicksCount() > 0 || event.getHoldStepsCount() > 0) {
 			debugIfOtherNamed(&button, "%s: %d clicks, %d holds",
-					button.getInstanceName(), event.getClicksCount(),
+					button.getName(), event.getClicksCount(),
 					event.getHoldStepsCount());
 
 			/*
@@ -91,29 +89,26 @@ inline void ButtonInteractionMonitor::OnUpdate(uint32_t deltaTime) {
 	}
 }
 
-inline Button::Button(GenericDevice &device, uint8_t inputPin, Button *&staticButton,
-		void (*changeISR)(void)) :
-		DeviceAware(device), inputPin(inputPin) {
-	pinMode(inputPin, INPUT_PULLUP);
-	delay(1);
-	status =
-			digitalRead(inputPin) == LOW ?
-					ButtonStatus::PRESSED : ButtonStatus::RELEASED;
-	staticButton = this;
+inline Button::Button(GenericDevice &device) :
+		DeviceAware(device) {
 	reset();
-	attachInterrupt(digitalPinToInterrupt(inputPin), changeISR, CHANGE);
+}
+
+inline void Button::setState(ButtonState state) {
+	state == ButtonState::PRESSED ? onButtonFall() : onButtonRise();
+	Device().StartTask(&uiMonitor);
 }
 
 inline void Button::onButtonFall() {
 	traceIfNamed("onButtonFall");
 
-	if (status == ButtonStatus::PRESSED) {
-		traceIfNamed("LOW bounce filtered");
+	if (state == ButtonState::PRESSED) {
+		traceIfNamed("%s bounce filtered", "LOW");
 		return;
 	}
 
 	lastFallTimeMs = millis();
-	status = ButtonStatus::PRESSED;
+	state = ButtonState::PRESSED;
 	holdsCount = 0;
 	haveHoldsToNotify = false;
 }
@@ -121,13 +116,13 @@ inline void Button::onButtonFall() {
 inline void Button::onButtonRise() {
 	traceIfNamed("onButtonRise");
 
-	if (status == ButtonStatus::RELEASED) {
-		traceIfNamed("HIGH bounce filtered");
+	if (state == ButtonState::RELEASED) {
+		traceIfNamed("%s bounce filtered", "HIGH");
 		return;
 	}
 
 	lastRiseTimeMs = millis();
-	status = ButtonStatus::RELEASED;
+	state = ButtonState::RELEASED;
 
 	if (lastRiseTimeMs - lastFallTimeMs >= BUTTON_HOLD_BEGIN_THRESHOLD_MS) {
 
@@ -143,11 +138,6 @@ inline void Button::onButtonRise() {
 		++clicksCount;
 		haveClicksToNotify = true;
 	}
-}
-
-inline void Button::statusChangeCallback() {
-	digitalRead(inputPin) == LOW ? onButtonFall() : onButtonRise();
-	Device().StartTask(&uiMonitor);
 }
 
 inline ButtonEvent Button::ackInteraction() {
@@ -173,7 +163,7 @@ inline ButtonEvent Button::ackInteraction() {
 
 	if (haveHoldsToNotify) {
 		holdsToNotify = holdsCount;
-		if (status != ButtonStatus::PRESSED) {
+		if (state != ButtonState::PRESSED) {
 			holdsCount = 0;
 		}
 		haveHoldsToNotify = false;
@@ -186,7 +176,7 @@ inline ButtonEvent Button::ackInteraction() {
  * Used to keep alive the user interaction monitor
  */
 inline bool Button::isUserInteracting() {
-	if (status == ButtonStatus::PRESSED) {
+	if (state == ButtonState::PRESSED) {
 		return true;
 	} else {
 		return haveClicksToNotify || haveHoldsToNotify;
@@ -195,7 +185,7 @@ inline bool Button::isUserInteracting() {
 
 inline void Button::refreshHoldStatus(uint32_t millis,
 		boolean isExitingFromHold) {
-	if (status == ButtonStatus::RELEASED && !isExitingFromHold) {
+	if (state == ButtonState::RELEASED && !isExitingFromHold) {
 		return;
 	}
 

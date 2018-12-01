@@ -1,15 +1,15 @@
-#ifndef DELAYEDLEVELSETTER_H
-#define DELAYEDLEVELSETTER_H
+#ifndef GRADUALLEVELSETTER_H
+#define GRADUALLEVELSETTER_H
 
 #include <stdint.h>
 #include <stddef.h>
 #include <Task.h>
 
-class DelayedLevelSetter: public Task {
+class GradualLevelSetter: public Task {
 public:
-	DelayedLevelSetter(uint32_t timeInterval, TaskManager &taskManager);
+	GradualLevelSetter(uint32_t timeInterval, TaskManager &taskManager);
 	void setLevel(float level, uint32_t transitionDurationMs);
-	virtual ~DelayedLevelSetter();
+	virtual ~GradualLevelSetter();
 protected:
 	virtual float readLevel() = 0;
 	virtual void writeLevel(float level) = 0;
@@ -20,12 +20,12 @@ private:
 	uint32_t stepsToGo = 0;
 };
 
-inline DelayedLevelSetter::DelayedLevelSetter(uint32_t timeInterval,
+inline GradualLevelSetter::GradualLevelSetter(uint32_t timeInterval,
 		TaskManager &taskManager) :
 		Task(timeInterval), taskManager(taskManager) {
 }
 
-inline void DelayedLevelSetter::setLevel(float level,
+inline void GradualLevelSetter::setLevel(float level,
 		uint32_t transitionDurationMs) {
 	if (getTaskState() == TaskState_Running) {
 		taskManager.StopTask(this);
@@ -41,7 +41,7 @@ inline void DelayedLevelSetter::setLevel(float level,
 	}
 }
 
-inline void DelayedLevelSetter::OnUpdate(uint32_t deltaTime) {
+inline void GradualLevelSetter::OnUpdate(uint32_t deltaTime) {
 
 	if (stepsToGo == 1) {
 		writeLevel(targetLevel);
@@ -57,7 +57,7 @@ inline void DelayedLevelSetter::OnUpdate(uint32_t deltaTime) {
 	}
 }
 
-inline DelayedLevelSetter::~DelayedLevelSetter() {
+inline GradualLevelSetter::~GradualLevelSetter() {
 }
 
 #endif

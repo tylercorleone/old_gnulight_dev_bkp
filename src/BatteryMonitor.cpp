@@ -7,38 +7,44 @@ BatteryMonitor::BatteryMonitor(Gnulight &gnulight, Battery &battery) :
 }
 
 bool BatteryMonitor::OnStart() {
-	traceIfNamed("OnStart");
+	remainingChargeCausingStepdown = 1.0f;
+	OnUpdate(0);
 	return true;
 }
 
 void BatteryMonitor::OnStop() {
-	traceIfNamed("OnStop");
+	Device().brightnessDriver.setBatteryCausedLimit(1.0f);
 }
 
 void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
-	traceIfNamed("OnUpdate");
-
 	float remainingCharge = battery.getRemainingCharge();
 
-	traceIfNamed("batt: %f%%", remainingCharge);
+	debugIfNamed("batt: %f", remainingCharge);
 
-	if (remainingCharge > remainingCharge_1 && remainingCharge < remainingCharge_1 + FILTERED_RECHARGE_AMOUNT) {
+	if (remainingCharge > remainingChargeCausingStepdown) {
 
 		/*
-		 * Recharged, but not sufficiently
+		 * recharged
 		 */
-		return;
+		if (remainingCharge < (remainingChargeCausingStepdown + FILTERED_RECHARGE_AMOUNT)) {
+
+			/*
+			 * but not sufficiently
+			 */
+			return;
+		}
 	}
 
-	remainingCharge_1 = remainingCharge;
+	remainingChargeCausingStepdown = remainingCharge;
 
-	float currentLimit = calculateInstantaneousMaxCurrent(remainingCharge);
+	float batteryCausedLimit = calculateInstantaneousMaxCurrent(
+			remainingCharge);
 
-	traceIfNamed("currLimit: %f", currentLimit);
+	debugIfNamed("limit: %f", batteryCausedLimit);
 
-	Device().currentPotentiometer.setBatteryCausedLimit(currentLimit);
+	Device().brightnessDriver.setBatteryCausedLimit(batteryCausedLimit);
 
-	if (currentLimit == 0.0) {
+	if (batteryCausedLimit == 0.0) {
 		onEmptyBattery();
 	}
 }
@@ -60,7 +66,7 @@ float BatteryMonitor::calculateInstantaneousMaxCurrent(float remainingCharge) {
 }
 
 void BatteryMonitor::onEmptyBattery() {
-	infoIfNamed("Empty battery!");
+	infoIfNamed("Empty batt.!");
 	Device().enterState(Device().parameterCheckMode,
 			MessageEvent(ParameterCheckMode::BATTERY_CHECK_MSG));
 }

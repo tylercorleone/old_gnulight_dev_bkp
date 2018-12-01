@@ -7,11 +7,11 @@ public:
 			instanceName(instanceName) {
 	}
 
-	const char* getInstanceName() {
+	const char* getName() {
 		return instanceName;
 	}
 
-	void setInstanceName(const char *instanceName) {
+	void setName(const char *instanceName) {
 		this->instanceName = instanceName;
 	}
 

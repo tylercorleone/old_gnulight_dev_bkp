@@ -1,8 +1,6 @@
 #ifndef POWEROFFMODE_H
 #define POWEROFFMODE_H
 
-#include "gnulight_config.h"
-
 #include <Components.h>
 
 class Gnulight;

@@ -5,18 +5,19 @@
 
 #include <Components.h>
 
-#include "BatteryMonitor.h"
+#include "BrightnessDriver.h"
+#include "GnulightLightDimmer.h"
 #include "ConstantLightMode.h"
-#include "LightDriver.h"
 #include "ParameterCheckMode.h"
 #include "PowerOffMode.h"
 #include "StrobeMode.h"
+#include "BatteryMonitor.h"
 #include "TempMonitor.h"
 
-class GnulightBuilder;
+class GnulightCustomizer;
 
 class Gnulight : public GenericDevice {
-	friend class GnulightBuilder;
+	friend class GnulightCustomizer;
 	friend class TempMonitor;
 	friend class BatteryMonitor;
 	friend class PowerOffMode;
@@ -24,22 +25,25 @@ class Gnulight : public GenericDevice {
 	friend class StrobeMode;
 	friend class ParameterCheckMode;
 public:
-	Gnulight();
+	Gnulight(BrightnessDriver &brightnessDriver, const char *deviceName =
+			"Gnulight");
+	Button button { *this };
+protected:
+	virtual void onSetup() override;
+	virtual void onPowerOn();
+	virtual void onPowerOff();
 private:
-	void setup();
 	void switchPower(OnOffState state);
-	void EnterSleep();
-	static void buttonStateChangeISR();
-	static Button *staticButton;
 
 	/*
-	 * Components
+	 * Main components
 	 */
-	Button button { *this, BUTTON_PIN, staticButton, buttonStateChangeISR};
-	LedCurrentPotentiometer currentPotentiometer { *this };
-	LightDriver lightDriver { currentPotentiometer, *this };
+	BrightnessDriver &brightnessDriver;
+	GnulightLightDimmer lightDimmer { brightnessDriver, *this };
 
-	// optional components
+	/*
+	 * Optional components
+	 */
 	BatteryMonitor *batteryMonitor = nullptr;
 	TempMonitor *tempMonitor = nullptr;
 
@@ -52,6 +56,6 @@ private:
 	ParameterCheckMode parameterCheckMode {*this};
 };
 
-#include "GnulightBuilder.h"
+#include "GnulightCustomizer.h"
 
 #endif

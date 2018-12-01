@@ -8,16 +8,17 @@ public:
 	float getLevel();
 	virtual void setLevel(float level);
 	OnOffState getState();
-	virtual void setState(OnOffState state);
+	void setState(OnOffState state);
 	void toggleState();
 	virtual ~Potentiometer();
 protected:
+	friend class LightDimmer;
 	virtual void onSetLevel(float level) = 0;
 	virtual void onSwitchOn();
 	virtual void onSwitchOff();
 
 	OnOffState state = OnOffState::OFF;
-	float level = -1.0;
+	float level = -1.0f;
 };
 
 inline float Potentiometer::getLevel() {
@@ -28,7 +29,6 @@ inline void Potentiometer::setLevel(float level) {
 	traceIfNamed("setLevel(%f)", level);
 
 	this->level = _constrain(level, 0.0f, 1.0f);
-
 	if (state == OnOffState::ON) {
 		onSetLevel(this->level);
 	}
@@ -54,7 +54,7 @@ inline void Potentiometer::onSwitchOff() {
 }
 
 inline void Potentiometer::onSwitchOn() {
-	setLevel(level);
+	onSetLevel(this->level);
 }
 
 inline Potentiometer::~Potentiometer() {

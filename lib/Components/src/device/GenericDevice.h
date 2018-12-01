@@ -15,6 +15,9 @@ public:
 	void enterState(AbstractState &state);
 	void enterState(AbstractState &state, const GenericEvent &event);
 	void receiveEvent(const GenericEvent &event);
+	void Setup();
+protected:
+    virtual void onSetup();
 private:
 	void enterFallbackState();
 	void enterFallbackState(const GenericEvent &event);
@@ -23,7 +26,7 @@ private:
 };
 
 inline GenericDevice::GenericDevice(AbstractState *fallbackState) :
-		fallbackState(fallbackState) {
+		fallbackState(fallbackState) {Setup();
 }
 
 inline GenericDevice::GenericDevice(const char *deviceName,
@@ -111,6 +114,17 @@ inline void GenericDevice::enterFallbackState(const GenericEvent &event) {
 		currentState = nullptr;
 		debugIfNamed("hanged up");
 	}
+}
+
+inline void GenericDevice::Setup() {
+	debugIfNamed("setup");
+
+	TaskManager::Setup();
+	onSetup();
+}
+
+inline void GenericDevice::onSetup() {
+
 }
 
 #undef debugIfStateHasName

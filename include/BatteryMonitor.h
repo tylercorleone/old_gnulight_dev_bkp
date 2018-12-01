@@ -9,7 +9,7 @@
 #include <Task.h>
 
 #define BATTERY_LEVEL_MONITORING_INTERVAL_MS 15000
-#define FILTERED_RECHARGE_AMOUNT 0.1f
+#define FILTERED_RECHARGE_AMOUNT 0.15f
 
 class Gnulight;
 
@@ -23,7 +23,7 @@ private:
 	void OnUpdate(uint32_t deltaTime) override;
 	float calculateInstantaneousMaxCurrent(float remainingCharge);
 	void onEmptyBattery();
-	float remainingCharge_1 = 1.0f;
+	float remainingChargeCausingStepdown = 1.0f;
 };
 
 #endif

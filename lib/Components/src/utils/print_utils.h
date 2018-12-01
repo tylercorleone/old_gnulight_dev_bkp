@@ -93,14 +93,14 @@ inline void logMessage(const char *fmt, ...) {
 }
 
 inline void logNamedInstance(Named *instance, const char *fmt, ...) {
-	if (instance->getInstanceName() == nullptr) {
+	if (instance->getName() == nullptr) {
 		return;
 	}
 
 	va_list argv;
 	va_start(argv, fmt);
 
-	Serial.print(instance->getInstanceName());
+	Serial.print(instance->getName());
 	Serial.print(": ");
 	aprintf(fmt, argv);
 

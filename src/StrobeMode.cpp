@@ -9,11 +9,11 @@ StrobeMode::StrobeMode(Gnulight &gnulight) :
 bool StrobeMode::onEnterState(const ButtonEvent &event) {
 	debugIfNamed("type %d", currentStrobeType);
 
-	varName = Device().lightDriver.setMainLevel(LightLevelIndex::MED);
+	varName = Device().lightDimmer.setMainLevel(LightLevelIndex::MED);
 
 	if (currentStrobeType == SINUSOIDAL_STROBE
 			|| currentStrobeType == LINEAR_STROBE) {
-		Device().lightDriver.setState(OnOffState::ON);
+		Device().lightDimmer.setState(OnOffState::ON);
 	}
 
 	Device().StartTask(&toggleLightStatusTask);
@@ -39,10 +39,10 @@ bool StrobeMode::handleEvent(const ButtonEvent &event) {
 					|| currentStrobeType == LINEAR_STROBE) {
 
 				LightLevelIndex currentMainLevel =
-						Device().lightDriver.getCurrentMainLevel();
-				varName = Device().lightDriver.setMainLevel(
+						Device().lightDimmer.getCurrentMainLevel();
+				varName = Device().lightDimmer.setMainLevel(
 						currentMainLevel);
-				Device().lightDriver.setState(OnOffState::ON);
+				Device().lightDimmer.setState(OnOffState::ON);
 			}
 
 			toggleLightStatusTask.setTimeInterval(0);
@@ -63,7 +63,7 @@ bool StrobeMode::handleEvent(const ButtonEvent &event) {
 		}
 
 	} else if (event.getHoldStepsCount() > 0) {
-		varName = Device().lightDriver.setNextMainLevel();
+		varName = Device().lightDimmer.setNextMainLevel();
 		return true;
 	} else {
 		return false;
@@ -83,7 +83,7 @@ uint32_t StrobeMode::switchLightStatus(StrobeMode* _this) {
 				* _this->periodMultiplierX1000 / 1000;
 		break;
 	case BEACON_STROBE:
-		if (_this->Device().lightDriver.getState() == OnOffState::OFF) {
+		if (_this->Device().lightDimmer.getState() == OnOffState::OFF) {
 			nextIntervalMs = BEACON_STROBE_PERIOD_MS * BEACON_STROBE_DUTY_CYCLE;
 		} else {
 			nextIntervalMs = BEACON_STROBE_PERIOD_MS
@@ -91,7 +91,7 @@ uint32_t StrobeMode::switchLightStatus(StrobeMode* _this) {
 		}
 		break;
 	case DISCO_STROBE:
-		if (_this->Device().lightDriver.getState() == OnOffState::OFF) {
+		if (_this->Device().lightDimmer.getState() == OnOffState::OFF) {
 			nextIntervalMs = DISCO_STROBE_PERIOD_MS * DISCO_STROBE_DUTY_CYCLE;
 		} else {
 			nextIntervalMs = DISCO_STROBE_PERIOD_MS
@@ -120,13 +120,13 @@ uint32_t StrobeMode::switchLightStatus(StrobeMode* _this) {
 		/*
 		 * it is an ON/OFF strobe
 		 */
-		_this->Device().lightDriver.toggleState();
+		_this->Device().lightDimmer.toggleState();
 	} else {
 
 		/*
 		 * it is a "level-change" sequence
 		 */
-		_this->Device().lightDriver.setLevel(nextPotentiometerLevel);
+		_this->Device().lightDimmer.setLevel(nextPotentiometerLevel);
 	}
 
 	return MsToTaskTime(nextIntervalMs);

@@ -15,6 +15,7 @@
 class LightDimmer: public Potentiometer {
 public:
 	LightDimmer(Potentiometer &brightnessPotentiometer);
+	virtual void setLevel(float level) override;
 	bool isLightnessSimulationEnabled();
 	void isLightnessSimulationEnabled(bool);
 	virtual ~LightDimmer();
@@ -31,9 +32,16 @@ inline LightDimmer::LightDimmer(Potentiometer &brightnessPotentiometer) :
 
 }
 
+inline void LightDimmer::setLevel(float level) {
+	Potentiometer::setLevel(level);
+	if (state == OnOffState::OFF) {
+		onSetLevel(this->level);
+	}
+}
+
 inline void LightDimmer::onSetLevel(float level) {
-	float _level = lightnessSimulationEnabled ? lightnessToBrightness(level) : level;
-	brightnessPotentiometer.setLevel(_level);
+	float brightnessPotLevel = lightnessSimulationEnabled ? lightnessToBrightness(level) : level;
+	brightnessPotentiometer.setLevel(brightnessPotLevel);
 }
 
 inline bool LightDimmer::isLightnessSimulationEnabled() {
@@ -45,7 +53,6 @@ inline void LightDimmer::isLightnessSimulationEnabled(bool isEnabled) {
 }
 
 inline void LightDimmer::onSwitchOn() {
-	onSetLevel(level);
 	brightnessPotentiometer.setState(OnOffState::ON);
 }
 
