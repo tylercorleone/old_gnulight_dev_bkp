@@ -1,17 +1,17 @@
 #include "Gnulight.h"
 
-Gnulight::Gnulight(BrightnessDriver &brightnessDriver, const char *deviceName) :
+inline Gnulight::Gnulight(BrightnessDriver &brightnessDriver, const char *deviceName) :
 		GenericDevice(deviceName, &powerOffMode), brightnessDriver(
 				brightnessDriver) {
 
 }
 
-void Gnulight::onSetup() {
+inline void Gnulight::onSetup() {
 	button.setName("btn");
 	enterState(powerOffMode);
 }
 
-void Gnulight::switchPower(OnOffState state) {
+inline void Gnulight::switchPower(OnOffState state) {
 	infoIfNamed("switchPower(%s)", state == OnOffState::ON ? "ON" : "OFF");
 
 	if (state == OnOffState::ON) {
@@ -34,10 +34,10 @@ void Gnulight::switchPower(OnOffState state) {
 	}
 }
 
-void Gnulight::onPowerOn() {
+inline void Gnulight::onPowerOn() {
 
 }
 
-void Gnulight::onPowerOff() {
+inline void Gnulight::onPowerOff() {
 
 }

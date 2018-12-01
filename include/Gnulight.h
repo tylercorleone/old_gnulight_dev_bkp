@@ -14,8 +14,6 @@
 #include "BatteryMonitor.h"
 #include "TempMonitor.h"
 
-class GnulightCustomizer;
-
 class Gnulight : public GenericDevice {
 	friend class GnulightCustomizer;
 	friend class TempMonitor;
@@ -56,6 +54,15 @@ private:
 	ParameterCheckMode parameterCheckMode {*this};
 };
 
+#include "Gnulight_cpp.h"
+#include "BrightnessDriver_cpp.h"
+#include "GnulightLightDimmer_cpp.h"
+#include "ConstantLightMode_cpp.h"
+#include "ParameterCheckMode_cpp.h"
+#include "PowerOffMode_cpp.h"
+#include "StrobeMode_cpp.h"
+#include "BatteryMonitor_cpp.h"
+#include "TempMonitor_cpp.h"
 #include "GnulightCustomizer.h"
 
 #endif

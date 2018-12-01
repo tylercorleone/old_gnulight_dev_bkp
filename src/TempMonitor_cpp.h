@@ -1,15 +1,13 @@
-#include "../include/TempMonitor.h"
-
+#include "TempMonitor.h"
 #include <float.h>
-#include "Gnulight.h"
 
-TempMonitor::TempMonitor(Gnulight &gnulight,
+inline TempMonitor::TempMonitor(Gnulight &gnulight,
 		float (*temperatureReadFunction)() = nullptr) :
 		Task(MsToTaskTime(TEMP_MONITOR_INTERVAL_MS)), DeviceAware(gnulight), Named(
 				"lightMonitor"), readTemperature(temperatureReadFunction) {
 }
 
-bool TempMonitor::OnStart() {
+inline bool TempMonitor::OnStart() {
 	temperatureErrorIntegral = 0.0f;
 	temperatureError_1 = temperatureError_2 = FLT_MAX;
 	tempCausedLimit = 1.0f;
@@ -17,11 +15,11 @@ bool TempMonitor::OnStart() {
 	return true;
 }
 
-void TempMonitor::OnStop() {
+inline void TempMonitor::OnStop() {
 	Device().brightnessDriver.setTemperatureCausedLimit(1.0f);
 }
 
-void TempMonitor::OnUpdate(uint32_t deltaTime) {
+inline void TempMonitor::OnUpdate(uint32_t deltaTime) {
 	float temperature = readTemperature();
 	tempCausedLimit = calculateTemperatureCurrentLimit(temperature);
 
@@ -30,7 +28,7 @@ void TempMonitor::OnUpdate(uint32_t deltaTime) {
 	Device().brightnessDriver.setTemperatureCausedLimit(tempCausedLimit);
 }
 
-float TempMonitor::calculateTemperatureCurrentLimit(float temperature) {
+inline float TempMonitor::calculateTemperatureCurrentLimit(float temperature) {
 	float PIDvar = getTemperaturePIDVar(temperature);
 	float limit = tempCausedLimit * (1.0f + PIDvar);
 
@@ -39,7 +37,7 @@ float TempMonitor::calculateTemperatureCurrentLimit(float temperature) {
 	return _constrain(limit, 0.0f, 1.0f);
 }
 
-float TempMonitor::getTemperaturePIDVar(float temperature) {
+inline float TempMonitor::getTemperaturePIDVar(float temperature) {
 	float dt = TEMP_MONITOR_INTERVAL_MS / 1000.0f;
 
 	float temperatureError = EMITTER_TARGET_TEMPERATURE - temperature;
@@ -60,7 +58,7 @@ float TempMonitor::getTemperaturePIDVar(float temperature) {
 			+ Kd * derivative;
 }
 
-float TempMonitor::calculateDerivate(float f_t, float f_t_1, float f_t_2,
+inline float TempMonitor::calculateDerivate(float f_t, float f_t_1, float f_t_2,
 		float dt) {
 	if (f_t_2 == FLT_MAX) {
 		if (f_t_1 == FLT_MAX) {

@@ -1,12 +1,10 @@
-#include "../include/StrobeMode.h"
+#include "StrobeMode.h"
 
-#include "Gnulight.h"
-
-StrobeMode::StrobeMode(Gnulight &gnulight) :
+inline StrobeMode::StrobeMode(Gnulight &gnulight) :
 		State(gnulight, "strobeState") {
 }
 
-bool StrobeMode::onEnterState(const ButtonEvent &event) {
+inline bool StrobeMode::onEnterState(const ButtonEvent &event) {
 	debugIfNamed("type %d", currentStrobeType);
 
 	varName = Device().lightDimmer.setMainLevel(LightLevelIndex::MED);
@@ -20,11 +18,11 @@ bool StrobeMode::onEnterState(const ButtonEvent &event) {
 	return true;
 }
 
-void StrobeMode::onExitState() {
+inline void StrobeMode::onExitState() {
 	Device().StopTask(&toggleLightStatusTask);
 }
 
-bool StrobeMode::handleEvent(const ButtonEvent &event) {
+inline bool StrobeMode::handleEvent(const ButtonEvent &event) {
 	if (event.getClicksCount() > 0) {
 
 		switch (event.getClicksCount()) {
@@ -72,7 +70,7 @@ bool StrobeMode::handleEvent(const ButtonEvent &event) {
 
 #define THE_PERIOD (PERIODICAL_SEQUENCE_STROBES_PERIOD_MS * _this->periodMultiplierX1000 / 1000)
 
-uint32_t StrobeMode::switchLightStatus(StrobeMode* _this) {
+inline uint32_t StrobeMode::switchLightStatus(StrobeMode* _this) {
 	uint32_t nextIntervalMs;
 	float nextPotentiometerLevel;
 
@@ -134,7 +132,7 @@ uint32_t StrobeMode::switchLightStatus(StrobeMode* _this) {
 
 #undef THE_PERIOD
 
-float StrobeMode::triangularWave(uint32_t millis, uint32_t periodMs) {
+inline float StrobeMode::triangularWave(uint32_t millis, uint32_t periodMs) {
 	millis = millis % periodMs;
 	if (millis < periodMs / 2) {
 		return static_cast<float>(millis) / (periodMs / 2);
@@ -143,6 +141,6 @@ float StrobeMode::triangularWave(uint32_t millis, uint32_t periodMs) {
 	}
 }
 
-float StrobeMode::sinWave(uint32_t millis, uint32_t periodMs) {
+inline float StrobeMode::sinWave(uint32_t millis, uint32_t periodMs) {
 	return (_sin(millis * (TWO_PI / periodMs)) + 1.0f) / 2.0f;
 }

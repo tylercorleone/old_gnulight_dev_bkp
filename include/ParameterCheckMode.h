@@ -13,8 +13,8 @@ class Gnulight;
 
 class ParameterCheckMode: public State<Gnulight, MessageEvent> {
 public:
-	static const char *BATTERY_CHECK_MSG;
-	static const char *LAMP_TEMPERATURE_CHECK_MSG;
+	const char *BATTERY_CHECK_MSG = "b";
+	const char *LAMP_TEMPERATURE_CHECK_MSG = "t";
 	ParameterCheckMode(Gnulight &gnulight);
 protected:
 	bool onEnterState(const MessageEvent &event) override;

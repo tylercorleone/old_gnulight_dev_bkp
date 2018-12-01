@@ -1,15 +1,10 @@
-#include "../include/ParameterCheckMode.h"
+#include "ParameterCheckMode.h"
 
-#include "Gnulight.h"
-
-const char *ParameterCheckMode::BATTERY_CHECK_MSG = "b";
-const char *ParameterCheckMode::LAMP_TEMPERATURE_CHECK_MSG = "t";
-
-ParameterCheckMode::ParameterCheckMode(Gnulight &gnulight) :
+inline ParameterCheckMode::ParameterCheckMode(Gnulight &gnulight) :
 		State(gnulight, "parCheckState") {
 }
 
-bool ParameterCheckMode::onEnterState(const MessageEvent &event) {
+inline bool ParameterCheckMode::onEnterState(const MessageEvent &event) {
 	float parameterValue;
 
 	if (event.equals(BATTERY_CHECK_MSG) && Device().batteryMonitor != nullptr) {
@@ -42,11 +37,11 @@ bool ParameterCheckMode::onEnterState(const MessageEvent &event) {
 	return true;
 }
 
-void ParameterCheckMode::onExitState() {
+inline void ParameterCheckMode::onExitState() {
 	Device().StopTask(&renderValueWithFlashes);
 }
 
-uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode *_this) {
+inline uint32_t ParameterCheckMode::switchLightStatus(ParameterCheckMode *_this) {
 	if (_this->strobesForIntegerPartCount <= 0
 			&& _this->strobesForDecimalPartCount == 0) {
 

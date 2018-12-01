@@ -1,12 +1,10 @@
 #include "ConstantLightMode.h"
 
-#include "Gnulight.h"
-
-ConstantLightMode::ConstantLightMode(Gnulight &gnulight) :
+inline ConstantLightMode::ConstantLightMode(Gnulight &gnulight) :
 		State(gnulight, "constLightState") {
 }
 
-bool ConstantLightMode::onEnterState(const ButtonEvent &event) {
+inline bool ConstantLightMode::onEnterState(const ButtonEvent &event) {
 	LightLevelIndex wantedLevel;
 
 	if (event.getClicksCount() > 0) {
@@ -33,7 +31,7 @@ bool ConstantLightMode::onEnterState(const ButtonEvent &event) {
 	return true;
 }
 
-bool ConstantLightMode::handleEvent(const ButtonEvent &event) {
+inline bool ConstantLightMode::handleEvent(const ButtonEvent &event) {
 	if (event.getClicksCount() > 0) {
 		switch (event.getClicksCount()) {
 		case 1:

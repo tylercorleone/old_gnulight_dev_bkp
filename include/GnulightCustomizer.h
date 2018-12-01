@@ -16,4 +16,25 @@ private:
 	Gnulight &instance;
 };
 
+inline GnulightCustomizer::GnulightCustomizer(Gnulight &instance) :
+		instance(instance) {
+
+}
+
+inline GnulightCustomizer GnulightCustomizer::customize(Gnulight &gnulight) {
+	return GnulightCustomizer { gnulight };
+}
+
+inline GnulightCustomizer GnulightCustomizer::setTemperatureReadFunction(
+		float (*temperatureReadFunction)()) {
+	instance.tempMonitor = new TempMonitor(instance,
+			temperatureReadFunction);
+	return *this;
+}
+
+inline GnulightCustomizer GnulightCustomizer::setBattery(Battery &battery) {
+	instance.batteryMonitor = new BatteryMonitor(instance, battery);
+	return *this;
+}
+
 #endif

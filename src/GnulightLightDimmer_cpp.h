@@ -1,6 +1,6 @@
-#include "../include/GnulightLightDimmer.h"
+#include "GnulightLightDimmer.h"
 
-GnulightLightDimmer::GnulightLightDimmer(Potentiometer &brightnessPotentiometer,
+inline GnulightLightDimmer::GnulightLightDimmer(Potentiometer &brightnessPotentiometer,
 		TaskManager &taskManager) :
 		LightDimmer(brightnessPotentiometer) {
 	setName("lightDrv");
@@ -9,19 +9,19 @@ GnulightLightDimmer::GnulightLightDimmer(Potentiometer &brightnessPotentiometer,
 	DELAYED_LEVEL_SETTER_INTERVAL_MS, taskManager, *this);
 }
 
-void GnulightLightDimmer::setLevel(float level, uint32_t transitionDurationMs) {
+inline void GnulightLightDimmer::setLevel(float level, uint32_t transitionDurationMs) {
 	traceIfNamed("setLevel(%f, %u)", level, transitionDurationMs);
 
 	gradualLevelSetter->setLevel(level, transitionDurationMs);
 }
 
-LightLevelIndex GnulightLightDimmer::getCurrentMainLevel() {
+inline LightLevelIndex GnulightLightDimmer::getCurrentMainLevel() {
 	return currentMainLevelIndex;
 }
 
 #define MAIN_LEVEL mainLevels[currentMainLevelIndex][currentSubLevelsIndexes[currentMainLevelIndex]]
 
-float GnulightLightDimmer::setMainLevel(LightLevelIndex levelIndex,
+inline float GnulightLightDimmer::setMainLevel(LightLevelIndex levelIndex,
 		uint32_t transitionDurationMs) {
 	currentMainLevelIndex = levelIndex;
 	setLevel(MAIN_LEVEL, transitionDurationMs);
@@ -30,13 +30,13 @@ float GnulightLightDimmer::setMainLevel(LightLevelIndex levelIndex,
 
 #undef MAIN_LEVEL
 
-float GnulightLightDimmer::setNextMainLevel(uint32_t transitionDurationMs) {
+inline float GnulightLightDimmer::setNextMainLevel(uint32_t transitionDurationMs) {
 	return setMainLevel((currentMainLevelIndex + 1) % MAIN_LEVELS_NUM,
 			transitionDurationMs);
 
 }
 
-float GnulightLightDimmer::setNextSubLevel(uint32_t transitionDurationMs) {
+inline float GnulightLightDimmer::setNextSubLevel(uint32_t transitionDurationMs) {
 	currentSubLevelsIndexes[currentMainLevelIndex] =
 			(currentSubLevelsIndexes[currentMainLevelIndex] + 1) % SUBLEVELS_NUM;
 	return setMainLevel(currentMainLevelIndex, transitionDurationMs);

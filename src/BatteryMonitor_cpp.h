@@ -1,22 +1,21 @@
 #include "BatteryMonitor.h"
-#include "Gnulight.h"
 
-BatteryMonitor::BatteryMonitor(Gnulight &gnulight, Battery &battery) :
+inline BatteryMonitor::BatteryMonitor(Gnulight &gnulight, Battery &battery) :
 		Task(BATTERY_LEVEL_MONITORING_INTERVAL_MS), DeviceAware(gnulight), Named(
 				"battMonitor"), battery(battery) {
 }
 
-bool BatteryMonitor::OnStart() {
+inline bool BatteryMonitor::OnStart() {
 	remainingChargeCausingStepdown = 1.0f;
 	OnUpdate(0);
 	return true;
 }
 
-void BatteryMonitor::OnStop() {
+inline void BatteryMonitor::OnStop() {
 	Device().brightnessDriver.setBatteryCausedLimit(1.0f);
 }
 
-void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
+inline void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
 	float remainingCharge = battery.getRemainingCharge();
 
 	debugIfNamed("batt: %f", remainingCharge);
@@ -49,7 +48,7 @@ void BatteryMonitor::OnUpdate(uint32_t deltaTime) {
 	}
 }
 
-float BatteryMonitor::calculateInstantaneousMaxCurrent(float remainingCharge) {
+inline float BatteryMonitor::calculateInstantaneousMaxCurrent(float remainingCharge) {
 	if (remainingCharge <= 0.0f) {
 		return 0.0;
 	} else if (remainingCharge < 0.05f) {
@@ -65,8 +64,8 @@ float BatteryMonitor::calculateInstantaneousMaxCurrent(float remainingCharge) {
 	return 1.0f;
 }
 
-void BatteryMonitor::onEmptyBattery() {
+inline void BatteryMonitor::onEmptyBattery() {
 	infoIfNamed("Empty batt.!");
 	Device().enterState(Device().parameterCheckMode,
-			MessageEvent(ParameterCheckMode::BATTERY_CHECK_MSG));
+			MessageEvent(Device().parameterCheckMode.BATTERY_CHECK_MSG));
 }
