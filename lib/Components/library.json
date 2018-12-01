@@ -1,14 +1,19 @@
 {
   "name": "Components",
-  "keywords": "",
-  "description": "",
+  "version": "0.1",
+  "keywords": "arduino, avr, library, device, components, framework",
+  "description": "An event-driven state machine and a set of founding components",
   "repository":
   {
     "type": "git",
-    "url": "https://github.com/tylercorleone"
+    "url": "https://github.com/tylercorleone/components.git"
   },
-  "version": "0.9",
-  "frameworks": "arduino",
-  "platforms": "*"
+  "dependencies":
+  [
+    {
+        "name": "Task",
+        "version": "https://github.com/tylercorleone/Task.git"
+    }
+  ]
 }
 

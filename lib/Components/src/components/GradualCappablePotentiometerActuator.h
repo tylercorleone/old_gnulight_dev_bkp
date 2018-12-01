@@ -1,7 +1,7 @@
 #ifndef GRADUALCAPPABLEPOTENTIOMETERACTUATOR_H
 #define GRADUALCAPPABLEPOTENTIOMETERACTUATOR_H
 
-#include <GradualPotentiometerActuator.h>
+#include "GradualPotentiometerActuator.h"
 #include "CappablePotentiometer.h"
 
 class GradualLevelMaxLimitSetter: public GradualLevelSetter {

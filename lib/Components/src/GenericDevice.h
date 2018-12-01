@@ -1,12 +1,12 @@
 #ifndef GENERICDEVICE_H
 #define GENERICDEVICE_H
 
+#include "commons/components_commons.h"
+#include "State.h"
+
 #include <stdint.h>
 #include <stddef.h>
 #include <Task.h>
-
-#include "common/components_commons.h"
-#include "State.h"
 
 class GenericDevice: public TaskManager, public Named {
 public:

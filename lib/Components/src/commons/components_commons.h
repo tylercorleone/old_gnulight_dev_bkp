@@ -1,10 +1,9 @@
 #ifndef COMPONENTS_COMMONS_H_
 #define COMPONENTS_COMMONS_H_
 
-#include "common/Enums.h"
-#include "common/FunctionsSequenceTask.h"
-#include "common/Named.h"
-
+#include "Enums.h"
+#include "FunctionsSequenceTask.h"
+#include "Named.h"
 #include "utils/print_utils.h"
 #include "utils/fixed_trigonometry.h"
 

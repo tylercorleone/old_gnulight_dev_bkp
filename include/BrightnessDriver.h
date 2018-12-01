@@ -3,9 +3,8 @@
 
 #include "gnulight_config.h"
 
+#include <Components.h>
 #include <stdint.h>
-#include <CappablePotentiometer.h>
-#include <GradualCappablePotentiometerActuator.h>
 
 #define LEVEL_MAX_LIMIT_TRANSITION_MS 2000
 #define MIN_LEVEL_WITHOUT_PWM 0.031f

@@ -1,20 +1,16 @@
 #ifndef COMPONENTS_H
 #define COMPONENTS_H
 
-#include <device/event/GenericEvent.h>
-#include <device/GenericDevice.h>
-#include <GradualCappablePotentiometerActuator.h>
-#include <GradualLevelSetter.h>
-#include <GradualPotentiometerActuator.h>
-#include "common/components_commons.h"
+#include "GenericDevice.h"
 
-#include "device/DeviceAware.h"
-
-#include "Battery.h"
-#include "Button.h"
-#include "CappablePotentiometer.h"
-#include "LightDimmer.h"
-#include "LithiumBattery.h"
-#include "Potentiometer.h"
+#include "components/Battery.h"
+#include "components/Button.h"
+#include "components/CappablePotentiometer.h"
+#include "components/GradualCappablePotentiometerActuator.h"
+#include "components/GradualLevelSetter.h"
+#include "components/GradualPotentiometerActuator.h"
+#include "components/LightDimmer.h"
+#include "components/LithiumBattery.h"
+#include "components/Potentiometer.h"
 
 #endif

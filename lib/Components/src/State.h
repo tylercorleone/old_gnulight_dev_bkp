@@ -1,10 +1,9 @@
 #ifndef STATE_H
 #define STATE_H
 
-#include "event/EventHandler.h"
-#include "event/GenericEvent.h"
 #include "DeviceAware.h"
-#include "common/Named.h"
+#include "commons/Named.h"
+#include "events/EventHandler.h"
 
 class AbstractState : public Named {
 	friend class GenericDevice;

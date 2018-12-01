@@ -1,10 +1,10 @@
 #ifndef PRINTUTILS_H
 #define PRINTUTILS_H
 
+#include "commons/Named.h"
+
 #include <Arduino.h>
 #include <stdarg.h>
-
-#include "../common/Named.h"
 
 #ifdef INFO
 #define info(fmt, ...) logMessage(fmt, ##__VA_ARGS__)

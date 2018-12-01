@@ -15,7 +15,7 @@ protected:
 	GenericEvent() {}
 };
 
-#include "ButtonEvent.h"
-#include "MessageEvent.h"
+#include <events/ButtonEvent.h>
+#include <events/MessageEvent.h>
 
 #endif

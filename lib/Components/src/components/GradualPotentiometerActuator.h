@@ -1,10 +1,10 @@
 #ifndef GRADUALPOTENTIOMETERACTUATOR_H
 #define GRADUALPOTENTIOMETERACTUATOR_H
 
-#include <GradualLevelSetter.h>
-#include <stdint.h>
-
+#include "GradualLevelSetter.h"
 #include "Potentiometer.h"
+
+#include <stdint.h>
 
 class TaskManager;
 
